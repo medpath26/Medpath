@@ -1332,6 +1332,181 @@ textarea {
   gap: 1.25rem;
 }
 
+.practice-mode-tabs {
+  display: inline-flex;
+  width: fit-content;
+  gap: 0.35rem;
+  padding: 0.35rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--white) 88%, transparent);
+  box-shadow: 0 14px 34px rgba(13, 43, 82, 0.08);
+}
+
+.practice-mode-tabs button {
+  min-height: 40px;
+  padding: 0 1rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.practice-mode-tabs button.active {
+  background: linear-gradient(135deg, var(--navy), #155381 56%, var(--teal));
+  color: white;
+}
+
+.practice-exam-page {
+  display: grid;
+  gap: 1rem;
+}
+
+.exam-home-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.exam-card-premium,
+.exam-question-panel,
+.exam-complete-card,
+.exam-analytics-card,
+.exam-review-list,
+.exam-review-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--white) 88%, transparent);
+  box-shadow: 0 18px 58px rgba(13, 43, 82, 0.09);
+}
+
+.exam-card-premium {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.exam-card-premium:hover,
+.exam-review-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(34, 199, 200, 0.34);
+  box-shadow: 0 24px 72px rgba(13, 43, 82, 0.13);
+}
+
+.exam-card-premium h3,
+.exam-question-panel h3,
+.exam-complete-card h3,
+.exam-analytics-card h3,
+.exam-review-list h3 {
+  margin: 0;
+}
+
+.exam-mode-layout {
+  display: grid;
+  gap: 1rem;
+}
+
+.exam-question-panel {
+  display: grid;
+  gap: 1rem;
+  padding: clamp(1rem, 4vw, 1.5rem);
+}
+
+.exam-status-bar,
+.exam-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+}
+
+.exam-status-bar span,
+.exam-status-bar strong {
+  width: fit-content;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: var(--bg-2);
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.exam-status-bar strong {
+  background: rgba(34, 199, 200, 0.14);
+  color: var(--navy);
+}
+
+.exam-answer-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.exam-results-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
+  gap: 1rem;
+}
+
+.exam-complete-card,
+.exam-analytics-card,
+.exam-review-list,
+.exam-review-card {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.exam-complete-card {
+  place-items: center;
+  text-align: center;
+  background:
+    radial-gradient(circle at 80% 12%, rgba(34, 199, 200, 0.2), transparent 16rem),
+    color-mix(in srgb, var(--white) 90%, transparent);
+  animation: rise-in 220ms ease both;
+}
+
+.exam-complete-card > strong {
+  color: var(--navy);
+  font-size: clamp(3rem, 8vw, 5rem);
+  line-height: 1;
+}
+
+.exam-complete-card p,
+.analytics-columns span,
+.exam-review-card p,
+.incorrect-rationales p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.analytics-columns {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.analytics-columns div,
+.incorrect-rationales {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.9rem;
+  border-radius: 8px;
+  background: var(--bg-2);
+}
+
+.incorrect-rationales span {
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.dark .exam-status-bar strong,
+.dark .exam-complete-card > strong {
+  color: #f7fbff;
+}
+
 .flashcard-filters,
 .flashcard-progress-panel,
 .flashcard-viewer-panel,
@@ -2344,6 +2519,9 @@ td small {
   .proof-strip,
   .feature-card-grid,
   .learning-path-grid,
+  .exam-home-grid,
+  .exam-results-grid,
+  .analytics-columns,
   .pathfinder-detail-grid,
   .flashcard-filters,
   .flashcard-progress-panel,
@@ -2396,6 +2574,9 @@ td small {
   .learning-path-grid,
   .pricing-preview-grid,
   .faq-grid,
+  .exam-home-grid,
+  .exam-results-grid,
+  .analytics-columns,
   .flashcard-filters,
   .flashcard-progress-panel,
   .suggested-prompts,
@@ -2437,6 +2618,23 @@ td small {
 
   .timeline-item em {
     grid-column: 2;
+  }
+
+  .practice-mode-tabs,
+  .exam-controls {
+    width: 100%;
+  }
+
+  .practice-mode-tabs,
+  .exam-controls,
+  .exam-status-bar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .practice-mode-tabs button,
+  .exam-controls button {
+    width: 100%;
   }
 
   .course-module-item {

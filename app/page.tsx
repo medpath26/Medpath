@@ -241,6 +241,7 @@ export default function Home() {
   const [guestAtlasInput, setGuestAtlasInput] = useState("");
   const [guestAtlasQuestionCount, setGuestAtlasQuestionCount] = useState(0);
   const [showGuestAtlasModal, setShowGuestAtlasModal] = useState(false);
+  const [practiceMode, setPracticeMode] = useState<"flashcards" | "practiceExams">("flashcards");
   const [guestAtlasHistory, setGuestAtlasHistory] = useState<AtlasChatMessage[]>([
     {
       id: "guest-welcome",
@@ -533,6 +534,9 @@ export default function Home() {
       setLockedFeature(feature);
       return;
     }
+    if (nextView === "practice") {
+      setPracticeMode(feature === "mockExams" ? "practiceExams" : "flashcards");
+    }
     setView(nextView);
   }
 
@@ -770,7 +774,7 @@ export default function Home() {
                 onSubmit={askAtlas}
               />
             )}
-            {view === "practice" && <Practice />}
+            {view === "practice" && <Practice initialMode={practiceMode} />}
             {view === "study" && (
               <StudyPlan
                 examDate={examDate}
@@ -1639,7 +1643,8 @@ function Atlas({
   );
 }
 
-function Practice() {
+function Practice({ initialMode }: { initialMode: "flashcards" | "practiceExams" }) {
+  const [studyMode, setStudyMode] = useState<"flashcards" | "practiceExams">(initialMode);
   const flashcards = [
     {
       category: "Surgical Technology",
@@ -1714,6 +1719,238 @@ function Practice() {
       back: "Personal protective equipment used to reduce exposure to infectious material."
     }
   ];
+  const practiceExams = [
+    {
+      id: "ncct-tsc",
+      title: "NCCT TS-C",
+      questions: 90,
+      estimatedTime: "90 min",
+      difficulty: "Advanced",
+      passingScore: 70,
+      topics: ["Sterile Technique", "Surgical Instruments", "Patient Safety"],
+      items: [
+        {
+          topic: "Sterile Technique",
+          question: "A sterile package has a small tear in the wrapper. What should the surgical technologist do?",
+          choices: ["Use it if the contents look dry.", "Cover the tear with sterile tape.", "Consider it contaminated.", "Place it below the table."],
+          answer: "Consider it contaminated.",
+          explanation: "A compromised wrapper means sterility cannot be guaranteed, so the item should be treated as contaminated.",
+          incorrect: {
+            "Use it if the contents look dry.": "Dry contents do not prove sterility after a wrapper is damaged.",
+            "Cover the tear with sterile tape.": "Taping a damaged wrapper does not restore sterility.",
+            "Place it below the table.": "Moving it does not correct contamination risk."
+          }
+        },
+        {
+          topic: "Surgical Instruments",
+          question: "Which instrument family is primarily used to hold tissue?",
+          choices: ["Retractors", "Graspers", "Suction tips", "Scalpels"],
+          answer: "Graspers",
+          explanation: "Graspers hold or manipulate tissue and materials during a procedure.",
+          incorrect: {
+            Retractors: "Retractors hold tissue aside to improve exposure.",
+            "Suction tips": "Suction tips remove fluid or smoke.",
+            Scalpels: "Scalpels are cutting instruments."
+          }
+        },
+        {
+          topic: "Patient Safety",
+          question: "Which communication method confirms that instructions were heard and understood?",
+          choices: ["Closed-loop communication", "Silent confirmation", "Delayed charting", "Abbreviated guessing"],
+          answer: "Closed-loop communication",
+          explanation: "Closed-loop communication repeats and confirms key information so the team knows it was understood.",
+          incorrect: {
+            "Silent confirmation": "Silence does not confirm understanding.",
+            "Delayed charting": "Charting is documentation, not real-time communication.",
+            "Abbreviated guessing": "Guessing increases risk."
+          }
+        }
+      ]
+    },
+    {
+      id: "cst",
+      title: "CST",
+      questions: 100,
+      estimatedTime: "105 min",
+      difficulty: "Advanced",
+      passingScore: 70,
+      topics: ["Operating Room Procedures", "Infection Control", "Professional Ethics"],
+      items: [
+        {
+          topic: "Operating Room Procedures",
+          question: "What is the purpose of a surgical time-out?",
+          choices: ["To pause for lunch.", "To verify patient, procedure, and site.", "To count supplies after closure.", "To dismiss the scrub role."],
+          answer: "To verify patient, procedure, and site.",
+          explanation: "The time-out is a safety pause to confirm critical details before incision.",
+          incorrect: {
+            "To pause for lunch.": "The time-out is a safety procedure, not a break.",
+            "To count supplies after closure.": "Counts are separate safety tasks.",
+            "To dismiss the scrub role.": "The scrub role continues through the procedure."
+          }
+        },
+        {
+          topic: "Infection Control",
+          question: "Which practice helps break the chain of infection?",
+          choices: ["Hand hygiene", "Reusing gloves", "Skipping PPE", "Ignoring symptoms"],
+          answer: "Hand hygiene",
+          explanation: "Hand hygiene reduces pathogen transfer between patients, staff, and surfaces.",
+          incorrect: {
+            "Reusing gloves": "Gloves should be changed appropriately.",
+            "Skipping PPE": "PPE reduces exposure risk.",
+            "Ignoring symptoms": "Symptoms can signal infection risk."
+          }
+        },
+        {
+          topic: "Professional Ethics",
+          question: "Where should patient information be discussed?",
+          choices: ["Public elevator", "Social media", "With authorized team members", "With friends"],
+          answer: "With authorized team members",
+          explanation: "Patient information should only be shared with authorized people for appropriate care purposes.",
+          incorrect: {
+            "Public elevator": "Public spaces are not appropriate for private patient information.",
+            "Social media": "Posting patient information can violate privacy.",
+            "With friends": "Friends are not authorized care team members."
+          }
+        }
+      ]
+    },
+    {
+      id: "medical-assistant",
+      title: "Medical Assistant",
+      questions: 80,
+      estimatedTime: "80 min",
+      difficulty: "Intermediate",
+      passingScore: 72,
+      topics: ["Medical Terminology", "Patient Safety", "Medical Assisting"],
+      items: [
+        {
+          topic: "Medical Terminology",
+          question: "What does cardi/o mean?",
+          choices: ["Skin", "Heart", "Blood", "Bone"],
+          answer: "Heart",
+          explanation: "Cardi/o is the combining form for heart.",
+          incorrect: {
+            Skin: "Dermat/o refers to skin.",
+            Blood: "Hemat/o refers to blood.",
+            Bone: "Oste/o refers to bone."
+          }
+        },
+        {
+          topic: "Patient Safety",
+          question: "How many identifiers are commonly used before patient care?",
+          choices: ["One", "Two", "Four", "None"],
+          answer: "Two",
+          explanation: "Two identifiers help confirm the correct patient before care.",
+          incorrect: {
+            One: "One identifier is not enough for safe verification.",
+            Four: "Four is not the common minimum standard.",
+            None: "Skipping identification is unsafe."
+          }
+        },
+        {
+          topic: "Medical Assisting",
+          question: "Before an injection, what should be checked?",
+          choices: ["Only the room number", "Order, patient identity, allergies, and medication", "Lunch schedule", "Insurance status"],
+          answer: "Order, patient identity, allergies, and medication",
+          explanation: "Safe medication practice requires verifying the order, patient, allergies, and medication details.",
+          incorrect: {
+            "Only the room number": "Room number alone does not identify the patient safely.",
+            "Lunch schedule": "This does not verify injection safety.",
+            "Insurance status": "Insurance status is not part of medication safety checks."
+          }
+        }
+      ]
+    },
+    {
+      id: "sterile-processing",
+      title: "Sterile Processing",
+      questions: 75,
+      estimatedTime: "75 min",
+      difficulty: "Intermediate",
+      passingScore: 70,
+      topics: ["Sterile Processing", "Infection Control", "Surgical Instruments"],
+      items: [
+        {
+          topic: "Sterile Processing",
+          question: "What is decontamination?",
+          choices: ["Final packaging", "Removing soil and reducing microorganisms", "Storing sterile trays", "Scheduling surgery"],
+          answer: "Removing soil and reducing microorganisms",
+          explanation: "Decontamination removes soil and reduces bioburden before inspection and sterilization.",
+          incorrect: {
+            "Final packaging": "Packaging happens after cleaning and inspection.",
+            "Storing sterile trays": "Storage is a later phase.",
+            "Scheduling surgery": "Scheduling is unrelated to instrument decontamination."
+          }
+        },
+        {
+          topic: "Surgical Instruments",
+          question: "Why should instruments be inspected after cleaning?",
+          choices: ["To confirm cleanliness and function", "To change the patient chart", "To skip sterilization", "To reduce documentation"],
+          answer: "To confirm cleanliness and function",
+          explanation: "Inspection ensures instruments are clean, intact, functional, and ready for sterilization.",
+          incorrect: {
+            "To change the patient chart": "Inspection is about instrument safety.",
+            "To skip sterilization": "Inspection does not replace sterilization.",
+            "To reduce documentation": "Documentation remains important."
+          }
+        },
+        {
+          topic: "Infection Control",
+          question: "Do gloves replace hand hygiene?",
+          choices: ["Yes", "Only in surgery", "No", "Only during transport"],
+          answer: "No",
+          explanation: "Gloves do not replace hand hygiene; hands should be cleaned at appropriate moments.",
+          incorrect: {
+            Yes: "Gloves can become contaminated and do not replace hand cleaning.",
+            "Only in surgery": "Hand hygiene is still required in surgical workflows.",
+            "Only during transport": "Transport does not remove hand hygiene requirements."
+          }
+        }
+      ]
+    }
+  ];
+  const [selectedExamId, setSelectedExamId] = useState(practiceExams[0].id);
+  const [examStatus, setExamStatus] = useState<"home" | "active" | "results" | "review">("home");
+  const [examQuestionIndex, setExamQuestionIndex] = useState(0);
+  const [examAnswers, setExamAnswers] = useState<Record<number, string>>({});
+  const [flaggedQuestions, setFlaggedQuestions] = useState<number[]>([]);
+  const [secondsRemaining, setSecondsRemaining] = useState(20 * 60);
+  const [timeTakenSeconds, setTimeTakenSeconds] = useState(0);
+  const selectedExam = practiceExams.find((exam) => exam.id === selectedExamId) ?? practiceExams[0];
+  const activeExamQuestion = selectedExam.items[examQuestionIndex];
+  const answeredCount = Object.keys(examAnswers).length;
+  const examProgress = Math.round((answeredCount / selectedExam.items.length) * 100);
+  const correctAnswers = selectedExam.items.filter((item, index) => examAnswers[index] === item.answer).length;
+  const incorrectAnswers = Math.max(0, selectedExam.items.length - correctAnswers);
+  const score = Math.round((correctAnswers / selectedExam.items.length) * 100);
+  const passed = score >= selectedExam.passingScore;
+
+  useEffect(() => {
+    if (studyMode !== initialMode) {
+      setStudyMode(initialMode);
+    }
+  }, [initialMode]);
+
+  useEffect(() => {
+    if (examStatus !== "active") {
+      return;
+    }
+
+    const timer = window.setInterval(() => {
+      setSecondsRemaining((seconds) => {
+        if (seconds <= 1) {
+          window.clearInterval(timer);
+          setExamStatus("results");
+          setTimeTakenSeconds(20 * 60);
+          return 0;
+        }
+        return seconds - 1;
+      });
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [examStatus]);
+
   const categories = [
     "All",
     "Surgical Technology",
@@ -1782,14 +2019,233 @@ function Practice() {
     setIsFlipped(false);
   }
 
+  function startExam(examId: string) {
+    setSelectedExamId(examId);
+    setExamStatus("active");
+    setExamQuestionIndex(0);
+    setExamAnswers({});
+    setFlaggedQuestions([]);
+    setSecondsRemaining(20 * 60);
+    setTimeTakenSeconds(0);
+  }
+
+  function submitExam() {
+    setTimeTakenSeconds(20 * 60 - secondsRemaining);
+    setExamStatus("results");
+  }
+
+  function retakeExam() {
+    startExam(selectedExam.id);
+  }
+
+  const timeLabel = `${Math.floor(secondsRemaining / 60)}:${String(secondsRemaining % 60).padStart(2, "0")}`;
+  const timeTakenLabel = `${Math.floor(timeTakenSeconds / 60)}m ${timeTakenSeconds % 60}s`;
+  const topicResults = selectedExam.topics.map((topic) => {
+    const topicItems = selectedExam.items.filter((item) => item.topic === topic);
+    const topicCorrect = selectedExam.items.filter((item, index) => item.topic === topic && examAnswers[index] === item.answer).length;
+    return {
+      topic,
+      percent: topicItems.length ? Math.round((topicCorrect / topicItems.length) * 100) : 0
+    };
+  });
+  const weakestTopics = [...topicResults].sort((a, b) => a.percent - b.percent).slice(0, 2);
+  const strongestTopics = [...topicResults].sort((a, b) => b.percent - a.percent).slice(0, 2);
+
   return (
     <div className="flashcards-page">
       <div className="page-title">
         <p className="eyebrow">PathPrep</p>
-        <h2>Flashcards</h2>
-        <p>Master concepts with active recall.</p>
+        <h2>{studyMode === "practiceExams" ? "Practice Exams" : "Flashcards"}</h2>
+        <p>
+          {studyMode === "practiceExams"
+            ? "Build certification confidence in a realistic timed exam environment."
+            : "Master concepts with active recall."}
+        </p>
       </div>
 
+      <div className="practice-mode-tabs" role="tablist" aria-label="PathPrep study mode">
+        <button
+          className={studyMode === "flashcards" ? "active" : ""}
+          onClick={() => setStudyMode("flashcards")}
+          role="tab"
+          aria-selected={studyMode === "flashcards"}
+        >
+          Flashcards
+        </button>
+        <button
+          className={studyMode === "practiceExams" ? "active" : ""}
+          onClick={() => setStudyMode("practiceExams")}
+          role="tab"
+          aria-selected={studyMode === "practiceExams"}
+        >
+          Practice Exams
+        </button>
+      </div>
+
+      {studyMode === "practiceExams" && (
+        <div className="practice-exam-page">
+          {examStatus === "home" && (
+            <section className="exam-home-grid">
+              {practiceExams.map((exam) => (
+                <article className="exam-card-premium" key={exam.id}>
+                  <div className="card-head">
+                    <h3>{exam.title}</h3>
+                    <ClipboardCheck />
+                  </div>
+                  <dl>
+                    <div>
+                      <dt>Number of Questions</dt>
+                      <dd>{exam.questions}</dd>
+                    </div>
+                    <div>
+                      <dt>Estimated Time</dt>
+                      <dd>{exam.estimatedTime}</dd>
+                    </div>
+                    <div>
+                      <dt>Difficulty</dt>
+                      <dd>{exam.difficulty}</dd>
+                    </div>
+                  </dl>
+                  <button className="primary" onClick={() => startExam(exam.id)}>
+                    Start Exam
+                  </button>
+                </article>
+              ))}
+            </section>
+          )}
+
+          {examStatus === "active" && (
+            <section className="exam-mode-layout">
+              <div className="exam-question-panel">
+                <div className="exam-status-bar">
+                  <span>Question {examQuestionIndex + 1} of {selectedExam.items.length}</span>
+                  <strong>{timeLabel}</strong>
+                  <span>{answeredCount}/{selectedExam.items.length} answered</span>
+                </div>
+                <div className="progress-bar" aria-label={`${examProgress}% exam progress`}>
+                  <span style={{ width: `${examProgress}%` }} />
+                </div>
+                <h3>{activeExamQuestion.question}</h3>
+                <div className="exam-answer-grid">
+                  {activeExamQuestion.choices.map((choice) => (
+                    <button
+                      className={examAnswers[examQuestionIndex] === choice ? "answer selected" : "answer"}
+                      key={choice}
+                      onClick={() => setExamAnswers((answers) => ({ ...answers, [examQuestionIndex]: choice }))}
+                    >
+                      {choice}
+                    </button>
+                  ))}
+                </div>
+                <div className="exam-controls">
+                  <button
+                    className="secondary"
+                    onClick={() => setExamQuestionIndex((index) => Math.max(0, index - 1))}
+                  >
+                    Previous
+                  </button>
+                  <button
+                    className="secondary"
+                    onClick={() =>
+                      setFlaggedQuestions((items) =>
+                        items.includes(examQuestionIndex)
+                          ? items.filter((item) => item !== examQuestionIndex)
+                          : [...items, examQuestionIndex]
+                      )
+                    }
+                  >
+                    {flaggedQuestions.includes(examQuestionIndex) ? "Flagged" : "Flag Question"}
+                  </button>
+                  <button
+                    className="secondary"
+                    onClick={() => setExamQuestionIndex((index) => Math.min(selectedExam.items.length - 1, index + 1))}
+                  >
+                    Next
+                  </button>
+                  <button className="primary" onClick={submitExam}>
+                    Submit Exam
+                  </button>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {examStatus === "results" && (
+            <section className="exam-results-grid">
+              <article className="exam-complete-card">
+                <h3>🎉 Practice Exam Complete</h3>
+                <strong>{score}%</strong>
+                <p>{passed ? "Pass" : "Fail"} · {correctAnswers} correct · {incorrectAnswers} incorrect</p>
+                <p>Time Taken: {timeTakenLabel}</p>
+                <p>XP Earned: {correctAnswers * 25}</p>
+                <div className="exam-controls">
+                  <button className="primary" onClick={() => setExamStatus("review")}>
+                    Review Answers
+                  </button>
+                  <button className="secondary" onClick={retakeExam}>
+                    Retake Exam
+                  </button>
+                </div>
+              </article>
+              <article className="exam-analytics-card">
+                <p className="eyebrow">Analytics</p>
+                <h3>Readiness Score: {Math.max(score, 52)}%</h3>
+                <div className="progress-bar">
+                  <span style={{ width: `${Math.max(score, 52)}%` }} />
+                </div>
+                <div className="analytics-columns">
+                  <div>
+                    <strong>Weakest Topics</strong>
+                    {weakestTopics.map((item) => <span key={item.topic}>{item.topic} · {item.percent}%</span>)}
+                  </div>
+                  <div>
+                    <strong>Strongest Topics</strong>
+                    {strongestTopics.map((item) => <span key={item.topic}>{item.topic} · {item.percent}%</span>)}
+                  </div>
+                  <div>
+                    <strong>Recommended Lessons</strong>
+                    {weakestTopics.map((item) => <span key={item.topic}>Review {item.topic}</span>)}
+                  </div>
+                </div>
+              </article>
+            </section>
+          )}
+
+          {examStatus === "review" && (
+            <section className="exam-review-list">
+              <div className="card-head">
+                <div>
+                  <p className="eyebrow">Review Mode</p>
+                  <h3>{selectedExam.title} answer review</h3>
+                </div>
+                <button className="secondary compact" onClick={() => setExamStatus("home")}>
+                  Back to Exams
+                </button>
+              </div>
+              {selectedExam.items.map((item, index) => (
+                <article className="exam-review-card" key={item.question}>
+                  <strong>Question {index + 1}: {item.question}</strong>
+                  <p>Your answer: {examAnswers[index] ?? "Unanswered"}</p>
+                  <p>Correct Answer: {item.answer}</p>
+                  <div className={examAnswers[index] === item.answer ? "explanation success" : "explanation"}>
+                    <strong>Explanation</strong>
+                    <p>{item.explanation}</p>
+                  </div>
+                  <div className="incorrect-rationales">
+                    <strong>Why other choices are incorrect</strong>
+                    {Object.entries(item.incorrect).map(([choice, reason]) => (
+                      <p key={choice}><span>{choice}:</span> {reason}</p>
+                    ))}
+                  </div>
+                </article>
+              ))}
+            </section>
+          )}
+        </div>
+      )}
+
+      {studyMode === "flashcards" && (
+        <>
       <section className="flashcard-filters" aria-label="Flashcard filters">
         <label>
           Search
@@ -1952,6 +2408,8 @@ function Practice() {
             </div>
           </aside>
         </section>
+      )}
+        </>
       )}
     </div>
   );
