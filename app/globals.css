@@ -1390,6 +1390,294 @@ label {
   gap: 0.55rem;
 }
 
+.course-viewer {
+  display: grid;
+  grid-template-columns: minmax(14rem, 0.78fr) minmax(0, 1.7fr) minmax(15rem, 0.78fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.course-module-sidebar,
+.course-right-sidebar {
+  position: sticky;
+  top: 5.7rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.course-module-sidebar,
+.course-top-card,
+.lesson-content-card,
+.knowledge-card,
+.flashcard-section,
+.notes-card,
+.course-side-card,
+.atlas-lesson-card,
+.lesson-complete-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--white) 88%, transparent);
+  box-shadow: 0 18px 58px rgba(13, 43, 82, 0.09);
+}
+
+.course-module-sidebar {
+  padding: 1rem;
+}
+
+.course-module-sidebar h2 {
+  margin: 0;
+  color: var(--navy);
+  font-size: 1.35rem;
+}
+
+.course-module-list,
+.course-main,
+.course-right-sidebar,
+.lesson-rich-text,
+.key-takeaways ul,
+.knowledge-options,
+.atlas-lesson-panel,
+.suggested-prompts {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.course-module-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.3rem 0.65rem;
+  align-items: center;
+  min-height: 70px;
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--white);
+  color: inherit;
+  text-align: left;
+  overflow: hidden;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.course-module-item:hover,
+.course-module-item.active {
+  transform: translateY(-2px);
+  border-color: rgba(34, 199, 200, 0.35);
+  box-shadow: 0 18px 44px rgba(13, 43, 82, 0.1);
+}
+
+.course-module-item > span {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(34, 199, 200, 0.14);
+  color: var(--teal);
+  font-weight: 900;
+}
+
+.course-module-item small {
+  color: var(--muted);
+}
+
+.course-module-item i {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 4px;
+  border-radius: 0 999px 999px 0;
+  background: linear-gradient(90deg, var(--teal), var(--success));
+}
+
+.course-main {
+  min-width: 0;
+}
+
+.course-top-card,
+.lesson-content-card,
+.knowledge-card,
+.flashcard-section,
+.notes-card,
+.lesson-complete-card {
+  display: grid;
+  gap: 1rem;
+  padding: 1.1rem;
+}
+
+.course-top-card {
+  background:
+    radial-gradient(circle at 86% 8%, rgba(34, 199, 200, 0.18), transparent 18rem),
+    color-mix(in srgb, var(--white) 90%, transparent);
+}
+
+.course-top-card h2 {
+  margin: 0;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(2.2rem, 4vw, 4rem);
+  line-height: 0.98;
+  letter-spacing: 0;
+  color: var(--navy);
+}
+
+.course-top-card h3,
+.key-takeaways h3,
+.knowledge-card h3,
+.flashcard-section h3,
+.notes-card h3 {
+  margin: 0;
+}
+
+.course-meta-row,
+.flashcard-actions,
+.course-lesson-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.course-meta-row span,
+.difficulty-badge,
+.course-lesson-tabs button {
+  width: fit-content;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: var(--bg-2);
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.course-lesson-tabs button {
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+
+.course-lesson-tabs button.active {
+  border-color: rgba(34, 199, 200, 0.45);
+  background: rgba(34, 199, 200, 0.14);
+  color: var(--navy);
+}
+
+.lesson-content-card img {
+  width: 100%;
+  height: auto;
+  max-height: 360px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.lesson-rich-text p,
+.lesson-callout p,
+.key-takeaways li,
+.notes-card small,
+.flashcard-section small,
+.course-side-card small,
+.atlas-lesson-card small {
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.lesson-rich-text p {
+  margin: 0;
+}
+
+.lesson-callout {
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg-2);
+}
+
+.lesson-callout.definition {
+  border-left: 4px solid var(--teal);
+}
+
+.lesson-callout.tip {
+  border-left: 4px solid var(--success);
+}
+
+.lesson-callout.warning {
+  border-left: 4px solid var(--warning);
+}
+
+.key-takeaways ul {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.key-takeaways li {
+  display: flex;
+  gap: 0.55rem;
+  align-items: center;
+}
+
+.flashcard {
+  display: grid;
+  place-items: center;
+  min-height: 180px;
+  padding: 1.5rem;
+  border: 1px solid rgba(34, 199, 200, 0.34);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(13, 43, 82, 0.95), rgba(21, 83, 129, 0.92) 58%, rgba(34, 199, 200, 0.84));
+  color: white;
+  font-size: 1.35rem;
+  font-weight: 900;
+  text-align: center;
+  transition: transform 180ms ease;
+}
+
+.flashcard.flipped {
+  transform: rotateX(4deg) scale(0.99);
+}
+
+.notes-card textarea,
+.atlas-lesson-panel textarea {
+  min-height: 150px;
+}
+
+.lesson-complete-card {
+  border-color: rgba(107, 203, 119, 0.42);
+  background: linear-gradient(135deg, rgba(107, 203, 119, 0.16), color-mix(in srgb, var(--white) 90%, transparent));
+  animation: rise-in 220ms ease both;
+}
+
+.continue-lesson-button {
+  width: fit-content;
+  justify-self: end;
+}
+
+.course-side-card,
+.atlas-lesson-card {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+.course-side-card strong,
+.atlas-lesson-card strong {
+  color: var(--navy);
+}
+
+.atlas-lesson-card {
+  background:
+    radial-gradient(circle at 90% 0%, rgba(34, 199, 200, 0.16), transparent 12rem),
+    color-mix(in srgb, var(--white) 90%, transparent);
+}
+
+.suggested-prompts {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.dark .course-module-sidebar h2,
+.dark .course-top-card h2,
+.dark .course-lesson-tabs button.active,
+.dark .course-side-card strong,
+.dark .atlas-lesson-card strong {
+  color: #f7fbff;
+}
+
 .career-card {
   display: grid;
   gap: 0.85rem;
@@ -1847,6 +2135,7 @@ td small {
   .hero,
   .shell,
   .atlas-showcase,
+  .course-viewer,
   .dashboard-hero,
   .dashboard-layout,
   .dashboard-two-column,
@@ -1867,6 +2156,11 @@ td small {
     position: static;
   }
 
+  .course-module-sidebar,
+  .course-right-sidebar {
+    position: static;
+  }
+
   .sidebar nav {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -1876,6 +2170,7 @@ td small {
   .feature-card-grid,
   .learning-path-grid,
   .pathfinder-detail-grid,
+  .suggested-prompts,
   .dashboard-quick-actions,
   .learning-progress-grid,
   .study-stat-grid,
@@ -1924,6 +2219,7 @@ td small {
   .learning-path-grid,
   .pricing-preview-grid,
   .faq-grid,
+  .suggested-prompts,
   .dashboard-quick-actions,
   .learning-progress-grid,
   .study-stat-grid,
@@ -1962,6 +2258,19 @@ td small {
 
   .timeline-item em {
     grid-column: 2;
+  }
+
+  .course-module-item {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .course-module-item small {
+    grid-column: 2;
+  }
+
+  .continue-lesson-button {
+    width: 100%;
+    justify-self: stretch;
   }
 
   .chat-input {

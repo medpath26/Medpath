@@ -1692,45 +1692,625 @@ function StudyPlan({
   setExamDate: (value: string) => void;
   setStudyHours: (value: number) => void;
 }) {
+  const courseModules = [
+    {
+      title: "Introduction",
+      progress: 100,
+      lessons: [
+        {
+          title: "Welcome to MedPath Learning",
+          time: "8 min",
+          difficulty: "Beginner",
+          image: "/medpath-hero.png",
+          definition: "Certification readiness means combining knowledge, practice, confidence, and exam strategy.",
+          tip: "Start each study session by choosing one small measurable win.",
+          warning: "Do not skip foundations. Small gaps in terminology and safety can make advanced lessons feel harder.",
+          takeaways: ["Set a weekly rhythm.", "Track weak areas early.", "Use Atlas when a concept feels unclear."],
+          quiz: {
+            question: "What is the best first step before a focused study session?",
+            options: ["Open every module at once.", "Choose one clear study goal.", "Only review old notes.", "Skip practice questions."],
+            answer: "Choose one clear study goal.",
+            explanation: "A clear target makes the session easier to complete and helps progress stay measurable."
+          },
+          flashcards: [
+            ["Readiness", "A blend of knowledge, practice, confidence, and exam strategy."],
+            ["Study Goal", "A specific task that can be completed in one focused session."]
+          ]
+        }
+      ]
+    },
+    {
+      title: "Medical Terminology",
+      progress: 72,
+      lessons: [
+        {
+          title: "Roots, Prefixes, and Suffixes",
+          time: "18 min",
+          difficulty: "Beginner",
+          image: "/medpath-hero.png",
+          definition: "A word root carries the core meaning of a medical term.",
+          tip: "Break unfamiliar words into prefix, root, and suffix before memorizing the full term.",
+          warning: "Similar-looking prefixes can change meaning completely, so read carefully.",
+          takeaways: ["Cardi/o means heart.", "Dermat/o relates to skin.", "Suffixes often describe procedures or conditions."],
+          quiz: {
+            question: "What does the root cardi/o refer to?",
+            options: ["Skin", "Heart", "Blood", "Bone"],
+            answer: "Heart",
+            explanation: "Cardi/o is the combining form for heart, as in cardiology."
+          },
+          flashcards: [
+            ["Cardi/o", "Heart"],
+            ["Dermat/o", "Skin"],
+            ["-itis", "Inflammation"]
+          ]
+        },
+        {
+          title: "Clinical Abbreviations",
+          time: "14 min",
+          difficulty: "Beginner",
+          image: "/medpath-hero.png",
+          definition: "Clinical abbreviations shorten common documentation terms but must be used safely.",
+          tip: "Always follow your program or facility approved abbreviation list.",
+          warning: "Unsafe abbreviations can create medication or patient-care errors.",
+          takeaways: ["Know approved abbreviations.", "Clarify unclear orders.", "Patient safety comes first."],
+          quiz: {
+            question: "What should you do if an abbreviation is unclear?",
+            options: ["Guess from context.", "Ignore it.", "Clarify before acting.", "Rewrite it yourself."],
+            answer: "Clarify before acting.",
+            explanation: "Clarifying unclear documentation protects patient safety."
+          },
+          flashcards: [
+            ["PRN", "As needed"],
+            ["NPO", "Nothing by mouth"],
+            ["STAT", "Immediately"]
+          ]
+        }
+      ]
+    },
+    {
+      title: "Human Anatomy",
+      progress: 64,
+      lessons: [
+        {
+          title: "Body Systems Overview",
+          time: "22 min",
+          difficulty: "Intermediate",
+          image: "/medpath-hero.png",
+          definition: "Anatomy studies body structures; physiology studies how those structures function.",
+          tip: "Connect each system to a patient-care scenario to remember it longer.",
+          warning: "Memorizing terms without function makes exam questions harder.",
+          takeaways: ["Structure and function work together.", "Systems interact constantly.", "Clinical examples improve recall."],
+          quiz: {
+            question: "Physiology focuses on what?",
+            options: ["How body structures function", "Only bone names", "Medical billing", "Surgical scheduling"],
+            answer: "How body structures function",
+            explanation: "Physiology explains how organs, tissues, and systems work."
+          },
+          flashcards: [
+            ["Anatomy", "Study of body structures"],
+            ["Physiology", "Study of body functions"],
+            ["Homeostasis", "Stable internal balance"]
+          ]
+        }
+      ]
+    },
+    {
+      title: "Surgical Instruments",
+      progress: 58,
+      lessons: [
+        {
+          title: "Instrument Families",
+          time: "20 min",
+          difficulty: "Intermediate",
+          image: "/medpath-hero.png",
+          definition: "Surgical instruments are grouped by purpose, such as cutting, grasping, clamping, retracting, and suctioning.",
+          tip: "Study instruments by job first, then memorize names.",
+          warning: "Passing the wrong instrument can slow the team and increase risk.",
+          takeaways: ["Know the instrument purpose.", "Anticipate surgeon needs.", "Keep sterile technique in mind."],
+          quiz: {
+            question: "Which instrument family is used to hold tissue?",
+            options: ["Retractors", "Graspers", "Suction tips", "Scalpels"],
+            answer: "Graspers",
+            explanation: "Graspers are designed to hold or manipulate tissue and materials."
+          },
+          flashcards: [
+            ["Scalpel", "Cutting instrument"],
+            ["Forceps", "Grasping instrument"],
+            ["Retractor", "Holds tissue aside"]
+          ]
+        }
+      ]
+    },
+    {
+      title: "Sterile Technique",
+      progress: 82,
+      lessons: [
+        {
+          title: "Maintaining the Sterile Field",
+          time: "25 min",
+          difficulty: "Intermediate",
+          image: "/medpath-hero.png",
+          definition: "A sterile field is an area kept free of microorganisms during procedures.",
+          tip: "Keep sterile items in sight and above waist level.",
+          warning: "If sterility is in doubt, consider it contaminated and speak up.",
+          takeaways: ["Protect field boundaries.", "Watch movement around sterile areas.", "Communicate contamination immediately."],
+          quiz: {
+            question: "What should you do if sterility is in doubt?",
+            options: ["Ignore it.", "Cover the item.", "Treat it as contaminated.", "Move it closer."],
+            answer: "Treat it as contaminated.",
+            explanation: "Patient safety requires treating questionable sterility as contamination."
+          },
+          flashcards: [
+            ["Sterile Field", "Area kept free of microorganisms"],
+            ["Contamination", "Introduction of nonsterile material"],
+            ["Asepsis", "Practices that reduce infection risk"]
+          ]
+        }
+      ]
+    },
+    {
+      title: "Operating Room Procedures",
+      progress: 40,
+      lessons: [
+        {
+          title: "OR Flow and Team Roles",
+          time: "24 min",
+          difficulty: "Intermediate",
+          image: "/medpath-hero.png",
+          definition: "OR flow is the coordinated sequence of preparation, procedure support, and post-procedure transition.",
+          tip: "Learn what each team member needs before, during, and after the case.",
+          warning: "Poor communication can disrupt safety and timing.",
+          takeaways: ["Know team roles.", "Use closed-loop communication.", "Prepare before the patient enters."],
+          quiz: {
+            question: "What communication style supports OR safety?",
+            options: ["Closed-loop communication", "Silent guessing", "Delayed updates", "One-way instructions only"],
+            answer: "Closed-loop communication",
+            explanation: "Closed-loop communication confirms that messages are heard and acted on."
+          },
+          flashcards: [
+            ["Circulator", "Nonsterile team member supporting room flow"],
+            ["Scrub Role", "Maintains sterile field and passes instruments"],
+            ["Time-out", "Safety pause before procedure"]
+          ]
+        }
+      ]
+    },
+    {
+      title: "Patient Safety",
+      progress: 55,
+      lessons: [
+        {
+          title: "Safety Checks and Communication",
+          time: "18 min",
+          difficulty: "Beginner",
+          image: "/medpath-hero.png",
+          definition: "Patient safety practices prevent avoidable harm during care.",
+          tip: "Use two identifiers and pause when information does not match.",
+          warning: "Rushing identity checks can lead to serious errors.",
+          takeaways: ["Verify identity.", "Report concerns.", "Use standardized communication."],
+          quiz: {
+            question: "How many patient identifiers are commonly used before care?",
+            options: ["One", "Two", "Four", "None"],
+            answer: "Two",
+            explanation: "Two identifiers help confirm the correct patient before care or procedures."
+          },
+          flashcards: [
+            ["Two Identifiers", "Two pieces of patient information used to verify identity"],
+            ["SBAR", "Situation, Background, Assessment, Recommendation"],
+            ["Near Miss", "An event that could have caused harm but did not"]
+          ]
+        }
+      ]
+    },
+    {
+      title: "Infection Control",
+      progress: 48,
+      lessons: [
+        {
+          title: "Breaking the Chain of Infection",
+          time: "19 min",
+          difficulty: "Beginner",
+          image: "/medpath-hero.png",
+          definition: "The chain of infection describes how pathogens spread from source to host.",
+          tip: "Hand hygiene is one of the most powerful ways to interrupt transmission.",
+          warning: "Gloves do not replace hand hygiene.",
+          takeaways: ["Know transmission routes.", "Use PPE correctly.", "Clean hands before and after care."],
+          quiz: {
+            question: "What is a key way to break the chain of infection?",
+            options: ["Skip PPE", "Hand hygiene", "Reuse gloves", "Ignore symptoms"],
+            answer: "Hand hygiene",
+            explanation: "Hand hygiene reduces pathogen transmission between patients, surfaces, and staff."
+          },
+          flashcards: [
+            ["Pathogen", "Disease-causing microorganism"],
+            ["PPE", "Personal protective equipment"],
+            ["Transmission", "Movement of pathogens from source to host"]
+          ]
+        }
+      ]
+    },
+    {
+      title: "Professional Ethics",
+      progress: 34,
+      lessons: [
+        {
+          title: "Confidentiality and Professional Boundaries",
+          time: "16 min",
+          difficulty: "Beginner",
+          image: "/medpath-hero.png",
+          definition: "Confidentiality means protecting patient information from unauthorized access or disclosure.",
+          tip: "Discuss patient information only with authorized care team members.",
+          warning: "Social media posts about patients or clinical settings can violate privacy.",
+          takeaways: ["Protect privacy.", "Keep boundaries clear.", "Act with honesty and accountability."],
+          quiz: {
+            question: "Where should patient information be discussed?",
+            options: ["Public elevator", "Social media", "With authorized team members", "With friends"],
+            answer: "With authorized team members",
+            explanation: "Patient information should only be shared for appropriate care purposes."
+          },
+          flashcards: [
+            ["Confidentiality", "Protecting private patient information"],
+            ["Boundaries", "Professional limits that protect patients and staff"],
+            ["Accountability", "Owning actions and responsibilities"]
+          ]
+        }
+      ]
+    },
+    {
+      title: "Certification Review",
+      progress: 22,
+      lessons: [
+        {
+          title: "Exam Strategy and Readiness",
+          time: "28 min",
+          difficulty: "Advanced",
+          image: "/medpath-hero.png",
+          definition: "Exam readiness is the ability to apply knowledge under timed testing conditions.",
+          tip: "Review missed questions by concept, not just by answer choice.",
+          warning: "Cramming without practice can create false confidence.",
+          takeaways: ["Simulate timing.", "Review rationales.", "Protect sleep before the exam."],
+          quiz: {
+            question: "What is the best way to review missed practice questions?",
+            options: ["Memorize only the letter", "Ignore them", "Review the concept and rationale", "Stop practicing"],
+            answer: "Review the concept and rationale",
+            explanation: "Rationales reveal the concept gap and help you answer new questions."
+          },
+          flashcards: [
+            ["Rationale", "Explanation for why an answer is correct or incorrect"],
+            ["Readiness Score", "Estimate of preparation based on progress and performance"],
+            ["Pacing", "Managing time across exam questions"]
+          ]
+        }
+      ]
+    }
+  ];
+  const [selectedModuleIndex, setSelectedModuleIndex] = useState(0);
+  const [selectedLessonIndex, setSelectedLessonIndex] = useState(0);
+  const [selectedAnswer, setSelectedAnswer] = useState("");
+  const [flippedCard, setFlippedCard] = useState(false);
+  const [flashcardIndex, setFlashcardIndex] = useState(0);
+  const [knownCards, setKnownCards] = useState<string[]>([]);
+  const [reviewCards, setReviewCards] = useState<string[]>([]);
+  const [notes, setNotes] = useState<Record<string, string>>({});
+  const [bookmarks, setBookmarks] = useState<string[]>([]);
+  const [completedLessons, setCompletedLessons] = useState<string[]>([]);
+  const [atlasOpen, setAtlasOpen] = useState(false);
+  const [atlasQuestion, setAtlasQuestion] = useState("");
+  const [completionVisible, setCompletionVisible] = useState(false);
+  const selectedModule = courseModules[selectedModuleIndex];
+  const selectedLesson = selectedModule.lessons[selectedLessonIndex];
+  const lessonKey = `${selectedModule.title}-${selectedLesson.title}`;
+  const totalLessons = courseModules.reduce((total, module) => total + module.lessons.length, 0);
+  const visualProgress = Math.round((completedLessons.length / totalLessons) * 100);
+  const currentFlashcard = selectedLesson.flashcards[flashcardIndex];
+  const isBookmarked = bookmarks.includes(lessonKey);
+  const isLessonComplete = completedLessons.includes(lessonKey);
+  const recommendedNextLesson =
+    selectedModule.lessons[selectedLessonIndex + 1]?.title ||
+    courseModules[selectedModuleIndex + 1]?.lessons[0]?.title ||
+    "Certification practice quiz";
+
+  function selectModule(index: number) {
+    setSelectedModuleIndex(index);
+    setSelectedLessonIndex(0);
+    setSelectedAnswer("");
+    setFlashcardIndex(0);
+    setFlippedCard(false);
+    setCompletionVisible(false);
+  }
+
+  function selectLesson(index: number) {
+    setSelectedLessonIndex(index);
+    setSelectedAnswer("");
+    setFlashcardIndex(0);
+    setFlippedCard(false);
+    setCompletionVisible(false);
+  }
+
+  function advanceLesson() {
+    if (!completedLessons.includes(lessonKey)) {
+      setCompletedLessons((items) => [...items, lessonKey]);
+    }
+    setCompletionVisible(true);
+
+    if (selectedLessonIndex < selectedModule.lessons.length - 1) {
+      setTimeout(() => selectLesson(selectedLessonIndex + 1), 450);
+      return;
+    }
+
+    if (selectedModuleIndex < courseModules.length - 1) {
+      setTimeout(() => {
+        setSelectedModuleIndex(selectedModuleIndex + 1);
+        setSelectedLessonIndex(0);
+        setSelectedAnswer("");
+        setFlashcardIndex(0);
+        setFlippedCard(false);
+      }, 450);
+    }
+  }
+
+  function toggleBookmark() {
+    setBookmarks((items) => (items.includes(lessonKey) ? items.filter((item) => item !== lessonKey) : [...items, lessonKey]));
+  }
+
   return (
-    <div className="stack">
-      <div className="page-title">
-        <p className="eyebrow">Personalized Study Plan</p>
-        <h2>Turn exam anxiety into a weekly rhythm.</h2>
-      </div>
-      <section className="study-layout">
-        <form className="panel form-panel">
-          <label>
-            Certification exam date
-            <input type="date" value={examDate} onChange={(event) => setExamDate(event.target.value)} />
-          </label>
-          <label>
-            Hours available each week
-            <input
-              type="range"
-              min="3"
-              max="18"
-              value={studyHours}
-              onChange={(event) => setStudyHours(Number(event.target.value))}
-            />
-            <span>{studyHours} hours/week</span>
-          </label>
-          <div className="progress-bar">
-            <span style={{ width: `${Math.min(100, studyHours * 6)}%` }} />
-          </div>
-        </form>
-        <div className="panel">
-          <h3>This week</h3>
-          <ul className="schedule">
-            {schedule.map((topic, index) => (
-              <li key={topic}>
-                <Check size={17} />
-                Day {index + 1}: {topic}
-              </li>
-            ))}
-          </ul>
+    <div className="course-viewer">
+      <aside className="course-module-sidebar" aria-label="Course modules">
+        <div>
+          <p className="eyebrow">Course Viewer</p>
+          <h2>MedPath Foundations</h2>
         </div>
-      </section>
+        <div className="course-module-list">
+          {courseModules.map((module, index) => (
+            <button
+              className={index === selectedModuleIndex ? "course-module-item active" : "course-module-item"}
+              key={module.title}
+              onClick={() => selectModule(index)}
+            >
+              <span>{module.progress === 100 || completedLessons.some((lesson) => lesson.startsWith(module.title)) ? <Check size={16} /> : index + 1}</span>
+              <strong>{module.title}</strong>
+              <small>{module.lessons.length} lesson{module.lessons.length === 1 ? "" : "s"}</small>
+              <i style={{ width: `${module.progress}%` }} />
+            </button>
+          ))}
+        </div>
+      </aside>
+
+      <main className="course-main">
+        <section className="course-top-card">
+          <div>
+            <p className="eyebrow">MedPath Course</p>
+            <h2>{selectedModule.title}</h2>
+            <h3>{selectedLesson.title}</h3>
+            <div className="course-meta-row">
+              <span>{selectedLesson.time}</span>
+              <span className="difficulty-badge">{selectedLesson.difficulty}</span>
+              <span>{isLessonComplete ? "Completed" : "In progress"}</span>
+            </div>
+          </div>
+          <button className={isBookmarked ? "primary compact" : "secondary compact"} onClick={toggleBookmark}>
+            <Star size={16} />
+            {isBookmarked ? "Bookmarked" : "Bookmark Lesson"}
+          </button>
+          <div className="progress-bar" aria-label={`${visualProgress}% course progress`}>
+            <span style={{ width: `${Math.max(visualProgress, selectedModule.progress / 2)}%` }} />
+          </div>
+          <div className="course-lesson-tabs" aria-label="Module lessons">
+            {selectedModule.lessons.map((lesson, index) => (
+              <button
+                className={index === selectedLessonIndex ? "active" : ""}
+                key={lesson.title}
+                onClick={() => selectLesson(index)}
+              >
+                {lesson.title}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="lesson-content-card">
+          <Image
+            src={selectedLesson.image}
+            alt={`${selectedLesson.title} lesson visual`}
+            width={1100}
+            height={760}
+          />
+          <div className="lesson-rich-text">
+            <p>
+              In this lesson, you will connect classroom knowledge to real healthcare workflows.
+              Focus on the concept, the clinical purpose, and how you would explain it during a
+              skills check or certification review.
+            </p>
+            <p>
+              {selectedLesson.title} is part of the {selectedModule.title} module and supports your
+              readiness for patient care, clinical rotations, and exam-style questions.
+            </p>
+          </div>
+          <div className="lesson-callout definition">
+            <strong>Medical Definition</strong>
+            <p>{selectedLesson.definition}</p>
+          </div>
+          <div className="lesson-callout tip">
+            <strong>Tip</strong>
+            <p>{selectedLesson.tip}</p>
+          </div>
+          <div className="lesson-callout warning">
+            <strong>Warning</strong>
+            <p>{selectedLesson.warning}</p>
+          </div>
+          <div className="key-takeaways">
+            <h3>Key Takeaways</h3>
+            <ul>
+              {selectedLesson.takeaways.map((takeaway) => (
+                <li key={takeaway}>
+                  <Check size={16} />
+                  {takeaway}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        <section className="knowledge-card">
+          <div className="card-head">
+            <div>
+              <p className="eyebrow">Knowledge Check</p>
+              <h3>{selectedLesson.quiz.question}</h3>
+            </div>
+            <Brain />
+          </div>
+          <div className="knowledge-options">
+            {selectedLesson.quiz.options.map((option) => (
+              <button
+                className={selectedAnswer === option ? "answer selected" : "answer"}
+                key={option}
+                onClick={() => setSelectedAnswer(option)}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+          {selectedAnswer && (
+            <div className={selectedAnswer === selectedLesson.quiz.answer ? "explanation success" : "explanation"}>
+              <strong>{selectedAnswer === selectedLesson.quiz.answer ? "Correct." : "Not quite yet."}</strong>
+              <p>{selectedLesson.quiz.explanation}</p>
+            </div>
+          )}
+        </section>
+
+        <section className="flashcard-section">
+          <div className="card-head">
+            <div>
+              <p className="eyebrow">Flashcards</p>
+              <h3>{flashcardIndex + 1} of {selectedLesson.flashcards.length}</h3>
+            </div>
+            <BookOpen />
+          </div>
+          <button className={flippedCard ? "flashcard flipped" : "flashcard"} onClick={() => setFlippedCard((value) => !value)}>
+            <span>{flippedCard ? currentFlashcard[1] : currentFlashcard[0]}</span>
+          </button>
+          <div className="flashcard-actions">
+            <button className="secondary compact" onClick={() => setFlashcardIndex(Math.max(0, flashcardIndex - 1))}>
+              Previous
+            </button>
+            <button className="secondary compact" onClick={() => setFlashcardIndex(Math.min(selectedLesson.flashcards.length - 1, flashcardIndex + 1))}>
+              Next
+            </button>
+            <button className="primary compact" onClick={() => setFlippedCard((value) => !value)}>
+              Flip Card
+            </button>
+            <button className="secondary compact" onClick={() => setKnownCards((items) => [...new Set([...items, currentFlashcard[0]])])}>
+              Mark Known
+            </button>
+            <button className="secondary compact" onClick={() => setReviewCards((items) => [...new Set([...items, currentFlashcard[0]])])}>
+              Review Later
+            </button>
+          </div>
+          <small>{knownCards.length} known · {reviewCards.length} review later</small>
+        </section>
+
+        <section className="notes-card">
+          <div className="card-head">
+            <div>
+              <p className="eyebrow">Notes</p>
+              <h3>Autosaved lesson notes</h3>
+            </div>
+            <ClipboardCheck />
+          </div>
+          <textarea
+            value={notes[lessonKey] ?? ""}
+            onChange={(event) => setNotes((items) => ({ ...items, [lessonKey]: event.target.value }))}
+            placeholder={`Write notes for ${selectedLesson.title}`}
+            aria-label="Lesson notes"
+          />
+          <small>Saved automatically in this learning session.</small>
+        </section>
+
+        {completionVisible && (
+          <section className="lesson-complete-card" aria-live="polite">
+            <h3>🎉 Lesson Complete</h3>
+            <p>+120 XP earned. Progress updated for {selectedLesson.title}.</p>
+            <button className="primary compact" onClick={() => setCompletionVisible(false)}>
+              Continue to Quiz
+            </button>
+          </section>
+        )}
+
+        <button className="primary continue-lesson-button" onClick={advanceLesson}>
+          Next Lesson <ChevronRight size={18} />
+        </button>
+      </main>
+
+      <aside className="course-right-sidebar">
+        <article className="course-side-card">
+          <small>Course Progress</small>
+          <strong>{Math.max(visualProgress, Math.round(selectedModule.progress / 2))}%</strong>
+          <div className="progress-bar">
+            <span style={{ width: `${Math.max(visualProgress, Math.round(selectedModule.progress / 2))}%` }} />
+          </div>
+        </article>
+        <article className="course-side-card">
+          <small>Time Studied</small>
+          <strong>{studyHours}h this week</strong>
+          <input
+            type="range"
+            min="3"
+            max="18"
+            value={studyHours}
+            onChange={(event) => setStudyHours(Number(event.target.value))}
+            aria-label="Study hours this week"
+          />
+        </article>
+        <article className="course-side-card">
+          <small>Current Streak</small>
+          <strong>7 days 🔥</strong>
+        </article>
+        <article className="course-side-card">
+          <small>Recommended Next Lesson</small>
+          <strong>{recommendedNextLesson}</strong>
+        </article>
+        <article className="course-side-card">
+          <small>Upcoming Practice Exam</small>
+          <strong>{new Date(examDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</strong>
+          <input type="date" value={examDate} onChange={(event) => setExamDate(event.target.value)} aria-label="Certification exam date" />
+        </article>
+        <article className="atlas-lesson-card">
+          <div className="card-head">
+            <div>
+              <small>Atlas Tutor</small>
+              <strong>{selectedLesson.title}</strong>
+            </div>
+            <MessageCircleHeart />
+          </div>
+          <button className="primary compact" onClick={() => setAtlasOpen((value) => !value)}>
+            Ask Atlas
+          </button>
+          {atlasOpen && (
+            <div className="atlas-lesson-panel">
+              <div className="suggested-prompts">
+                {["Explain this simpler.", "Create a quiz.", "Summarize.", "Give a mnemonic."].map((prompt) => (
+                  <button className="secondary compact" key={prompt} onClick={() => setAtlasQuestion(`${prompt} ${selectedLesson.title}`)}>
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+              <textarea
+                value={atlasQuestion}
+                onChange={(event) => setAtlasQuestion(event.target.value)}
+                placeholder={`Ask Atlas about ${selectedLesson.title}`}
+                aria-label="Ask Atlas about the current lesson"
+              />
+              <div className="message atlas-message">
+                <strong>Atlas</strong>
+                <p>
+                  I know you are studying {selectedLesson.title}. Ask me to simplify, quiz,
+                  summarize, or create a mnemonic for this lesson.
+                </p>
+              </div>
+            </div>
+          )}
+        </article>
+      </aside>
     </div>
   );
 }
