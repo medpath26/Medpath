@@ -177,6 +177,10 @@ td button {
   padding: 0;
 }
 
+.landing-page {
+  overflow: hidden;
+}
+
 .hero {
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(20rem, 1.1fr);
@@ -204,6 +208,23 @@ td button {
   max-width: 12ch;
   font-size: clamp(3.6rem, 8vw, 7.2rem);
   line-height: 0.88;
+}
+
+.section-heading h2,
+.atlas-showcase h2,
+.landing-cta h2 {
+  margin: 0;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(2.3rem, 5vw, 4.8rem);
+  line-height: 0.96;
+  letter-spacing: 0;
+  color: var(--navy);
+}
+
+.dark .section-heading h2,
+.dark .atlas-showcase h2,
+.dark .landing-cta h2 {
+  color: #f7fbff;
 }
 
 .hero p {
@@ -269,6 +290,195 @@ td button {
   color: var(--success);
 }
 
+.proof-strip,
+.landing-section,
+.learning-path-section,
+.atlas-showcase,
+.pricing-preview,
+.faq-section,
+.landing-cta {
+  width: min(100% - 2rem, 1180px);
+  margin: 0 auto;
+}
+
+.proof-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 1rem 0 4rem;
+}
+
+.proof-strip div,
+.feature-card,
+.path-card,
+.atlas-showcase,
+.faq-item,
+.landing-cta {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--white) 88%, transparent);
+  box-shadow: 0 16px 48px rgba(13, 43, 82, 0.08);
+}
+
+.proof-strip div {
+  display: grid;
+  gap: 0.25rem;
+  padding: 1rem;
+  text-align: center;
+}
+
+.proof-strip strong {
+  color: var(--navy);
+  font-size: 1.7rem;
+}
+
+.dark .proof-strip strong,
+.dark .footer strong {
+  color: #f7fbff;
+}
+
+.proof-strip span,
+.section-heading p,
+.feature-card p,
+.path-card p,
+.atlas-showcase p,
+.faq-item p,
+.landing-cta p {
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.landing-section,
+.learning-path-section,
+.pricing-preview,
+.faq-section {
+  display: grid;
+  gap: 1.25rem;
+  padding: 3rem 0;
+}
+
+.section-heading {
+  display: grid;
+  gap: 0.7rem;
+  max-width: 760px;
+}
+
+.feature-card-grid,
+.learning-path-grid,
+.pricing-preview-grid,
+.faq-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.feature-card-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.feature-card,
+.path-card,
+.faq-item {
+  padding: 1.15rem;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.feature-card:hover,
+.path-card:hover,
+.faq-item:hover {
+  transform: translateY(-3px);
+  border-color: rgba(34, 199, 200, 0.35);
+  box-shadow: 0 22px 60px rgba(13, 43, 82, 0.12);
+}
+
+.feature-card span,
+.path-card span {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+  background: rgba(34, 199, 200, 0.14);
+  color: var(--teal);
+  font-weight: 900;
+}
+
+.feature-card h3,
+.path-card h3,
+.faq-item h3 {
+  margin: 0.9rem 0 0.35rem;
+}
+
+.learning-path-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  position: relative;
+}
+
+.path-card {
+  min-height: 220px;
+}
+
+.atlas-showcase {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(22rem, 1.1fr);
+  gap: 1.25rem;
+  align-items: center;
+  padding: clamp(1.25rem, 4vw, 2rem);
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+  background:
+    radial-gradient(circle at 80% 10%, rgba(34, 199, 200, 0.16), transparent 26rem),
+    color-mix(in srgb, var(--white) 90%, transparent);
+}
+
+.atlas-showcase > div:first-child {
+  display: grid;
+  gap: 1rem;
+}
+
+.atlas-showcase .primary {
+  width: fit-content;
+}
+
+.atlas-chat-card {
+  display: grid;
+  gap: 0.8rem;
+  padding: 1rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.58);
+  border: 1px solid var(--line);
+}
+
+.pricing-preview-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.faq-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.landing-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: clamp(1.25rem, 4vw, 2rem);
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+  background:
+    linear-gradient(135deg, rgba(13, 43, 82, 0.95), rgba(21, 83, 129, 0.94) 58%, rgba(34, 199, 200, 0.9));
+  color: white;
+}
+
+.landing-cta h2,
+.landing-cta p,
+.landing-cta .eyebrow {
+  color: white;
+}
+
+.landing-cta p {
+  max-width: 42rem;
+}
+
 .product-band {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -327,6 +537,12 @@ td button {
   grid-template-columns: 17rem minmax(0, 1fr);
   gap: 1.25rem;
   padding: 1.25rem clamp(1rem, 4vw, 2rem) 2rem;
+}
+
+.public-workspace {
+  width: min(100% - 2rem, 1180px);
+  margin: 0 auto;
+  padding: clamp(1.5rem, 4vw, 3rem) 0 3rem;
 }
 
 .sidebar {
@@ -817,7 +1033,77 @@ label {
 }
 
 .career-card {
+  display: grid;
+  gap: 0.85rem;
   padding: 1rem;
+}
+
+.pathfinder-search {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.pathfinder-search svg {
+  flex: 0 0 auto;
+  color: var(--teal);
+}
+
+.pathfinder-search input {
+  min-height: 48px;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  outline: 0;
+}
+
+.pathfinder-empty {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.pathfinder-empty p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.career-learn-more {
+  width: fit-content;
+  margin-top: auto;
+}
+
+.pathfinder-detail {
+  display: grid;
+  gap: 1rem;
+}
+
+.pathfinder-detail h3 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+.pathfinder-detail p {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.pathfinder-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.pathfinder-detail-grid span {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.9rem;
+  border-radius: 8px;
+  background: var(--bg-2);
+  color: var(--muted);
+}
+
+.pathfinder-detail-grid strong {
+  color: var(--ink);
 }
 
 .career-top span {
@@ -1003,15 +1289,39 @@ td small {
 .footer {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 1rem;
-  justify-content: center;
-  padding: 2rem 1rem;
+  justify-content: space-between;
+  width: min(100% - 2rem, 1180px);
+  margin: 0 auto;
+  padding: 2rem 0 2.4rem;
+  color: var(--muted);
+}
+
+.footer div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.footer strong {
+  color: var(--navy);
+  font-size: 1.1rem;
+}
+
+.footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.footer a {
   color: var(--muted);
 }
 
 @media (max-width: 1050px) {
   .hero,
   .shell,
+  .atlas-showcase,
   .dashboard-columns,
   .student-hero,
   .mentor,
@@ -1030,6 +1340,10 @@ td small {
   }
 
   .product-band,
+  .proof-strip,
+  .feature-card-grid,
+  .learning-path-grid,
+  .pathfinder-detail-grid,
   .quick-grid,
   .quick-access-grid,
   .clinical-grid,
@@ -1069,6 +1383,11 @@ td small {
   }
 
   .product-band,
+  .proof-strip,
+  .feature-card-grid,
+  .learning-path-grid,
+  .pricing-preview-grid,
+  .faq-grid,
   .quick-grid,
   .quick-access-grid,
   .student-dashboard-grid,
@@ -1078,6 +1397,11 @@ td small {
   .metric-grid,
   .sidebar nav {
     grid-template-columns: 1fr;
+  }
+
+  .landing-cta {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .chat-input {

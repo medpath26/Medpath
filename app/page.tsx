@@ -660,6 +660,12 @@ export default function Home() {
         />
       )}
 
+      {view === "career" && !signedIn && (
+        <section className="public-workspace">
+          <CareerExplorer plan="explorer" />
+        </section>
+      )}
+
       {view !== "landing" && signedIn && workspaceReady && (
         <div className="shell">
           <Sidebar view={view} plan={plan} name={name} isAdmin={isAdmin} onNavigate={goTo} />
@@ -834,22 +840,59 @@ function Header({
 }
 
 function Landing({ onStart, onCareers }: { onStart: () => void; onCareers: () => void }) {
+  const featureCards = [
+    {
+      title: "PathPrep",
+      copy: "Practice questions, flashcards, and answer explanations built for healthcare certification prep.",
+      icon: <BookOpen />
+    },
+    {
+      title: "PathTrack",
+      copy: "Track XP, streaks, weak topics, milestones, and weekly progress from one calm dashboard.",
+      icon: <BarChart3 />
+    },
+    {
+      title: "PathClinical",
+      copy: "Prepare for clinicals with checklists, OR etiquette, patient communication, and readiness routines.",
+      icon: <ClipboardCheck />
+    },
+    {
+      title: "PathHire",
+      copy: "Move from school to work with resume support, interview practice, and career confidence tools.",
+      icon: <BriefcaseBusiness />
+    }
+  ];
+
+  const learningPaths = [
+    ["Explore", "Find healthcare careers, programs, salary ranges, and certification paths."],
+    ["Prepare", "Study terminology, anatomy, sterile technique, EKG, pharmacology, and patient care."],
+    ["Practice", "Build readiness with quizzes, flashcards, and mock certification exam workflows."],
+    ["Launch", "Create resumes, practice interviews, and step into your first healthcare role."]
+  ];
+
+  const faqs = [
+    ["Who is MedPath for?", "Medical Assistant, Surgical Technology, and healthcare career exploration students."],
+    ["Does Atlas replace my instructor?", "No. Atlas supports learning, but students should verify guidance with instructors and trusted materials."],
+    ["Can I start free?", "Yes. Explorer gives students a focused way to explore careers and begin learning."],
+    ["What unlocks with Premium?", "Unlimited Atlas, study plans, practice questions, clinical prep, resume tools, and interview coaching."]
+  ];
+
   return (
-    <>
+    <div className="landing-page">
       <section className="hero">
         <div className="hero-copy">
           <div className="eyebrow">
             <Sparkles size={16} />
             Atlas, your personal learning guide
           </div>
-          <h1>Your MedPath Mentor for Healthcare Success</h1>
+          <h1>Learn. Practice. Pass.</h1>
           <p>
-            Study smarter. Build confidence. Pass your certification. Land your dream healthcare
-            career.
+            MedPath helps future healthcare professionals study smarter, build confidence, prepare
+            for clinicals, and move toward certification with a mentor-like learning system.
           </p>
           <div className="hero-actions">
             <button className="primary" onClick={onStart}>
-              Get Started
+              Start Your Path
               <ChevronRight size={18} />
             </button>
             <button className="secondary" onClick={onCareers}>
@@ -857,9 +900,9 @@ function Landing({ onStart, onCareers }: { onStart: () => void; onCareers: () =>
             </button>
           </div>
           <div className="trust-row" aria-label="Platform highlights">
-            <span>7-day Student Plus trial</span>
-            <span>RBAC subscriptions</span>
-            <span>Dark mode</span>
+            <span>Medical Assistant</span>
+            <span>Surgical Technology</span>
+            <span>Atlas AI Tutor</span>
           </div>
         </div>
         <div className="hero-art">
@@ -877,23 +920,145 @@ function Landing({ onStart, onCareers }: { onStart: () => void; onCareers: () =>
           </div>
         </div>
       </section>
-      <section className="product-band">
+
+      <section className="proof-strip" aria-label="MedPath outcomes">
         {[
-          ["PathFinder", "Explore careers and certification routes.", <Search key="i" />],
-          ["PathPrep", "Practice, flashcards, and exam readiness.", <BookOpen key="i" />],
-          ["PathCoach", "Atlas support for study and confidence.", <HeartHandshake key="i" />],
-          ["PathTrack", "XP, streaks, badges, and progress.", <Trophy key="i" />],
-          ["PathClinical", "Clinicals, OR etiquette, and simulations.", <Stethoscope key="i" />],
-          ["PathHire", "Resume, interviews, and career growth.", <BriefcaseBusiness key="i" />]
-        ].map(([title, copy, icon]) => (
-          <article className="pillar" key={String(title)}>
-            {icon}
-            <h3>{title}</h3>
-            <p>{copy}</p>
-          </article>
+          ["24/7", "mentor-style support"],
+          ["10+", "healthcare career paths"],
+          ["7 days", "Student Plus trial"],
+          ["1 path", "from class to career"]
+        ].map(([value, label]) => (
+          <div key={value}>
+            <strong>{value}</strong>
+            <span>{label}</span>
+          </div>
         ))}
       </section>
-    </>
+
+      <section className="landing-section">
+        <div className="section-heading">
+          <p className="eyebrow">Complete Learning System</p>
+          <h2>Everything students need from first class to first job.</h2>
+          <p>
+            MedPath combines career exploration, adaptive study tools, clinical preparation, and
+            hiring support in one polished healthcare education workspace.
+          </p>
+        </div>
+        <div className="feature-card-grid">
+          {featureCards.map((feature) => (
+            <article className="feature-card" key={feature.title}>
+              <span>{feature.icon}</span>
+              <h3>{feature.title}</h3>
+              <p>{feature.copy}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="learning-path-section">
+        <div className="section-heading">
+          <p className="eyebrow">Learning Paths</p>
+          <h2>A guided route through healthcare education.</h2>
+        </div>
+        <div className="learning-path-grid">
+          {learningPaths.map(([title, copy], index) => (
+            <article className="path-card" key={title}>
+              <span>{index + 1}</span>
+              <h3>{title}</h3>
+              <p>{copy}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="atlas-showcase">
+        <div>
+          <p className="eyebrow">
+            <MessageCircleHeart size={16} />
+            Atlas Tutor
+          </p>
+          <h2>Your healthcare learning companion.</h2>
+          <p>
+            Atlas explains difficult concepts simply, helps students recover from setbacks, builds
+            personalized study plans, and keeps each next step manageable.
+          </p>
+          <button className="primary" onClick={onStart}>
+            Meet Atlas
+            <ChevronRight size={18} />
+          </button>
+        </div>
+        <div className="atlas-chat-card">
+          <div className="message atlas-message">
+            <strong>Atlas</strong>
+            <p>
+              You are making steady progress. Today we will review sterile technique, then finish
+              with five confidence-building questions.
+            </p>
+          </div>
+          <div className="message user-message">
+            <strong>Student</strong>
+            <p>I am nervous about clinicals tomorrow.</p>
+          </div>
+          <div className="message atlas-message">
+            <strong>Atlas</strong>
+            <p>
+              That makes sense. Let us prepare your checklist, practice one patient introduction,
+              and choose one question to ask your preceptor.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="pricing-preview">
+        <div className="section-heading">
+          <p className="eyebrow">Plans</p>
+          <h2>Start free, upgrade when you are ready.</h2>
+        </div>
+        <div className="pricing-preview-grid">
+          {[
+            ["Explorer", "Free", "Career exploration, daily motivation, limited Atlas, and starter practice."],
+            ["Student Plus", "$14.99/mo", "Unlimited Atlas, practice questions, study plans, clinical prep, and hiring tools."],
+            ["Pro Student", "$24.99/mo", "Adaptive lessons, mock exams, advanced analytics, and priority guidance."]
+          ].map(([name, price, copy]) => (
+            <article className="price-card" key={name}>
+              <h3>{name}</h3>
+              <strong className="price">{price}</strong>
+              <p>{copy}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="faq-section">
+        <div className="section-heading">
+          <p className="eyebrow">FAQ</p>
+          <h2>Built for serious students, designed to feel supportive.</h2>
+        </div>
+        <div className="faq-grid">
+          {faqs.map(([question, answer]) => (
+            <article className="faq-item" key={question}>
+              <h3>{question}</h3>
+              <p>{answer}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="landing-cta">
+        <div>
+          <p className="eyebrow">Ready when you are</p>
+          <h2>Build confidence one step at a time.</h2>
+          <p>
+            Start your MedPath workspace and let Atlas help organize the next study session,
+            milestone, and career move.
+          </p>
+        </div>
+        <button className="primary" onClick={onStart}>
+          Get Started
+          <ChevronRight size={18} />
+        </button>
+      </section>
+    </div>
   );
 }
 
@@ -1355,13 +1520,110 @@ function Clinical() {
 }
 
 function CareerExplorer({ plan }: { plan: PlanKey }) {
-  const visibleCareers = plan === "explorer" ? careers.slice(0, 6) : careers;
+  const [careerSearch, setCareerSearch] = useState("");
+  const [selectedCareerTitle, setSelectedCareerTitle] = useState("Surgical Technologist");
+  type CareerPath = (typeof careers)[number];
+  const requiredCareerTitles = [
+    "Surgical Technologist",
+    "Medical Assistant",
+    "Sterile Processing Technician",
+    "Phlebotomist"
+  ];
+  const fallbackCareers: CareerPath[] = [
+    {
+      title: "Surgical Technologist",
+      icon: "ST",
+      salary: "$60k median",
+      education: "Accredited surgical technology program",
+      certification: "CST or TS-C",
+      outlook: "Stable OR demand",
+      responsibilities: "Prepare sterile fields, pass instruments, and support surgical teams.",
+      skills: "Sterile technique, focus, teamwork",
+      advancement: "First assistant, OR educator, surgical services leadership"
+    },
+    {
+      title: "Medical Assistant",
+      icon: "MA",
+      salary: "$42k median",
+      education: "Certificate or diploma",
+      certification: "CMA, RMA, CCMA, or NCMA",
+      outlook: "Strong outpatient growth",
+      responsibilities: "Support patient intake, vitals, EHR updates, injections, and clinic flow.",
+      skills: "Communication, accuracy, patient care",
+      advancement: "Lead MA, clinic manager, nursing pathway"
+    },
+    {
+      title: "Sterile Processing Technician",
+      icon: "SP",
+      salary: "$47k median",
+      education: "Certificate or employer training",
+      certification: "CRCST or CSPDT",
+      outlook: "High demand in hospitals",
+      responsibilities: "Decontaminate, inspect, assemble, sterilize, and track instruments.",
+      skills: "Detail orientation, infection control",
+      advancement: "Lead tech, educator, surgical technology"
+    },
+    {
+      title: "Phlebotomist",
+      icon: "PH",
+      salary: "$41k median",
+      education: "Short certificate program",
+      certification: "CPT or equivalent",
+      outlook: "Consistent lab demand",
+      responsibilities: "Collect blood specimens, label samples, and reassure patients.",
+      skills: "Manual dexterity, patient comfort",
+      advancement: "Lab assistant, MA, nursing pathway"
+    }
+  ];
+  const orderedCareers: CareerPath[] = [
+    ...requiredCareerTitles
+      .map((title) => careers.find((career) => career.title === title) || fallbackCareers.find((career) => career.title === title))
+      .filter((career): career is CareerPath => Boolean(career)),
+    ...careers.filter((career) => !requiredCareerTitles.includes(career.title))
+  ];
+  const availableCareers = plan === "explorer" ? orderedCareers.slice(0, 6) : orderedCareers;
+  const filteredCareers = availableCareers.filter((career) => {
+    const query = careerSearch.trim().toLowerCase();
+    if (!query) {
+      return true;
+    }
+    return [career.title, career.responsibilities, career.education, career.certification, career.skills]
+      .join(" ")
+      .toLowerCase()
+      .includes(query);
+  });
+  const visibleCareers = filteredCareers.length > 0 ? filteredCareers : availableCareers.slice(0, 4);
+  const selectedCareer =
+    availableCareers.find((career) => career.title === selectedCareerTitle) || visibleCareers[0] || fallbackCareers[0];
+
   return (
     <div className="stack">
       <div className="page-title">
-        <p className="eyebrow">PathFinder</p>
-        <h2>Explore healthcare careers before, during, and after school.</h2>
+        <p className="eyebrow">Career Discovery</p>
+        <h2>PathFinder</h2>
+        <p>
+          Discover healthcare career paths, compare training options, and find the role that fits
+          your strengths before, during, and after school.
+        </p>
       </div>
+
+      <section className="pathfinder-search panel" aria-label="Search healthcare career paths">
+        <Search />
+        <input
+          value={careerSearch}
+          onChange={(event) => setCareerSearch(event.target.value)}
+          placeholder="Search careers, certifications, skills, or training paths"
+          aria-label="Search healthcare careers"
+        />
+      </section>
+
+      {careerSearch && filteredCareers.length === 0 && (
+        <section className="panel pathfinder-empty">
+          <strong>No exact matches yet.</strong>
+          <p>Here are strong starter paths to explore while MedPath adds more career data.</p>
+        </section>
+      )}
+
       <section className="career-grid">
         {visibleCareers.map((career) => (
           <article className="career-card" key={career.title}>
@@ -1389,8 +1651,38 @@ function CareerExplorer({ plan }: { plan: PlanKey }) {
                 <dd>{career.skills}</dd>
               </div>
             </dl>
+            <button
+              className="secondary compact career-learn-more"
+              type="button"
+              onClick={() => setSelectedCareerTitle(career.title)}
+            >
+              Learn More
+              <ChevronRight size={16} />
+            </button>
           </article>
         ))}
+      </section>
+
+      <section className="panel pathfinder-detail" aria-live="polite">
+        <div>
+          <p className="eyebrow">Career Snapshot</p>
+          <h3>{selectedCareer.title}</h3>
+          <p>{selectedCareer.responsibilities}</p>
+        </div>
+        <div className="pathfinder-detail-grid">
+          <span>
+            <strong>{selectedCareer.salary}</strong>
+            Median salary
+          </span>
+          <span>
+            <strong>{selectedCareer.certification}</strong>
+            Common certification
+          </span>
+          <span>
+            <strong>{selectedCareer.advancement}</strong>
+            Growth path
+          </span>
+        </div>
       </section>
     </div>
   );
@@ -1740,11 +2032,16 @@ function Metric({ title, value, icon }: { title: string; value: string; icon: Re
 function Footer() {
   return (
     <footer className="footer">
-      <span>MedPath</span>
-      <a>About</a>
-      <a>Privacy Policy</a>
-      <a>Terms</a>
-      <a>Contact</a>
+      <div>
+        <strong>MedPath</strong>
+        <span>Learn. Practice. Pass.</span>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a>About</a>
+        <a>Privacy Policy</a>
+        <a>Terms</a>
+        <a>Contact</a>
+      </nav>
     </footer>
   );
 }
