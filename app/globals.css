@@ -1327,6 +1327,180 @@ textarea {
   max-width: 780px;
 }
 
+.flashcards-page {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.flashcard-filters,
+.flashcard-progress-panel,
+.flashcard-viewer-panel,
+.flashcard-actions-panel,
+.flashcard-session-complete {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--white) 88%, transparent);
+  box-shadow: 0 18px 58px rgba(13, 43, 82, 0.09);
+}
+
+.flashcard-filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(12rem, 0.8fr) minmax(12rem, 0.8fr);
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.flashcard-empty {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.flashcard-empty p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.flashcard-progress-panel {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.flashcard-progress-wide {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.flashcard-progress-wide span {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.flashcard-study-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(15rem, 0.32fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.flashcard-viewer-panel,
+.flashcard-actions-panel,
+.flashcard-session-complete {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.flashcard-viewer-top,
+.flashcard-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  justify-content: center;
+}
+
+.flashcard-viewer-top span {
+  width: fit-content;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: var(--bg-2);
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.premium-flashcard {
+  display: grid;
+  place-items: center;
+  gap: 1rem;
+  min-height: clamp(18rem, 44vw, 28rem);
+  padding: clamp(1.5rem, 5vw, 3rem);
+  border: 1px solid rgba(34, 199, 200, 0.36);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 82% 10%, rgba(34, 199, 200, 0.24), transparent 18rem),
+    linear-gradient(135deg, rgba(13, 43, 82, 0.96), rgba(21, 83, 129, 0.94) 58%, rgba(34, 199, 200, 0.86));
+  color: white;
+  text-align: center;
+  box-shadow: 0 28px 88px rgba(13, 43, 82, 0.18);
+  transform-style: preserve-3d;
+  transition: transform 360ms ease, box-shadow 180ms ease;
+}
+
+.premium-flashcard:hover {
+  box-shadow: 0 34px 96px rgba(13, 43, 82, 0.22);
+}
+
+.premium-flashcard.flipped {
+  transform: rotateY(180deg);
+}
+
+.premium-flashcard small,
+.premium-flashcard span {
+  transform: rotateY(0);
+}
+
+.premium-flashcard.flipped small,
+.premium-flashcard.flipped span {
+  transform: rotateY(180deg);
+}
+
+.premium-flashcard small {
+  font-weight: 900;
+  letter-spacing: 0;
+  opacity: 0.76;
+}
+
+.premium-flashcard span {
+  max-width: 42rem;
+  font-size: clamp(1.55rem, 4vw, 3rem);
+  font-weight: 900;
+  line-height: 1.12;
+}
+
+.flashcard-actions-panel button,
+.flashcard-navigation button {
+  justify-content: center;
+}
+
+.flashcard-action-summary {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.25rem 0.6rem;
+  padding: 0.9rem;
+  border-radius: 8px;
+  background: var(--bg-2);
+}
+
+.flashcard-action-summary small {
+  color: var(--muted);
+}
+
+.flashcard-session-complete {
+  place-items: center;
+  padding: clamp(1.5rem, 5vw, 3rem);
+  text-align: center;
+  animation: rise-in 220ms ease both;
+}
+
+.flashcard-session-complete h3 {
+  margin: 0;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(2.5rem, 6vw, 4.8rem);
+  color: var(--navy);
+}
+
+.flashcard-session-complete p {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.dark .flashcard-session-complete h3 {
+  color: #f7fbff;
+}
+
 .answer {
   padding: 1rem;
   border: 1px solid var(--line);
@@ -2136,6 +2310,7 @@ td small {
   .shell,
   .atlas-showcase,
   .course-viewer,
+  .flashcard-study-layout,
   .dashboard-hero,
   .dashboard-layout,
   .dashboard-two-column,
@@ -2170,6 +2345,8 @@ td small {
   .feature-card-grid,
   .learning-path-grid,
   .pathfinder-detail-grid,
+  .flashcard-filters,
+  .flashcard-progress-panel,
   .suggested-prompts,
   .dashboard-quick-actions,
   .learning-progress-grid,
@@ -2219,6 +2396,8 @@ td small {
   .learning-path-grid,
   .pricing-preview-grid,
   .faq-grid,
+  .flashcard-filters,
+  .flashcard-progress-panel,
   .suggested-prompts,
   .dashboard-quick-actions,
   .learning-progress-grid,

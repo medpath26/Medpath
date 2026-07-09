@@ -1640,41 +1640,319 @@ function Atlas({
 }
 
 function Practice() {
-  const [selected, setSelected] = useState<string | null>(null);
-  const correct = selected === "Maintain a sterile field and pass instruments safely.";
+  const flashcards = [
+    {
+      category: "Surgical Technology",
+      difficulty: "Intermediate",
+      front: "What is the surgical technologist's primary responsibility during a procedure?",
+      back: "Maintain the sterile field, anticipate instrument needs, and support safe team communication."
+    },
+    {
+      category: "Surgical Technology",
+      difficulty: "Beginner",
+      front: "Sterile Field",
+      back: "An area kept free of microorganisms during a procedure."
+    },
+    {
+      category: "Medical Assisting",
+      difficulty: "Beginner",
+      front: "What are two common duties of a medical assistant?",
+      back: "Patient intake, vital signs, EHR updates, injections, scheduling, and clinical support."
+    },
+    {
+      category: "Medical Assisting",
+      difficulty: "Intermediate",
+      front: "What should you do before administering an injection?",
+      back: "Verify the order, confirm patient identity, check allergies, prepare the correct medication, and use proper technique."
+    },
+    {
+      category: "Sterile Processing",
+      difficulty: "Intermediate",
+      front: "What is decontamination?",
+      back: "The process of removing soil and reducing microorganisms from instruments before inspection and sterilization."
+    },
+    {
+      category: "Sterile Processing",
+      difficulty: "Advanced",
+      front: "Why is instrument inspection important?",
+      back: "Inspection confirms instruments are clean, functional, assembled correctly, and safe for patient care."
+    },
+    {
+      category: "Anatomy",
+      difficulty: "Beginner",
+      front: "Anatomy",
+      back: "The study of body structures."
+    },
+    {
+      category: "Anatomy",
+      difficulty: "Intermediate",
+      front: "Homeostasis",
+      back: "The body's ability to maintain a stable internal balance."
+    },
+    {
+      category: "Medical Terminology",
+      difficulty: "Beginner",
+      front: "Cardi/o",
+      back: "Heart."
+    },
+    {
+      category: "Medical Terminology",
+      difficulty: "Beginner",
+      front: "-itis",
+      back: "Inflammation."
+    },
+    {
+      category: "Infection Control",
+      difficulty: "Beginner",
+      front: "What is one of the most effective ways to reduce infection transmission?",
+      back: "Hand hygiene before and after patient care."
+    },
+    {
+      category: "Infection Control",
+      difficulty: "Intermediate",
+      front: "PPE",
+      back: "Personal protective equipment used to reduce exposure to infectious material."
+    }
+  ];
+  const categories = [
+    "All",
+    "Surgical Technology",
+    "Medical Assisting",
+    "Sterile Processing",
+    "Anatomy",
+    "Medical Terminology",
+    "Infection Control"
+  ];
+  const [category, setCategory] = useState("All");
+  const [difficulty, setDifficulty] = useState("All");
+  const [search, setSearch] = useState("");
+  const [cardIndex, setCardIndex] = useState(0);
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [knownCards, setKnownCards] = useState<string[]>([]);
+  const [reviewCards, setReviewCards] = useState<string[]>([]);
+  const [favoriteCards, setFavoriteCards] = useState<string[]>([]);
+  const [bookmarkedCards, setBookmarkedCards] = useState<string[]>([]);
+  const [shuffleSeed, setShuffleSeed] = useState(0);
+  const filteredCards = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    const cards = flashcards.filter((card) => {
+      const matchesCategory = category === "All" || card.category === category;
+      const matchesDifficulty = difficulty === "All" || card.difficulty === difficulty;
+      const matchesSearch = !query || `${card.front} ${card.back} ${card.category}`.toLowerCase().includes(query);
+      return matchesCategory && matchesDifficulty && matchesSearch;
+    });
+
+    if (shuffleSeed % 2 === 1) {
+      return [...cards].reverse();
+    }
+
+    return cards;
+  }, [category, difficulty, search, shuffleSeed]);
+  const activeCards = filteredCards.length ? filteredCards : flashcards;
+  const activeIndex = Math.min(cardIndex, activeCards.length - 1);
+  const currentCard = activeCards[activeIndex];
+  const currentCardKey = `${currentCard.category}-${currentCard.front}`;
+  const studiedKeys = new Set([...knownCards, ...reviewCards]);
+  const studiedCount = activeCards.filter((card) => studiedKeys.has(`${card.category}-${card.front}`)).length;
+  const knownCount = activeCards.filter((card) => knownCards.includes(`${card.category}-${card.front}`)).length;
+  const cardsRemaining = Math.max(0, activeCards.length - studiedCount);
+  const accuracy = studiedCount ? Math.round((knownCount / studiedCount) * 100) : 0;
+  const progressValue = Math.round((studiedCount / activeCards.length) * 100);
+  const sessionComplete = studiedCount === activeCards.length && studiedCount > 0;
+
+  function resetPosition() {
+    setCardIndex(0);
+    setIsFlipped(false);
+  }
+
+  function markKnown() {
+    setKnownCards((items) => [...new Set([...items, currentCardKey])]);
+    setReviewCards((items) => items.filter((item) => item !== currentCardKey));
+  }
+
+  function reviewAgain() {
+    setReviewCards((items) => [...new Set([...items, currentCardKey])]);
+    setKnownCards((items) => items.filter((item) => item !== currentCardKey));
+  }
+
+  function studyAgain() {
+    setKnownCards([]);
+    setReviewCards([]);
+    setCardIndex(0);
+    setIsFlipped(false);
+  }
+
   return (
-    <div className="stack">
+    <div className="flashcards-page">
       <div className="page-title">
         <p className="eyebrow">PathPrep</p>
-        <h2>Practice questions that teach, not judge.</h2>
+        <h2>Flashcards</h2>
+        <p>Master concepts with active recall.</p>
       </div>
-      <section className="panel quiz">
-        <p className="tag">Sterile Technique</p>
-        <h3>What is the primary responsibility of a surgical technologist during a procedure?</h3>
-        {[
-          "Diagnose the patient before surgery.",
-          "Maintain a sterile field and pass instruments safely.",
-          "Prescribe post-operative medication.",
-          "Approve insurance documentation."
-        ].map((option) => (
-          <button
-            className={selected === option ? "selected answer" : "answer"}
-            key={option}
-            onClick={() => setSelected(option)}
+
+      <section className="flashcard-filters" aria-label="Flashcard filters">
+        <label>
+          Search
+          <input
+            value={search}
+            onChange={(event) => {
+              setSearch(event.target.value);
+              resetPosition();
+            }}
+            placeholder="Search terms, concepts, or categories"
+          />
+        </label>
+        <label>
+          Category
+          <select
+            value={category}
+            onChange={(event) => {
+              setCategory(event.target.value);
+              resetPosition();
+            }}
           >
-            {option}
-          </button>
-        ))}
-        {selected && (
-          <div className={correct ? "explanation success" : "explanation"}>
-            <strong>{correct ? "Great progress." : "Good attempt. Let’s work through this together."}</strong>
-            <p>
-              The surgical technologist protects the sterile field, anticipates instrument needs,
-              and supports safe team communication. This is a core OR responsibility.
-            </p>
-          </div>
-        )}
+            {categories.map((item) => (
+              <option key={item}>{item}</option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Difficulty
+          <select
+            value={difficulty}
+            onChange={(event) => {
+              setDifficulty(event.target.value);
+              resetPosition();
+            }}
+          >
+            {["All", "Beginner", "Intermediate", "Advanced"].map((item) => (
+              <option key={item}>{item}</option>
+            ))}
+          </select>
+        </label>
       </section>
+
+      {filteredCards.length === 0 && (
+        <section className="panel flashcard-empty">
+          <strong>No exact matches found.</strong>
+          <p>Showing the full MedPath flashcard deck so your study session never goes blank.</p>
+        </section>
+      )}
+
+      <section className="flashcard-progress-panel">
+        <Metric title="Cards Studied" value={`${studiedCount}`} icon={<BookOpen />} />
+        <Metric title="Cards Remaining" value={`${cardsRemaining}`} icon={<Target />} />
+        <Metric title="Accuracy" value={`${accuracy}%`} icon={<BarChart3 />} />
+        <Metric title="Study Streak" value="7 days" icon={<Sparkles />} />
+        <div className="flashcard-progress-wide">
+          <span>{progressValue}% complete</span>
+          <div className="progress-bar" aria-label={`${progressValue}% flashcard progress`}>
+            <span style={{ width: `${progressValue}%` }} />
+          </div>
+        </div>
+      </section>
+
+      {sessionComplete ? (
+        <section className="flashcard-session-complete" aria-live="polite">
+          <h3>🎉 Session Complete</h3>
+          <p>Cards Reviewed: {studiedCount}</p>
+          <p>Accuracy: {accuracy}%</p>
+          <p>XP Earned: {studiedCount * 12}</p>
+          <button className="primary" onClick={studyAgain}>
+            Study Again
+          </button>
+        </section>
+      ) : (
+        <section className="flashcard-study-layout">
+          <div className="flashcard-viewer-panel">
+            <div className="flashcard-viewer-top">
+              <span>{currentCard.category}</span>
+              <span>{currentCard.difficulty}</span>
+              <span>{activeIndex + 1} / {activeCards.length}</span>
+            </div>
+            <button
+              className={isFlipped ? "premium-flashcard flipped" : "premium-flashcard"}
+              onClick={() => setIsFlipped((value) => !value)}
+              aria-label={isFlipped ? "Show flashcard front" : "Show flashcard back"}
+            >
+              <small>{isFlipped ? "Back" : "Front"}</small>
+              <span>{isFlipped ? currentCard.back : currentCard.front}</span>
+            </button>
+            <div className="flashcard-navigation">
+              <button className="secondary" onClick={() => setIsFlipped((value) => !value)}>
+                Flip
+              </button>
+              <button
+                className="secondary"
+                onClick={() => {
+                  setCardIndex((index) => Math.max(0, index - 1));
+                  setIsFlipped(false);
+                }}
+              >
+                Previous
+              </button>
+              <button
+                className="secondary"
+                onClick={() => {
+                  setCardIndex((index) => Math.min(activeCards.length - 1, index + 1));
+                  setIsFlipped(false);
+                }}
+              >
+                Next
+              </button>
+              <button
+                className="secondary"
+                onClick={() => {
+                  setShuffleSeed((value) => value + 1);
+                  setCardIndex(0);
+                  setIsFlipped(false);
+                }}
+              >
+                Shuffle
+              </button>
+            </div>
+          </div>
+
+          <aside className="flashcard-actions-panel" aria-label="Study actions">
+            <button className="primary" onClick={markKnown}>
+              <Check size={18} />
+              Mark Known
+            </button>
+            <button className="secondary" onClick={reviewAgain}>
+              <Brain size={18} />
+              Review Again
+            </button>
+            <button
+              className={favoriteCards.includes(currentCardKey) ? "primary" : "secondary"}
+              onClick={() =>
+                setFavoriteCards((items) =>
+                  items.includes(currentCardKey) ? items.filter((item) => item !== currentCardKey) : [...items, currentCardKey]
+                )
+              }
+            >
+              <Star size={18} />
+              Favorite
+            </button>
+            <button
+              className={bookmarkedCards.includes(currentCardKey) ? "primary" : "secondary"}
+              onClick={() =>
+                setBookmarkedCards((items) =>
+                  items.includes(currentCardKey) ? items.filter((item) => item !== currentCardKey) : [...items, currentCardKey]
+                )
+              }
+            >
+              <BadgeCheck size={18} />
+              Bookmark
+            </button>
+            <div className="flashcard-action-summary">
+              <strong>{favoriteCards.length}</strong>
+              <small>favorites</small>
+              <strong>{bookmarkedCards.length}</strong>
+              <small>bookmarked</small>
+            </div>
+          </aside>
+        </section>
+      )}
     </div>
   );
 }
