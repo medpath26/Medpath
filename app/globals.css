@@ -41,6 +41,12 @@ button {
   cursor: pointer;
 }
 
+button:disabled,
+input:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
 .app {
   min-height: 100vh;
   background:
@@ -927,10 +933,26 @@ td button {
   gap: 1rem;
 }
 
+.guest-atlas-counter {
+  width: fit-content;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid rgba(34, 199, 200, 0.28);
+  border-radius: 999px;
+  background: rgba(34, 199, 200, 0.12);
+  color: color-mix(in srgb, var(--teal) 50%, var(--navy));
+  font-weight: 900;
+}
+
+.guest-atlas-history {
+  display: grid;
+  gap: 0.85rem;
+}
+
 .message {
   padding: 1rem;
   border-radius: 8px;
   background: var(--bg-2);
+  animation: rise-in 220ms ease both;
 }
 
 .atlas-message {
@@ -945,6 +967,10 @@ td button {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 0.7rem;
+}
+
+.chat-input input:disabled {
+  background: color-mix(in srgb, var(--bg-2) 80%, var(--white));
 }
 
 input,
@@ -1243,6 +1269,31 @@ td small {
   width: min(100%, 540px);
 }
 
+.guest-atlas-modal {
+  animation: rise-in 220ms ease both;
+}
+
+.guest-atlas-modal > svg {
+  color: var(--teal);
+}
+
+.guest-atlas-modal-actions {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.text-button {
+  min-height: 42px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.text-button:hover {
+  color: var(--navy);
+}
+
 .close-button {
   position: absolute;
   top: 0.9rem;
@@ -1316,6 +1367,17 @@ td small {
 
 .footer a {
   color: var(--muted);
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 1050px) {

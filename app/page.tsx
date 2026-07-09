@@ -83,6 +83,12 @@ const mentorReplies: Record<string, string> = {
     "Let us turn that into a clear path. I will explain the concept simply, give you one example, and suggest a focused practice set. Atlas guidance should be verified with your instructor and trusted course materials."
 };
 
+type AtlasChatMessage = {
+  id: string;
+  role: "atlas" | "user";
+  text: string;
+};
+
 const quickCards: Array<{
   key: ViewKey;
   feature: FeatureKey;
@@ -202,6 +208,19 @@ function fallbackProgress(userId: string, profile: ProfileRecord): StudentProgre
   };
 }
 
+function getAtlasReply(message: string) {
+  const normalized = message.toLowerCase();
+  const key = normalized.includes("overwhelmed")
+    ? "overwhelmed"
+    : normalized.includes("failed") || normalized.includes("exam")
+      ? "failed"
+      : normalized.includes("nervous") || normalized.includes("clinicals")
+        ? "nervous"
+        : "default";
+
+  return mentorReplies[key];
+}
+
 export default function Home() {
   const [view, setView] = useState<ViewKey>("landing");
   const [darkMode, setDarkMode] = useState(false);
@@ -219,6 +238,16 @@ export default function Home() {
   const [lockedFeature, setLockedFeature] = useState<FeatureKey | null>(null);
   const [chatInput, setChatInput] = useState("");
   const [mentorAnswer, setMentorAnswer] = useState(mentorReplies.default);
+  const [guestAtlasInput, setGuestAtlasInput] = useState("");
+  const [guestAtlasQuestionCount, setGuestAtlasQuestionCount] = useState(0);
+  const [showGuestAtlasModal, setShowGuestAtlasModal] = useState(false);
+  const [guestAtlasHistory, setGuestAtlasHistory] = useState<AtlasChatMessage[]>([
+    {
+      id: "guest-welcome",
+      role: "atlas",
+      text: "Welcome to Atlas. Ask me about healthcare programs, clinical prep, study anxiety, certification exams, or choosing a career path."
+    }
+  ]);
   const [studyHours, setStudyHours] = useState(8);
   const [examDate, setExamDate] = useState("2026-08-14");
   const [adminSearch, setAdminSearch] = useState("");
@@ -495,12 +524,12 @@ export default function Home() {
   }, [studyHours]);
 
   function goTo(nextView: ViewKey, feature?: FeatureKey) {
-    if (!signedIn && nextView !== "landing" && nextView !== "career") {
+    if (!signedIn && !["landing", "career", "atlas", "billing"].includes(nextView)) {
       setAuthMode("login");
       setAuthNotice("Please log in to open your MedPath workspace.");
       return;
     }
-    if (feature && !canAccess(plan, feature)) {
+    if (signedIn && feature && !canAccess(plan, feature)) {
       setLockedFeature(feature);
       return;
     }
@@ -629,16 +658,41 @@ export default function Home() {
 
   function askAtlas(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const normalized = chatInput.toLowerCase();
-    const key = normalized.includes("overwhelmed")
-      ? "overwhelmed"
-      : normalized.includes("failed") || normalized.includes("exam")
-        ? "failed"
-        : normalized.includes("nervous") || normalized.includes("clinicals")
-          ? "nervous"
-          : "default";
-    setMentorAnswer(mentorReplies[key]);
+    setMentorAnswer(getAtlasReply(chatInput));
     setChatInput("");
+  }
+
+  function askGuestAtlas(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const question = guestAtlasInput.trim();
+
+    if (!question || guestAtlasQuestionCount >= 3) {
+      if (guestAtlasQuestionCount >= 3) {
+        setShowGuestAtlasModal(true);
+      }
+      return;
+    }
+
+    const nextCount = guestAtlasQuestionCount + 1;
+    setGuestAtlasHistory((history) => [
+      ...history,
+      {
+        id: `guest-question-${nextCount}`,
+        role: "user",
+        text: question
+      },
+      {
+        id: `guest-answer-${nextCount}`,
+        role: "atlas",
+        text: getAtlasReply(question)
+      }
+    ]);
+    setGuestAtlasQuestionCount(nextCount);
+    setGuestAtlasInput("");
+
+    if (nextCount === 3) {
+      setShowGuestAtlasModal(true);
+    }
   }
 
   return (
@@ -663,6 +717,28 @@ export default function Home() {
       {view === "career" && !signedIn && (
         <section className="public-workspace">
           <CareerExplorer plan="explorer" />
+        </section>
+      )}
+
+      {view === "atlas" && !signedIn && (
+        <section className="public-workspace">
+          <Atlas
+            name="Guest"
+            program="Healthcare career explorer"
+            answer={mentorAnswer}
+            input={guestAtlasInput}
+            setInput={setGuestAtlasInput}
+            onSubmit={askGuestAtlas}
+            messages={guestAtlasHistory}
+            freeQuestionsRemaining={Math.max(0, 3 - guestAtlasQuestionCount)}
+            isChatDisabled={guestAtlasQuestionCount >= 3}
+          />
+        </section>
+      )}
+
+      {view === "billing" && !signedIn && (
+        <section className="public-workspace">
+          <Billing plan="explorer" setPlan={() => setAuthMode("signup")} onLock={() => setAuthMode("signup")} />
         </section>
       )}
 
@@ -760,6 +836,20 @@ export default function Home() {
             setLockedFeature(null);
             goTo("billing");
           }}
+        />
+      )}
+
+      {showGuestAtlasModal && (
+        <GuestAtlasUpgradeModal
+          onPlans={() => {
+            setShowGuestAtlasModal(false);
+            setView("billing");
+          }}
+          onSignup={() => {
+            setShowGuestAtlasModal(false);
+            setAuthMode("signup");
+          }}
+          onClose={() => setShowGuestAtlasModal(false)}
         />
       )}
 
@@ -1333,7 +1423,10 @@ function Atlas({
   answer,
   input,
   setInput,
-  onSubmit
+  onSubmit,
+  messages,
+  freeQuestionsRemaining,
+  isChatDisabled = false
 }: {
   name: string;
   program: string;
@@ -1341,7 +1434,25 @@ function Atlas({
   input: string;
   setInput: (value: string) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  messages?: AtlasChatMessage[];
+  freeQuestionsRemaining?: number;
+  isChatDisabled?: boolean;
 }) {
+  const chatMessages =
+    messages ??
+    [
+      {
+        id: "atlas-greeting",
+        role: "atlas" as const,
+        text: `Good morning, ${name}. Yesterday you strengthened sterile technique. Today we can continue with instrumentation, or talk through anything that feels heavy.`
+      },
+      {
+        id: "atlas-answer",
+        role: "user" as const,
+        text: answer
+      }
+    ];
+
   return (
     <div className="stack">
       <div className="page-title">
@@ -1364,16 +1475,21 @@ function Atlas({
           </ul>
         </div>
         <div className="chat-panel">
-          <div className="message atlas-message">
-            <strong>Atlas</strong>
-            <p>
-              Good morning, {name}. Yesterday you strengthened sterile technique. Today we can
-              continue with instrumentation, or talk through anything that feels heavy.
-            </p>
-          </div>
-          <div className="message user-message">
-            <strong>You</strong>
-            <p>{answer}</p>
+          {typeof freeQuestionsRemaining === "number" && (
+            <div className="guest-atlas-counter" aria-live="polite">
+              Free Questions Remaining: {freeQuestionsRemaining}
+            </div>
+          )}
+          <div className="guest-atlas-history" aria-label="Atlas conversation history">
+            {chatMessages.map((message) => (
+              <div
+                className={message.role === "atlas" ? "message atlas-message" : "message user-message"}
+                key={message.id}
+              >
+                <strong>{message.role === "atlas" ? "Atlas" : "You"}</strong>
+                <p>{message.text}</p>
+              </div>
+            ))}
           </div>
           <form className="chat-input" onSubmit={onSubmit}>
             <input
@@ -1381,9 +1497,10 @@ function Atlas({
               onChange={(event) => setInput(event.target.value)}
               placeholder='Try “I’m overwhelmed” or “I’m nervous for clinicals”'
               aria-label="Ask Atlas"
+              disabled={isChatDisabled}
             />
-            <button className="primary compact" type="submit">
-              Ask
+            <button className="primary compact" type="submit" disabled={isChatDisabled}>
+              {isChatDisabled ? "Limit Reached" : "Ask"}
             </button>
           </form>
           <p className="ai-note">
@@ -2014,6 +2131,48 @@ function UpgradeOverlay({
         </ul>
         <strong>$14.99/month after your 7-day trial</strong>
         <button className="primary" onClick={onUpgrade}>Upgrade Now</button>
+      </section>
+    </div>
+  );
+}
+
+function GuestAtlasUpgradeModal({
+  onPlans,
+  onSignup,
+  onClose
+}: {
+  onPlans: () => void;
+  onSignup: () => void;
+  onClose: () => void;
+}) {
+  return (
+    <div className="modal-backdrop blur">
+      <section
+        className="upgrade-modal guest-atlas-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="guest-atlas-upgrade-title"
+      >
+        <button className="close-button" onClick={onClose} aria-label="Close">
+          <X size={18} />
+        </button>
+        <MessageCircleHeart />
+        <h2 id="guest-atlas-upgrade-title">Continue Learning with Atlas</h2>
+        <p>
+          You've used your 3 free Atlas questions. Unlock unlimited tutoring, personalized study
+          help, quizzes, and certification support by upgrading to MedPath Pro.
+        </p>
+        <div className="guest-atlas-modal-actions">
+          <button className="primary" onClick={onPlans}>
+            View Plans
+          </button>
+          <button className="secondary" onClick={onSignup}>
+            Create Free Account
+          </button>
+          <button className="text-button" onClick={onClose}>
+            Maybe Later
+          </button>
+        </div>
       </section>
     </div>
   );
