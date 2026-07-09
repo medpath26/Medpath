@@ -474,7 +474,42 @@ td button {
   color: white;
 }
 
+.student-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(16rem, 0.36fr);
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.student-summary {
+  display: grid;
+  align-content: center;
+  gap: 0.45rem;
+  padding: 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(34, 199, 200, 0.16), transparent),
+    color-mix(in srgb, var(--white) 90%, transparent);
+  box-shadow: 0 16px 48px rgba(13, 43, 82, 0.08);
+}
+
+.student-summary span,
+.student-summary small {
+  color: var(--muted);
+}
+
+.student-summary strong {
+  color: var(--navy);
+  font-size: 1.35rem;
+}
+
+.dark .student-summary strong {
+  color: #f7fbff;
+}
+
 .dashboard-columns,
+.student-dashboard-grid,
 .mentor,
 .study-layout,
 .resume-layout,
@@ -482,6 +517,10 @@ td button {
   display: grid;
   grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
   gap: 1rem;
+}
+
+.student-dashboard-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .panel {
@@ -497,6 +536,8 @@ td button {
 }
 
 .clean-list,
+.goal-list,
+.activity-list,
 .schedule,
 .price-card ul,
 .upgrade-modal ul {
@@ -505,6 +546,110 @@ td button {
   padding: 0;
   margin: 0;
   list-style: none;
+}
+
+.goal-list li,
+.activity-list li {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.goal-list li:last-child,
+.activity-list li:last-child {
+  border-bottom: 0;
+}
+
+.goal-list strong,
+.activity-list strong,
+.module-progress strong {
+  display: block;
+}
+
+.goal-list small,
+.activity-list small,
+.module-progress small {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.goal-list em,
+.activity-list em,
+.module-progress > span,
+.quick-access-card em {
+  flex: 0 0 auto;
+  padding: 0.28rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(34, 199, 200, 0.14);
+  color: var(--navy);
+  font-size: 0.74rem;
+  font-style: normal;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.module-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.module-progress {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.55rem 1rem;
+  align-items: center;
+}
+
+.module-progress .progress-bar {
+  grid-column: 1 / -1;
+}
+
+.quick-access-panel {
+  display: grid;
+  gap: 1rem;
+  padding: 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--white) 88%, transparent);
+  box-shadow: 0 16px 48px rgba(13, 43, 82, 0.08);
+}
+
+.quick-access-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.quick-access-card {
+  position: relative;
+  display: grid;
+  gap: 0.55rem;
+  min-height: 174px;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--white);
+  color: inherit;
+  text-align: left;
+}
+
+.quick-access-card svg {
+  color: var(--teal);
+}
+
+.quick-access-card small {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.quick-access-card em {
+  width: fit-content;
+  margin-top: auto;
 }
 
 .quick-grid,
@@ -644,11 +789,16 @@ label {
   overflow: hidden;
 }
 
-.progress-bar span {
+.progress-bar span,
+.progress-bar i {
   display: block;
   height: 100%;
   border-radius: inherit;
   background: linear-gradient(90deg, var(--teal), var(--success));
+}
+
+.progress-bar i {
+  font-style: normal;
 }
 
 .schedule li,
@@ -839,6 +989,7 @@ td small {
   .hero,
   .shell,
   .dashboard-columns,
+  .student-hero,
   .mentor,
   .study-layout,
   .resume-layout,
@@ -856,6 +1007,7 @@ td small {
 
   .product-band,
   .quick-grid,
+  .quick-access-grid,
   .clinical-grid,
   .career-grid,
   .pricing-grid,
@@ -890,6 +1042,8 @@ td small {
 
   .product-band,
   .quick-grid,
+  .quick-access-grid,
+  .student-dashboard-grid,
   .clinical-grid,
   .career-grid,
   .pricing-grid,

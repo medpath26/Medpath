@@ -242,6 +242,129 @@ export function canAccess(plan: PlanKey, feature: FeatureKey) {
   return planAccess[plan].includes(feature);
 }
 
+export type StudentProgress = {
+  userId: string;
+  program: string;
+  certificationGoal: string;
+  examDate: string;
+  weeklyProgress: number;
+  pathProgress: number;
+  streakDays: number;
+  xp: number;
+  level: string;
+  nextMilestone: string;
+  recommendedTopic: string;
+  upcomingGoals: Array<{
+    id: string;
+    title: string;
+    due: string;
+    minutes: number;
+    status: "ready" | "in_progress" | "scheduled";
+  }>;
+  recentActivity: Array<{
+    id: string;
+    title: string;
+    detail: string;
+    time: string;
+    score?: number;
+  }>;
+  learningModules: Array<{
+    id: string;
+    title: string;
+    category: "Quiz" | "Flashcards" | "Practice Exam" | "Atlas AI";
+    progress: number;
+    status: string;
+  }>;
+};
+
+export const studentProgressSeed: StudentProgress = {
+  userId: "demo-user",
+  program: "",
+  certificationGoal: "Certification readiness",
+  examDate: "2026-08-14",
+  weeklyProgress: 64,
+  pathProgress: 52,
+  streakDays: 14,
+  xp: 2480,
+  level: "Clinician in Training",
+  nextMilestone: "Certification",
+  recommendedTopic: "Instrumentation and sterile field maintenance",
+  upcomingGoals: [
+    {
+      id: "goal-sterile-technique",
+      title: "Review sterile technique scenarios",
+      due: "Today",
+      minutes: 25,
+      status: "ready"
+    },
+    {
+      id: "goal-vitals",
+      title: "Complete vital signs flashcards",
+      due: "Tomorrow",
+      minutes: 15,
+      status: "scheduled"
+    },
+    {
+      id: "goal-practice-exam",
+      title: "Take a 30-question readiness check",
+      due: "Friday",
+      minutes: 45,
+      status: "in_progress"
+    }
+  ],
+  recentActivity: [
+    {
+      id: "activity-sterile-quiz",
+      title: "Sterile technique quiz",
+      detail: "Completed with focused improvement on contamination rules.",
+      time: "Today",
+      score: 88
+    },
+    {
+      id: "activity-atlas",
+      title: "Atlas study session",
+      detail: "Reviewed test anxiety plan and next-step study rhythm.",
+      time: "Yesterday"
+    },
+    {
+      id: "activity-badge",
+      title: "Clinical Ready badge",
+      detail: "Earned after finishing patient interaction checklist.",
+      time: "2 days ago"
+    }
+  ],
+  learningModules: [
+    {
+      id: "module-quiz",
+      title: "Medical terminology quiz",
+      category: "Quiz",
+      progress: 72,
+      status: "Continue"
+    },
+    {
+      id: "module-flashcards",
+      title: "Vital signs flashcards",
+      category: "Flashcards",
+      progress: 46,
+      status: "Review"
+    },
+    {
+      id: "module-practice-exam",
+      title: "Certification practice exam",
+      category: "Practice Exam",
+      progress: 18,
+      status: "Start"
+    },
+    {
+      id: "module-atlas",
+      title: "Ask Atlas about weak spots",
+      category: "Atlas AI",
+      progress: 100,
+      status: "Open"
+    }
+  ]
+};
+
 export const careers = [
   {
     title: "Medical Assistant",
