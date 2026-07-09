@@ -40,7 +40,7 @@ export const featureLabels: Record<FeatureKey, string> = {
   resumeBuilder: "Resume Builder",
   interviewCoach: "Interview Coach",
   pdfExports: "PDF exports",
-  adaptiveLearning: "Adaptive AI learning",
+  adaptiveLearning: "Adaptive MedPath learning",
   clinicalSimulations: "Clinical simulations",
   mockExams: "Mock certification exams",
   advancedAnalytics: "Advanced analytics",
@@ -181,7 +181,7 @@ export const plans: Record<
     highlights: [
       "Limited Career Explorer",
       "10 Atlas conversations per month",
-      "5 AI-generated practice questions per day",
+      "5 Atlas practice questions per day",
       "Daily motivation"
     ]
   },
@@ -271,7 +271,7 @@ export type StudentProgress = {
   learningModules: Array<{
     id: string;
     title: string;
-    category: "Quiz" | "Flashcards" | "Practice Exam" | "Atlas AI";
+    category: "Quiz" | "Flashcards" | "Practice Exam" | "Atlas Tutor";
     progress: number;
     status: string;
   }>;
@@ -358,7 +358,7 @@ export const studentProgressSeed: StudentProgress = {
     {
       id: "module-atlas",
       title: "Ask Atlas about weak spots",
-      category: "Atlas AI",
+      category: "Atlas Tutor",
       progress: 100,
       status: "Open"
     }

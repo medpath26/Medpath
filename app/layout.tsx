@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "MedPath AI | Learn with confidence. Care with purpose.",
+  title: "MedPath | Learn. Practice. Pass.",
   description:
-    "An AI-powered healthcare career mentor for Medical Assistant and Surgical Technology students."
+    "A MedPath healthcare career mentor for Medical Assistant and Surgical Technology students."
 };
 
 export default function RootLayout({

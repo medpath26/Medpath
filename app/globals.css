@@ -99,6 +99,13 @@ button {
   text-overflow: ellipsis;
 }
 
+.brand-logo {
+  display: block;
+  width: auto;
+  height: 44px;
+  object-fit: contain;
+}
+
 .logo-mark {
   width: 44px;
   height: 44px;
@@ -1037,6 +1044,10 @@ td small {
   .desktop-nav,
   .brand small {
     display: none;
+  }
+
+  .brand-logo {
+    height: 36px;
   }
 
   .topbar {

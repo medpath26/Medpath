@@ -1,6 +1,6 @@
-# MedPath AI
+# MedPath
 
-Modern SaaS prototype for MedPath AI, a healthcare career operating system for Medical Assistant and Surgical Technology students.
+Modern SaaS prototype for MedPath, a healthcare career operating system for Medical Assistant and Surgical Technology students.
 
 ## What is included
 

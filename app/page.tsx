@@ -80,7 +80,7 @@ const mentorReplies: Record<string, string> = {
   nervous:
     "Clinical nerves are normal because you care. Tonight, review the readiness checklist, practice one patient introduction out loud, and prepare your uniform and documents. Tomorrow, focus on professionalism first.",
   default:
-    "Let us turn that into a clear path. I will explain the concept simply, give you one example, and suggest a focused practice set. AI-generated guidance should be verified with your instructor and trusted course materials."
+    "Let us turn that into a clear path. I will explain the concept simply, give you one example, and suggest a focused practice set. Atlas guidance should be verified with your instructor and trusted course materials."
 };
 
 const quickCards: Array<{
@@ -208,6 +208,7 @@ export default function Home() {
   const [authMode, setAuthMode] = useState<"signup" | "login" | "forgot" | null>(null);
   const [authSession, setAuthSession] = useState<Session | null>(null);
   const [authUser, setAuthUser] = useState<User | null>(null);
+  const [workspaceReady, setWorkspaceReady] = useState(false);
   const [profile, setProfile] = useState<ProfileRecord | null>(null);
   const [studentProgress, setStudentProgress] = useState<StudentProgress>(studentProgressSeed);
   const [authName, setAuthName] = useState("");
@@ -242,8 +243,10 @@ export default function Home() {
       setAuthSession(session);
       setAuthUser(session?.user ?? null);
       if (session?.user) {
+        setWorkspaceReady(false);
         const loaded = await loadUserWorkspace(session.user);
         if (loaded) {
+          setWorkspaceReady(true);
           setView("dashboard");
         }
       }
@@ -253,8 +256,11 @@ export default function Home() {
       setAuthSession(session);
       setAuthUser(session?.user ?? null);
       if (session?.user) {
-        await loadUserWorkspace(session.user);
+        setWorkspaceReady(false);
+        const loaded = await loadUserWorkspace(session.user);
+        setWorkspaceReady(loaded);
       } else {
+        setWorkspaceReady(false);
         setProfile(null);
         setStudentProgress(studentProgressSeed);
         setView("landing");
@@ -268,17 +274,22 @@ export default function Home() {
   }, []);
 
   async function seedDashboardCollections(userId: string) {
-    if (!supabase) return;
+    if (!supabase) return false;
 
-    const [{ count: goalCount }, { count: activityCount }, { count: moduleCount }] = await Promise.all([
+    const [goalResult, activityResult, moduleResult] = await Promise.all([
       supabase.from("study_goals").select("id", { count: "exact", head: true }).eq("user_id", userId),
       supabase.from("recent_activity").select("id", { count: "exact", head: true }).eq("user_id", userId),
       supabase.from("learning_modules").select("id", { count: "exact", head: true }).eq("user_id", userId)
     ]);
 
+    const readError = goalResult.error ?? activityResult.error ?? moduleResult.error;
+    if (readError) {
+      throw readError;
+    }
+
     const writes = [];
 
-    if (!goalCount) {
+    if (!goalResult.count) {
       writes.push(
         supabase.from("study_goals").insert(
           studentProgressSeed.upcomingGoals.map((goal, index) => ({
@@ -293,7 +304,7 @@ export default function Home() {
       );
     }
 
-    if (!activityCount) {
+    if (!activityResult.count) {
       writes.push(
         supabase.from("recent_activity").insert(
           studentProgressSeed.recentActivity.map((activity) => ({
@@ -307,7 +318,7 @@ export default function Home() {
       );
     }
 
-    if (!moduleCount) {
+    if (!moduleResult.count) {
       writes.push(
         supabase.from("learning_modules").insert(
           studentProgressSeed.learningModules.map((module, index) => ({
@@ -322,11 +333,19 @@ export default function Home() {
       );
     }
 
-    await Promise.all(writes);
+    const results = await Promise.all(writes);
+    const writeError = results.find((result) => result.error)?.error;
+
+    if (writeError) {
+      throw writeError;
+    }
+
+    return true;
   }
 
   async function loadUserWorkspace(user: User) {
     if (!supabase) return false;
+    setWorkspaceReady(false);
 
     const metadata = user.user_metadata ?? {};
     const defaultName =
@@ -350,7 +369,7 @@ export default function Home() {
       .maybeSingle<ProfileRecord>();
 
     if (profileReadError) {
-      setAuthError(profileReadError.message);
+      setAuthError("We couldn't prepare your MedPath profile yet. Please try again in a moment.");
       return false;
     }
 
@@ -364,7 +383,7 @@ export default function Home() {
         .single<ProfileRecord>();
 
       if (error) {
-        setAuthError(error.message);
+        setAuthError("We couldn't create your MedPath profile yet. Please try again in a moment.");
         return false;
       }
 
@@ -378,7 +397,7 @@ export default function Home() {
       .maybeSingle<StudentProgressRecord>();
 
     if (progressError) {
-      setAuthError(progressError.message);
+      setAuthError("We couldn't load your MedPath progress yet. Please try again in a moment.");
       return false;
     }
 
@@ -403,14 +422,19 @@ export default function Home() {
         .single<StudentProgressRecord>();
 
       if (error) {
-        setAuthError(error.message);
+        setAuthError("We couldn't initialize your MedPath progress yet. Please try again in a moment.");
         return false;
       }
 
       activeProgress = data;
     }
 
-    await seedDashboardCollections(user.id);
+    try {
+      await seedDashboardCollections(user.id);
+    } catch {
+      setAuthError("We couldn't finish setting up your MedPath dashboard yet. Please try again in a moment.");
+      return false;
+    }
 
     const [goals, activity, modules] = await Promise.all([
       supabase
@@ -434,7 +458,12 @@ export default function Home() {
     ]);
 
     if (goals.error || activity.error || modules.error) {
-      setAuthError(goals.error?.message ?? activity.error?.message ?? modules.error?.message ?? "");
+      setAuthError("We couldn't load all of your MedPath dashboard records yet. Please try again in a moment.");
+      return false;
+    }
+
+    if (!goals.data?.length || !activity.data?.length || !modules.data?.length) {
+      setAuthError("Your MedPath dashboard is still being initialized. Please try again in a moment.");
       return false;
     }
 
@@ -449,6 +478,7 @@ export default function Home() {
       )
     );
     setAuthError("");
+    setWorkspaceReady(true);
     return true;
   }
 
@@ -525,8 +555,10 @@ export default function Home() {
         if (data.session?.user) {
           setAuthSession(data.session);
           setAuthUser(data.session.user);
+          setWorkspaceReady(false);
           const loaded = await loadUserWorkspace(data.session.user);
           if (loaded) {
+            setWorkspaceReady(true);
             setAuthMode(null);
             setView("dashboard");
           }
@@ -546,8 +578,10 @@ export default function Home() {
       if (data.session?.user) {
         setAuthSession(data.session);
         setAuthUser(data.session.user);
+        setWorkspaceReady(false);
         const loaded = await loadUserWorkspace(data.session.user);
         if (loaded) {
+          setWorkspaceReady(true);
           setAuthMode(null);
           setView("dashboard");
         }
@@ -566,6 +600,7 @@ export default function Home() {
 
     setAuthSession(null);
     setAuthUser(null);
+    setWorkspaceReady(false);
     setProfile(null);
     setStudentProgress(studentProgressSeed);
     setAuthName("");
@@ -625,7 +660,7 @@ export default function Home() {
         />
       )}
 
-      {view !== "landing" && signedIn && (
+      {view !== "landing" && signedIn && workspaceReady && (
         <div className="shell">
           <Sidebar view={view} plan={plan} name={name} isAdmin={isAdmin} onNavigate={goTo} />
           <section className="workspace">
@@ -673,6 +708,24 @@ export default function Home() {
                 setPlan={updatePlan}
               />
             )}
+          </section>
+        </div>
+      )}
+
+      {view !== "landing" && signedIn && !workspaceReady && (
+        <div className="shell">
+          <section className="workspace">
+            <article className="panel setup-panel">
+              <div className="card-head">
+                <h3>Setting up your MedPath workspace</h3>
+                <Sparkles />
+              </div>
+              <p>
+                We are creating your profile, progress, study goals, learning modules, and recent
+                activity. Your dashboard will stay locked until those records are ready.
+              </p>
+              {authError && <p className="form-message error-message">{authError}</p>}
+            </article>
           </section>
         </div>
       )}
@@ -726,14 +779,24 @@ function Header({
   onLogout: () => void;
   onDark: () => void;
 }) {
+  const [logoFailed, setLogoFailed] = useState(false);
+
   return (
     <header className="topbar">
       <button className="brand" onClick={() => onNavigate("landing")} aria-label="MedPath home">
-        <LogoMark />
-        <span>
+        {logoFailed ? (
           <strong>MedPath</strong>
-          <small>Learn with confidence. Care with purpose.</small>
-        </span>
+        ) : (
+          <Image
+            src="/logo.png"
+            width={1536}
+            height={1024}
+            alt="MedPath"
+            className="brand-logo"
+            priority
+            onError={() => setLogoFailed(true)}
+          />
+        )}
       </button>
       <nav className="desktop-nav" aria-label="Primary">
         <button onClick={() => onNavigate("career", "careerExplorer")}>PathFinder</button>
@@ -779,7 +842,7 @@ function Landing({ onStart, onCareers }: { onStart: () => void; onCareers: () =>
             <Sparkles size={16} />
             Atlas, your personal learning guide
           </div>
-          <h1>Your AI Mentor for Healthcare Success</h1>
+          <h1>Your MedPath Mentor for Healthcare Success</h1>
           <p>
             Study smarter. Build confidence. Pass your certification. Land your dream healthcare
             career.
@@ -933,7 +996,7 @@ function Dashboard({
       metric: plan === "pro_student" || plan === "administrator" ? "Ready" : "Pro"
     },
     {
-      title: "Atlas AI",
+      title: "Atlas Tutor",
       copy: "Ask for a plan, a simple explanation, or encouragement.",
       icon: <MessageCircleHeart />,
       view: "atlas" as ViewKey,
@@ -1159,8 +1222,8 @@ function Atlas({
             </button>
           </form>
           <p className="ai-note">
-            AI-generated mentoring supports learning and should not replace instructors, clinical
-            policy, or trusted educational resources.
+            Atlas mentoring supports learning and should not replace instructors, clinical policy,
+            or trusted educational resources.
           </p>
         </div>
       </section>

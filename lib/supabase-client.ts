@@ -45,7 +45,7 @@ export type LearningModuleRecord = {
   id: string;
   user_id: string;
   title: string;
-  category: "Quiz" | "Flashcards" | "Practice Exam" | "Atlas AI";
+  category: "Quiz" | "Flashcards" | "Practice Exam" | "Atlas Tutor";
   progress: number;
   status: string;
 };
