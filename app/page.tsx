@@ -1229,195 +1229,316 @@ function Dashboard({
 }) {
   const firstName = name.trim().split(" ")[0] || "future healthcare professional";
   const programLabel = program || progress.program;
-  const completedJourneySteps = Math.max(1, Math.round((progress.pathProgress / 100) * journey.length));
+  const [todayGoalComplete, setTodayGoalComplete] = useState(false);
+  const currentHour = new Date().getHours();
+  const greeting = currentHour < 12 ? "Good Morning" : currentHour < 18 ? "Good Afternoon" : "Good Evening";
+  const xpProgress = Math.min(100, Math.max(8, Math.round((progress.xp % 1000) / 10)));
+  const todayGoal = progress.upcomingGoals[0] ?? {
+    id: "default-goal",
+    title: "Complete Sterile Technique Module",
+    due: "Today",
+    minutes: 35,
+    status: "in_progress"
+  };
+  const learningProgress = [
+    {
+      title: "Surgical Technology",
+      completion: Math.max(progress.pathProgress, 68),
+      modules: "12/18 modules",
+      view: "study" as ViewKey,
+      feature: "studyPlans" as FeatureKey
+    },
+    {
+      title: "Medical Assisting",
+      completion: Math.max(progress.weeklyProgress, 54),
+      modules: "9/16 modules",
+      view: "study" as ViewKey,
+      feature: "studyPlans" as FeatureKey
+    },
+    {
+      title: "Phlebotomy",
+      completion: 42,
+      modules: "5/12 modules",
+      view: "practice" as ViewKey,
+      feature: "practice" as FeatureKey
+    },
+    {
+      title: "Sterile Processing",
+      completion: 76,
+      modules: "10/13 modules",
+      view: "clinical" as ViewKey,
+      feature: "clinicalPrep" as FeatureKey
+    }
+  ];
+  const studyStats = [
+    ["Hours Studied", "18.5", <CalendarClock key="hours" />],
+    ["Lessons Completed", `${progress.learningModules.filter((module) => module.status === "Complete").length + 12}`, <BookOpen key="lessons" />],
+    ["Quiz Average", "84%", <Brain key="quiz" />],
+    ["Practice Exams Completed", plan === "pro_student" || plan === "administrator" ? "3" : "1", <ClipboardCheck key="exams" />],
+    ["Current Streak", `${progress.streakDays} days`, <Sparkles key="streak" />]
+  ] as const;
+  const recentTimeline = [
+    { title: "Completed Lesson", detail: progress.learningModules[0]?.title ?? "Sterile Technique Module", time: "Newest", icon: <Check /> },
+    { title: "Passed Quiz", detail: `${progress.recommendedTopic} practice set`, time: "Today", icon: <Trophy /> },
+    { title: "Atlas Session", detail: "Reviewed certification study strategy", time: "Yesterday", icon: <MessageCircleHeart /> },
+    { title: "Flashcards Reviewed", detail: "High-yield clinical terms", time: "2 days ago", icon: <BookOpen /> }
+  ];
+  const achievements = [
+    ["🔥", "7 Day Streak"],
+    ["⭐", "Quiz Master"],
+    ["🏆", "Anatomy Expert"],
+    ["🎓", "First Module Complete"],
+    ["💯", "Perfect Score"]
+  ];
+  const motivationMessages = [
+    "Small progress every day creates big results.",
+    "You're one study session closer to certification.",
+    "Consistency beats intensity."
+  ];
+  const motivationMessage = motivationMessages[new Date().getDate() % motivationMessages.length];
+  const daysRemaining = Math.max(
+    0,
+    Math.ceil((new Date(progress.examDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+  );
   const quickAccess = [
     {
-      title: "Quizzes",
-      copy: "Continue topic-based questions with explanations.",
-      icon: <Brain />,
-      view: "practice" as ViewKey,
-      feature: "practice" as FeatureKey,
-      metric: "72% ready"
+      title: "Continue Learning",
+      copy: `Pick up with ${progress.recommendedTopic.toLowerCase()} and keep your study rhythm moving.`,
+      icon: <BookOpen />,
+      view: "study" as ViewKey,
+      feature: "studyPlans" as FeatureKey
+    },
+    {
+      title: "Atlas Tutor",
+      copy: "Ask Atlas for explanations, encouragement, and a focused next-step plan.",
+      icon: <MessageCircleHeart />,
+      view: "atlas" as ViewKey,
+      feature: "atlas" as FeatureKey
     },
     {
       title: "Flashcards",
       copy: "Review high-yield terms before your next session.",
       icon: <BookOpen />,
       view: "practice" as ViewKey,
-      feature: "flashcards" as FeatureKey,
-      metric: "46% reviewed"
+      feature: "flashcards" as FeatureKey
     },
     {
       title: "Practice Exams",
       copy: "Build confidence with timed certification checks.",
       icon: <ClipboardCheck />,
       view: "practice" as ViewKey,
-      feature: "mockExams" as FeatureKey,
-      metric: plan === "pro_student" || plan === "administrator" ? "Ready" : "Pro"
+      feature: "mockExams" as FeatureKey
     },
     {
-      title: "Atlas Tutor",
-      copy: "Ask for a plan, a simple explanation, or encouragement.",
-      icon: <MessageCircleHeart />,
-      view: "atlas" as ViewKey,
-      feature: "atlas" as FeatureKey,
-      metric: "Open"
+      title: "PathFinder",
+      copy: "Compare healthcare careers, certifications, skills, and growth paths.",
+      icon: <Search />,
+      view: "career" as ViewKey,
+      feature: "careerExplorer" as FeatureKey
     }
   ];
 
   return (
-    <div className="stack">
-      <section className="student-hero">
-        <div className="page-title">
-          <span className={`plan-pill ${plan}`}>{roleBadges[plan]}</span>
-          <h2>Welcome back, {firstName}.</h2>
-          <p>
-            Your {programLabel} dashboard is ready. Atlas recommends focusing on{" "}
-            {progress.recommendedTopic.toLowerCase()} next.
-          </p>
-        </div>
-        <div className="student-summary">
-          <span>{programLabel}</span>
-          <strong>{progress.level}</strong>
-          <small>{progress.xp.toLocaleString()} XP earned</small>
-        </div>
-      </section>
-
-      <section className="metric-grid">
-        <Metric title="Today’s Study Goal" value={`${progress.upcomingGoals[0].minutes} min`} icon={<Target />} />
-        <Metric title="Study Streak" value={`${progress.streakDays} days`} icon={<Sparkles />} />
-        <Metric title="Upcoming Exam" value={new Date(progress.examDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })} icon={<CalendarClock />} />
-        <Metric title="Weekly Progress" value={`${progress.weeklyProgress}%`} icon={<BarChart3 />} />
-      </section>
-
-      <section className="journey-card">
+    <div className="dashboard-workspace">
+      <section className="dashboard-hero">
         <div>
-          <p className="eyebrow">Path Progress</p>
-          <h3>{programLabel} journey</h3>
-          <p>
-            Next milestone: <strong>{progress.nextMilestone}</strong>. Progress is stored by user ID
-            and can expand as lessons, quizzes, and exams are added.
-          </p>
+          <span className={`plan-pill ${plan}`}>{roleBadges[plan]}</span>
+          <h2>{greeting}, {firstName} 👋</h2>
+          <p>Ready to continue your healthcare journey?</p>
         </div>
-        <div className="path-line">
-          {journey.map((step, index) => (
-            <span className={index < completedJourneySteps ? "complete" : ""} key={step}>
-              <i>{index + 1}</i>
-              {step}
-            </span>
-          ))}
-        </div>
-        <div className="progress-bar" aria-label={`${progress.pathProgress}% path progress`}>
-          <span style={{ width: `${progress.pathProgress}%` }} />
-        </div>
-      </section>
-
-      <section className="student-dashboard-grid">
-        <article className="panel motivation">
-          <div className="card-head">
-            <h3>Today’s Mentor Note</h3>
-            <Sparkles />
-          </div>
-          <p>
-            Welcome back. Every focused session moves you closer to your healthcare career. Today,
-            spend a short block on your recommended topic, then finish with a confidence-building
-            quiz.
-          </p>
-        </article>
-        <article className="panel">
-          <div className="card-head">
-            <h3>Upcoming Study Goals</h3>
-            <Target />
-          </div>
-          <ul className="goal-list">
-            {progress.upcomingGoals.map((goal) => (
-              <li key={goal.id}>
-                <span>
-                  <strong>{goal.title}</strong>
-                  <small>{goal.due} · {goal.minutes} minutes</small>
-                </span>
-                <em>{goal.status.replace("_", " ")}</em>
-              </li>
-            ))}
-          </ul>
-        </article>
-        <article className="panel">
-          <div className="card-head">
-            <h3>Recent Activity</h3>
-            <Trophy />
-          </div>
-          <ul className="activity-list">
-            {progress.recentActivity.map((activity) => (
-              <li key={activity.id}>
-                <span>
-                  <strong>{activity.title}</strong>
-                  <small>{activity.detail}</small>
-                </span>
-                <em>{activity.score ? `${activity.score}%` : activity.time}</em>
-              </li>
-            ))}
-          </ul>
-        </article>
-        <article className="panel">
-          <div className="card-head">
-            <h3>Learning Progress</h3>
-            <BarChart3 />
-          </div>
-          <div className="module-list">
-            {progress.learningModules.map((module) => (
-              <div className="module-progress" key={module.id}>
-                <div>
-                  <strong>{module.title}</strong>
-                  <small>{module.category} · {module.status}</small>
-                </div>
-                <span>{module.progress}%</span>
-                <div className="progress-bar">
-                  <i style={{ width: `${module.progress}%` }} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </article>
-      </section>
-
-      <section className="quick-access-panel" aria-label="Student quick access">
-        <div className="card-head">
+        <div className="dashboard-hero-stats" aria-label="Student level and streak">
           <div>
-            <p className="eyebrow">Quick Access</p>
-            <h3>Continue your path</h3>
+            <small>Current Level</small>
+            <strong>{progress.level}</strong>
           </div>
-          <MessageCircleHeart />
-        </div>
-        <div className="quick-access-grid">
-          {quickAccess.map((item) => (
-            <button
-              className="quick-access-card"
-              key={item.title}
-              onClick={() => onNavigate(item.view, item.feature)}
-            >
-              <span>{item.icon}</span>
-              <strong>{item.title}</strong>
-              <small>{item.copy}</small>
-              <em>{!canAccess(plan, item.feature) ? "Upgrade" : item.metric}</em>
-            </button>
-          ))}
+          <div>
+            <small>{progress.xp.toLocaleString()} XP earned</small>
+            <div className="progress-bar" aria-label={`${xpProgress}% XP progress`}>
+              <span style={{ width: `${xpProgress}%` }} />
+            </div>
+          </div>
+          <div>
+            <small>Current Study Streak 🔥</small>
+            <strong>{progress.streakDays} days</strong>
+          </div>
         </div>
       </section>
 
-      <section className="quick-grid">
-        {quickCards.map((card) => (
+      <section className="dashboard-quick-actions" aria-label="Dashboard quick actions">
+        {quickAccess.map((item) => (
           <button
-            className="tool-card"
-            key={card.title}
-            onClick={() => onNavigate(card.key, card.feature)}
+            className="dashboard-action-card"
+            key={item.title}
+            onClick={() => onNavigate(item.view, item.feature)}
           >
-            <span>{card.icon}</span>
-            <strong>{card.title}</strong>
-            <small>{card.copy}</small>
-            {!canAccess(plan, card.feature) && <em>Upgrade</em>}
+            <span>{item.icon}</span>
+            <strong>{item.title}</strong>
+            <small>{item.copy}</small>
+            {!canAccess(plan, item.feature) && <em>Upgrade</em>}
           </button>
         ))}
       </section>
+
+      <div className="dashboard-layout">
+        <div className="dashboard-main">
+          <section className="dashboard-card today-goal-card">
+            <div className="card-head">
+              <div>
+                <p className="eyebrow">Today's Goal</p>
+                <h3>{todayGoal.title || "Complete Sterile Technique Module"}</h3>
+              </div>
+              <Target />
+            </div>
+            <div className="progress-bar" aria-label={`${todayGoalComplete ? 100 : progress.weeklyProgress}% today's goal progress`}>
+              <span style={{ width: `${todayGoalComplete ? 100 : Math.max(progress.weeklyProgress, 35)}%` }} />
+            </div>
+            <div className="goal-card-footer">
+              <span>{todayGoalComplete ? "Completed" : `${todayGoal.minutes || 35} min remaining`}</span>
+              <button className="primary compact" type="button" onClick={() => setTodayGoalComplete(true)}>
+                {todayGoalComplete ? "Complete" : "Mark Complete"}
+              </button>
+            </div>
+          </section>
+
+          <section className="dashboard-section">
+            <div className="section-title-row">
+              <div>
+                <p className="eyebrow">Learning Progress</p>
+                <h3>Program pathways</h3>
+              </div>
+              <BarChart3 />
+            </div>
+            <div className="learning-progress-grid">
+              {learningProgress.map((item) => (
+                <article className="learning-progress-card" key={item.title}>
+                  <strong>{item.title}</strong>
+                  <span>{item.completion}%</span>
+                  <small>{item.modules} finished</small>
+                  <div className="progress-bar">
+                    <i style={{ width: `${item.completion}%` }} />
+                  </div>
+                  <button className="secondary compact" onClick={() => onNavigate(item.view, item.feature)}>
+                    Continue
+                  </button>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="dashboard-section">
+            <div className="section-title-row">
+              <div>
+                <p className="eyebrow">Study Statistics</p>
+                <h3>Your study momentum</h3>
+              </div>
+              <Activity />
+            </div>
+            <div className="study-stat-grid">
+              {studyStats.map(([title, value, icon]) => (
+                <Metric title={title} value={value} icon={icon} key={title} />
+              ))}
+            </div>
+          </section>
+
+          <section className="dashboard-two-column">
+            <article className="dashboard-card">
+              <div className="card-head">
+                <div>
+                  <p className="eyebrow">Recent Activity</p>
+                  <h3>Newest first</h3>
+                </div>
+                <Trophy />
+              </div>
+              <div className="activity-timeline">
+                {recentTimeline.map((activity) => (
+                  <div className="timeline-item" key={activity.title}>
+                    <span>{activity.icon}</span>
+                    <div>
+                      <strong>{activity.title}</strong>
+                      <small>{activity.detail}</small>
+                    </div>
+                    <em>{activity.time}</em>
+                  </div>
+                ))}
+              </div>
+            </article>
+
+            <article className="dashboard-card exam-card">
+              <div className="card-head">
+                <div>
+                  <p className="eyebrow">Upcoming Exams</p>
+                  <h3>{progress.certificationGoal}</h3>
+                </div>
+                <CalendarClock />
+              </div>
+              <span className="countdown-badge">{daysRemaining} days remaining</span>
+              <div className="exam-readiness">
+                <strong>{Math.max(progress.pathProgress, 72)}%</strong>
+                <small>Readiness score</small>
+              </div>
+              <div className="progress-bar">
+                <span style={{ width: `${Math.max(progress.pathProgress, 72)}%` }} />
+              </div>
+            </article>
+          </section>
+
+          <section className="dashboard-section">
+            <div className="section-title-row">
+              <div>
+                <p className="eyebrow">Achievements</p>
+                <h3>Milestones you've earned</h3>
+              </div>
+              <BadgeCheck />
+            </div>
+            <div className="achievement-grid">
+              {achievements.map(([emoji, title]) => (
+                <article className="achievement-badge" key={title}>
+                  <span>{emoji}</span>
+                  <strong>{title}</strong>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="motivation-card">
+            <Sparkles />
+            <p>{motivationMessage}</p>
+          </section>
+        </div>
+
+        <aside className="dashboard-right-sidebar" aria-label="Dashboard sidebar">
+          <article className="dashboard-card">
+            <small>Current Subscription</small>
+            <strong>{roleBadges[plan]}</strong>
+            <button className="secondary compact" onClick={() => onNavigate("billing")}>
+              Manage Plan
+            </button>
+          </article>
+          <article className="dashboard-card">
+            <small>Study Time This Week</small>
+            <strong>6h 40m</strong>
+            <div className="progress-bar">
+              <span style={{ width: `${progress.weeklyProgress}%` }} />
+            </div>
+          </article>
+          <article className="dashboard-card">
+            <small>Upcoming Goals</small>
+            <ul className="sidebar-goal-list">
+              {(progress.upcomingGoals.length ? progress.upcomingGoals : [todayGoal]).map((goal) => (
+                <li key={goal.id}>
+                  <strong>{goal.title}</strong>
+                  <span>{goal.due} · {goal.minutes} min</span>
+                </li>
+              ))}
+            </ul>
+          </article>
+          <article className="dashboard-card announcement-card">
+            <small>Latest Announcement</small>
+            <strong>New practice sets are ready.</strong>
+            <p>Atlas now recommends review topics based on your latest study activity.</p>
+          </article>
+        </aside>
+      </div>
     </div>
   );
 }

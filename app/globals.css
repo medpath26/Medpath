@@ -737,6 +737,338 @@ td button {
   color: #f7fbff;
 }
 
+.dashboard-workspace {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.dashboard-hero,
+.dashboard-card,
+.dashboard-section,
+.dashboard-action-card,
+.motivation-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--white) 88%, transparent);
+  box-shadow: 0 18px 58px rgba(13, 43, 82, 0.09);
+}
+
+.dashboard-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(17rem, 0.42fr);
+  gap: 1rem;
+  align-items: center;
+  padding: clamp(1.25rem, 4vw, 2rem);
+  background:
+    radial-gradient(circle at 88% 12%, rgba(34, 199, 200, 0.18), transparent 22rem),
+    linear-gradient(135deg, color-mix(in srgb, var(--white) 90%, transparent), color-mix(in srgb, var(--bg-2) 82%, transparent));
+  overflow: hidden;
+}
+
+.dashboard-hero h2 {
+  margin: 0.7rem 0 0.35rem;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(2.4rem, 5vw, 4.6rem);
+  line-height: 0.96;
+  letter-spacing: 0;
+  color: var(--navy);
+}
+
+.dashboard-hero p {
+  max-width: 42rem;
+  margin: 0;
+  color: var(--muted);
+  font-size: 1.08rem;
+  line-height: 1.65;
+}
+
+.dashboard-hero-stats {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.46);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--white) 76%, transparent);
+  backdrop-filter: blur(18px);
+}
+
+.dashboard-hero-stats div {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.dashboard-hero-stats small,
+.dashboard-card small,
+.learning-progress-card small,
+.dashboard-action-card small,
+.timeline-item small,
+.sidebar-goal-list span,
+.exam-readiness small,
+.announcement-card p {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.dashboard-hero-stats strong,
+.dashboard-card > strong,
+.exam-readiness strong {
+  color: var(--navy);
+  font-size: 1.35rem;
+}
+
+.dashboard-quick-actions {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.dashboard-action-card {
+  display: grid;
+  gap: 0.6rem;
+  min-height: 180px;
+  padding: 1rem;
+  color: inherit;
+  text-align: left;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.dashboard-action-card:hover,
+.learning-progress-card:hover,
+.achievement-badge:hover {
+  transform: translateY(-3px);
+  border-color: rgba(34, 199, 200, 0.34);
+  box-shadow: 0 24px 72px rgba(13, 43, 82, 0.13);
+}
+
+.dashboard-action-card span {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+  background: rgba(34, 199, 200, 0.14);
+  color: var(--teal);
+}
+
+.dashboard-action-card em {
+  width: fit-content;
+  margin-top: auto;
+  padding: 0.28rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(244, 183, 64, 0.22);
+  color: #8b5b00;
+  font-size: 0.74rem;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(16rem, 0.32fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.dashboard-main,
+.dashboard-right-sidebar {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.dashboard-right-sidebar {
+  position: sticky;
+  top: 5.7rem;
+}
+
+.dashboard-card,
+.dashboard-section {
+  display: grid;
+  gap: 1rem;
+  padding: 1.1rem;
+}
+
+.today-goal-card h3,
+.section-title-row h3,
+.dashboard-card h3 {
+  margin: 0;
+}
+
+.goal-card-footer,
+.section-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.goal-card-footer span,
+.countdown-badge {
+  width: fit-content;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(34, 199, 200, 0.14);
+  color: var(--navy);
+  font-weight: 900;
+}
+
+.learning-progress-grid,
+.study-stat-grid,
+.achievement-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.learning-progress-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.study-stat-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.achievement-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.learning-progress-card,
+.achievement-badge {
+  display: grid;
+  gap: 0.65rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--white);
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.learning-progress-card > span {
+  color: var(--navy);
+  font-size: 1.8rem;
+  font-weight: 900;
+}
+
+.learning-progress-card .secondary {
+  width: fit-content;
+}
+
+.dashboard-two-column {
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(15rem, 0.88fr);
+  gap: 1rem;
+}
+
+.activity-timeline {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.timeline-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.8rem;
+  align-items: start;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.timeline-item:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.timeline-item > span {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(34, 199, 200, 0.14);
+  color: var(--teal);
+}
+
+.timeline-item em {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-style: normal;
+}
+
+.exam-card {
+  align-content: start;
+}
+
+.exam-readiness {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.exam-readiness strong {
+  font-size: 2.7rem;
+}
+
+.achievement-badge {
+  place-items: center;
+  min-height: 124px;
+  text-align: center;
+}
+
+.achievement-badge span {
+  font-size: 1.9rem;
+}
+
+.motivation-card {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1.1rem;
+  background: linear-gradient(135deg, rgba(13, 43, 82, 0.94), rgba(21, 83, 129, 0.94) 58%, rgba(34, 199, 200, 0.88));
+  color: white;
+}
+
+.motivation-card svg {
+  flex: 0 0 auto;
+}
+
+.motivation-card p {
+  margin: 0;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.sidebar-goal-list {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.sidebar-goal-list li {
+  display: grid;
+  gap: 0.2rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.sidebar-goal-list li:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.announcement-card p {
+  margin: 0;
+}
+
+.dark .dashboard-hero h2,
+.dark .dashboard-hero-stats strong,
+.dark .dashboard-card > strong,
+.dark .learning-progress-card > span,
+.dark .exam-readiness strong,
+.dark .goal-card-footer span,
+.dark .countdown-badge {
+  color: #f7fbff;
+}
+
 .dashboard-columns,
 .student-dashboard-grid,
 .mentor,
@@ -1515,6 +1847,9 @@ td small {
   .hero,
   .shell,
   .atlas-showcase,
+  .dashboard-hero,
+  .dashboard-layout,
+  .dashboard-two-column,
   .dashboard-columns,
   .student-hero,
   .mentor,
@@ -1528,6 +1863,10 @@ td small {
     position: static;
   }
 
+  .dashboard-right-sidebar {
+    position: static;
+  }
+
   .sidebar nav {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -1537,6 +1876,10 @@ td small {
   .feature-card-grid,
   .learning-path-grid,
   .pathfinder-detail-grid,
+  .dashboard-quick-actions,
+  .learning-progress-grid,
+  .study-stat-grid,
+  .achievement-grid,
   .quick-grid,
   .quick-access-grid,
   .clinical-grid,
@@ -1581,6 +1924,10 @@ td small {
   .learning-path-grid,
   .pricing-preview-grid,
   .faq-grid,
+  .dashboard-quick-actions,
+  .learning-progress-grid,
+  .study-stat-grid,
+  .achievement-grid,
   .quick-grid,
   .quick-access-grid,
   .student-dashboard-grid,
@@ -1600,6 +1947,21 @@ td small {
   .pricing-cta {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .goal-card-footer,
+  .section-title-row,
+  .motivation-card {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .timeline-item {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .timeline-item em {
+    grid-column: 2;
   }
 
   .chat-input {
