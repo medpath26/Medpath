@@ -278,7 +278,7 @@ export type StudentProgress = {
 };
 
 export const studentProgressSeed: StudentProgress = {
-  userId: "demo-user",
+  userId: "",
   program: "",
   certificationGoal: "Certification readiness",
   examDate: "2026-08-14",

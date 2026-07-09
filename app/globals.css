@@ -969,6 +969,23 @@ td small {
   flex-wrap: wrap;
 }
 
+.form-message {
+  margin: 0;
+  padding: 0.8rem 0.9rem;
+  border-radius: 8px;
+  line-height: 1.45;
+}
+
+.error-message {
+  background: rgba(228, 93, 93, 0.14);
+  color: var(--error);
+}
+
+.notice-message {
+  background: rgba(107, 203, 119, 0.16);
+  color: color-mix(in srgb, var(--success) 55%, var(--navy));
+}
+
 .auth-switch button {
   border: 0;
   background: none;

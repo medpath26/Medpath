@@ -34,10 +34,12 @@ import {
   WandSparkles,
   X
 } from "lucide-react";
-import { FormEvent, ReactNode, useMemo, useState } from "react";
+import { FormEvent, ReactNode, useEffect, useMemo, useState } from "react";
+import type { Session, User } from "@supabase/supabase-js";
 import {
   FeatureKey,
   PlanKey,
+  StudentProgress,
   canAccess,
   careers,
   featureLabels,
@@ -47,6 +49,15 @@ import {
   subscriptionEvents,
   users
 } from "@/lib/medpath-data";
+import {
+  LearningModuleRecord,
+  ProfileRecord,
+  RecentActivityRecord,
+  StudentProgressRecord,
+  StudyGoalRecord,
+  isSupabaseConfigured,
+  supabase
+} from "@/lib/supabase-client";
 
 type ViewKey =
   | "landing"
@@ -140,14 +151,70 @@ const journey = [
   "Career Growth"
 ];
 
+function mapProgressRecord(
+  record: StudentProgressRecord,
+  profile: ProfileRecord,
+  goals: StudyGoalRecord[],
+  activity: RecentActivityRecord[],
+  modules: LearningModuleRecord[]
+): StudentProgress {
+  return {
+    userId: record.user_id,
+    program: profile.healthcare_program || "Healthcare career",
+    certificationGoal: record.certification_goal,
+    examDate: record.exam_date,
+    weeklyProgress: record.weekly_progress,
+    pathProgress: record.path_progress,
+    streakDays: record.streak_days,
+    xp: record.xp,
+    level: record.level,
+    nextMilestone: record.next_milestone,
+    recommendedTopic: record.recommended_topic,
+    upcomingGoals: goals.map((goal) => ({
+      id: goal.id,
+      title: goal.title,
+      due: goal.due_label,
+      minutes: goal.minutes,
+      status: goal.status
+    })),
+    recentActivity: activity.map((item) => ({
+      id: item.id,
+      title: item.title,
+      detail: item.detail,
+      time: item.activity_time,
+      score: item.score ?? undefined
+    })),
+    learningModules: modules.map((module) => ({
+      id: module.id,
+      title: module.title,
+      category: module.category,
+      progress: module.progress,
+      status: module.status
+    }))
+  };
+}
+
+function fallbackProgress(userId: string, profile: ProfileRecord): StudentProgress {
+  return {
+    ...studentProgressSeed,
+    userId,
+    program: profile.healthcare_program || "Healthcare career"
+  };
+}
+
 export default function Home() {
   const [view, setView] = useState<ViewKey>("landing");
-  const [plan, setPlan] = useState<PlanKey>("explorer");
   const [darkMode, setDarkMode] = useState(false);
-  const [signedIn, setSignedIn] = useState(false);
   const [authMode, setAuthMode] = useState<"signup" | "login" | "forgot" | null>(null);
-  const [program, setProgram] = useState("");
-  const [name, setName] = useState("");
+  const [authSession, setAuthSession] = useState<Session | null>(null);
+  const [authUser, setAuthUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<ProfileRecord | null>(null);
+  const [studentProgress, setStudentProgress] = useState<StudentProgress>(studentProgressSeed);
+  const [authName, setAuthName] = useState("");
+  const [authProgram, setAuthProgram] = useState("");
+  const [authError, setAuthError] = useState("");
+  const [authNotice, setAuthNotice] = useState("");
+  const [isAuthLoading, setIsAuthLoading] = useState(false);
   const [lockedFeature, setLockedFeature] = useState<FeatureKey | null>(null);
   const [chatInput, setChatInput] = useState("");
   const [mentorAnswer, setMentorAnswer] = useState(mentorReplies.default);
@@ -155,22 +222,235 @@ export default function Home() {
   const [examDate, setExamDate] = useState("2026-08-14");
   const [adminSearch, setAdminSearch] = useState("");
 
-  const currentPlan = plans[plan];
+  const signedIn = Boolean(authSession?.user);
+  const name = profile?.full_name ?? "";
+  const program = profile?.healthcare_program ?? "";
+  const plan = (profile?.role as PlanKey | undefined) ?? "explorer";
   const isAdmin = plan === "administrator";
   const filteredUsers = users.filter((user) =>
     `${user.name} ${user.email} ${user.role}`.toLowerCase().includes(adminSearch.toLowerCase())
   );
-  const progress = plan === "explorer" ? 38 : plan === "student_plus" ? 64 : 82;
-  const studentProgress = useMemo(
-    () => ({
-      ...studentProgressSeed,
-      program: program || "Healthcare career",
-      weeklyProgress: progress,
-      pathProgress: plan === "explorer" ? 38 : studentProgressSeed.pathProgress,
-      streakDays: plan === "explorer" ? 3 : studentProgressSeed.streakDays
-    }),
-    [plan, program, progress]
-  );
+
+  useEffect(() => {
+    if (!supabase) return;
+
+    let isMounted = true;
+
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (!isMounted) return;
+      const session = data.session ?? null;
+      setAuthSession(session);
+      setAuthUser(session?.user ?? null);
+      if (session?.user) {
+        const loaded = await loadUserWorkspace(session.user);
+        if (loaded) {
+          setView("dashboard");
+        }
+      }
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      setAuthSession(session);
+      setAuthUser(session?.user ?? null);
+      if (session?.user) {
+        await loadUserWorkspace(session.user);
+      } else {
+        setProfile(null);
+        setStudentProgress(studentProgressSeed);
+        setView("landing");
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      listener.subscription.unsubscribe();
+    };
+  }, []);
+
+  async function seedDashboardCollections(userId: string) {
+    if (!supabase) return;
+
+    const [{ count: goalCount }, { count: activityCount }, { count: moduleCount }] = await Promise.all([
+      supabase.from("study_goals").select("id", { count: "exact", head: true }).eq("user_id", userId),
+      supabase.from("recent_activity").select("id", { count: "exact", head: true }).eq("user_id", userId),
+      supabase.from("learning_modules").select("id", { count: "exact", head: true }).eq("user_id", userId)
+    ]);
+
+    const writes = [];
+
+    if (!goalCount) {
+      writes.push(
+        supabase.from("study_goals").insert(
+          studentProgressSeed.upcomingGoals.map((goal, index) => ({
+            user_id: userId,
+            title: goal.title,
+            due_label: goal.due,
+            minutes: goal.minutes,
+            status: goal.status,
+            position: index
+          }))
+        )
+      );
+    }
+
+    if (!activityCount) {
+      writes.push(
+        supabase.from("recent_activity").insert(
+          studentProgressSeed.recentActivity.map((activity) => ({
+            user_id: userId,
+            title: activity.title,
+            detail: activity.detail,
+            activity_time: activity.time,
+            score: activity.score ?? null
+          }))
+        )
+      );
+    }
+
+    if (!moduleCount) {
+      writes.push(
+        supabase.from("learning_modules").insert(
+          studentProgressSeed.learningModules.map((module, index) => ({
+            user_id: userId,
+            title: module.title,
+            category: module.category,
+            progress: module.progress,
+            status: module.status,
+            position: index
+          }))
+        )
+      );
+    }
+
+    await Promise.all(writes);
+  }
+
+  async function loadUserWorkspace(user: User) {
+    if (!supabase) return false;
+
+    const metadata = user.user_metadata ?? {};
+    const defaultName =
+      typeof metadata.full_name === "string" && metadata.full_name.trim()
+        ? metadata.full_name.trim()
+        : user.email?.split("@")[0] ?? "";
+    const defaultProgram =
+      typeof metadata.healthcare_program === "string" ? metadata.healthcare_program : "";
+
+    const profileUpsert = {
+      id: user.id,
+      full_name: defaultName,
+      healthcare_program: defaultProgram,
+      role: "explorer"
+    };
+
+    const { data: existingProfile, error: profileReadError } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .maybeSingle<ProfileRecord>();
+
+    if (profileReadError) {
+      setAuthError(profileReadError.message);
+      return false;
+    }
+
+    let activeProfile = existingProfile;
+
+    if (!activeProfile) {
+      const { data, error } = await supabase
+        .from("profiles")
+        .insert(profileUpsert)
+        .select("*")
+        .single<ProfileRecord>();
+
+      if (error) {
+        setAuthError(error.message);
+        return false;
+      }
+
+      activeProfile = data;
+    }
+
+    const { data: progressRecord, error: progressError } = await supabase
+      .from("student_progress")
+      .select("*")
+      .eq("user_id", user.id)
+      .maybeSingle<StudentProgressRecord>();
+
+    if (progressError) {
+      setAuthError(progressError.message);
+      return false;
+    }
+
+    let activeProgress = progressRecord;
+
+    if (!activeProgress) {
+      const { data, error } = await supabase
+        .from("student_progress")
+        .insert({
+          user_id: user.id,
+          certification_goal: studentProgressSeed.certificationGoal,
+          exam_date: studentProgressSeed.examDate,
+          weekly_progress: studentProgressSeed.weeklyProgress,
+          path_progress: studentProgressSeed.pathProgress,
+          streak_days: studentProgressSeed.streakDays,
+          xp: studentProgressSeed.xp,
+          level: studentProgressSeed.level,
+          next_milestone: studentProgressSeed.nextMilestone,
+          recommended_topic: studentProgressSeed.recommendedTopic
+        })
+        .select("*")
+        .single<StudentProgressRecord>();
+
+      if (error) {
+        setAuthError(error.message);
+        return false;
+      }
+
+      activeProgress = data;
+    }
+
+    await seedDashboardCollections(user.id);
+
+    const [goals, activity, modules] = await Promise.all([
+      supabase
+        .from("study_goals")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("position", { ascending: true })
+        .returns<StudyGoalRecord[]>(),
+      supabase
+        .from("recent_activity")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .returns<RecentActivityRecord[]>(),
+      supabase
+        .from("learning_modules")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("position", { ascending: true })
+        .returns<LearningModuleRecord[]>()
+    ]);
+
+    if (goals.error || activity.error || modules.error) {
+      setAuthError(goals.error?.message ?? activity.error?.message ?? modules.error?.message ?? "");
+      return false;
+    }
+
+    setProfile(activeProfile);
+    setStudentProgress(
+      mapProgressRecord(
+        activeProgress,
+        activeProfile,
+        goals.data ?? [],
+        activity.data ?? [],
+        modules.data ?? []
+      )
+    );
+    setAuthError("");
+    return true;
+  }
 
   const generatedSchedule = useMemo(() => {
     const topics = [
@@ -185,19 +465,131 @@ export default function Home() {
   }, [studyHours]);
 
   function goTo(nextView: ViewKey, feature?: FeatureKey) {
+    if (!signedIn && nextView !== "landing" && nextView !== "career") {
+      setAuthMode("login");
+      setAuthNotice("Please log in to open your MedPath workspace.");
+      return;
+    }
     if (feature && !canAccess(plan, feature)) {
       setLockedFeature(feature);
       return;
     }
     setView(nextView);
-    if (nextView !== "landing") setSignedIn(true);
   }
 
-  function handleAuth(event: FormEvent<HTMLFormElement>) {
+  async function handleAuth(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setSignedIn(true);
-    setAuthMode(null);
-    setView("dashboard");
+    setAuthError("");
+    setAuthNotice("");
+
+    if (!supabase || !isSupabaseConfigured) {
+      setAuthError(
+        "Supabase is not configured yet. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local."
+      );
+      return;
+    }
+
+    const form = new FormData(event.currentTarget);
+    const email = String(form.get("email") ?? "").trim();
+    const password = String(form.get("password") ?? "");
+
+    setIsAuthLoading(true);
+
+    try {
+      if (authMode === "forgot") {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: window.location.origin
+        });
+
+        if (error) throw error;
+
+        setAuthNotice("Password reset instructions were sent to your email.");
+        return;
+      }
+
+      if (authMode === "signup") {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: window.location.origin,
+            data: {
+              full_name: authName.trim(),
+              healthcare_program: authProgram
+            }
+          }
+        });
+
+        if (error) throw error;
+
+        if (data.session?.user) {
+          setAuthSession(data.session);
+          setAuthUser(data.session.user);
+          const loaded = await loadUserWorkspace(data.session.user);
+          if (loaded) {
+            setAuthMode(null);
+            setView("dashboard");
+          }
+        }
+
+        if (!data.session) {
+          setAuthNotice("Check your email to confirm your account, then log in to MedPath.");
+        }
+
+        return;
+      }
+
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (error) throw error;
+
+      if (data.session?.user) {
+        setAuthSession(data.session);
+        setAuthUser(data.session.user);
+        const loaded = await loadUserWorkspace(data.session.user);
+        if (loaded) {
+          setAuthMode(null);
+          setView("dashboard");
+        }
+      }
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : "Authentication failed.");
+    } finally {
+      setIsAuthLoading(false);
+    }
+  }
+
+  async function handleLogout() {
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
+
+    setAuthSession(null);
+    setAuthUser(null);
+    setProfile(null);
+    setStudentProgress(studentProgressSeed);
+    setAuthName("");
+    setAuthProgram("");
+    setView("landing");
+  }
+
+  async function updatePlan(nextPlan: PlanKey) {
+    if (!supabase || !authUser || !profile) {
+      return;
+    }
+
+    const nextProfile = { ...profile, role: nextPlan };
+    setProfile(nextProfile);
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ role: nextPlan })
+      .eq("id", authUser.id);
+
+    if (error) {
+      setAuthError(error.message);
+      setProfile(profile);
+    }
   }
 
   function askAtlas(event: FormEvent<HTMLFormElement>) {
@@ -222,6 +614,7 @@ export default function Home() {
         view={view}
         onNavigate={goTo}
         onAuth={setAuthMode}
+        onLogout={handleLogout}
         onDark={() => setDarkMode((value) => !value)}
       />
 
@@ -232,7 +625,7 @@ export default function Home() {
         />
       )}
 
-      {view !== "landing" && (
+      {view !== "landing" && signedIn && (
         <div className="shell">
           <Sidebar view={view} plan={plan} name={name} isAdmin={isAdmin} onNavigate={goTo} />
           <section className="workspace">
@@ -270,14 +663,14 @@ export default function Home() {
             {view === "resume" && <ResumeBuilder name={name} program={program} />}
             {view === "interview" && <InterviewCoach />}
             {view === "billing" && (
-              <Billing plan={plan} setPlan={setPlan} onLock={setLockedFeature} />
+              <Billing plan={plan} setPlan={updatePlan} onLock={setLockedFeature} />
             )}
             {view === "admin" && isAdmin && (
               <Admin
                 users={filteredUsers}
                 search={adminSearch}
                 setSearch={setAdminSearch}
-                setPlan={setPlan}
+                setPlan={updatePlan}
               />
             )}
           </section>
@@ -287,10 +680,13 @@ export default function Home() {
       {authMode && (
         <AuthModal
           mode={authMode}
-          name={name}
-          program={program}
-          setName={setName}
-          setProgram={setProgram}
+          name={authName}
+          program={authProgram}
+          error={authError}
+          notice={authNotice}
+          isLoading={isAuthLoading}
+          setName={setAuthName}
+          setProgram={setAuthProgram}
           setMode={setAuthMode}
           onClose={() => setAuthMode(null)}
           onSubmit={handleAuth}
@@ -303,7 +699,7 @@ export default function Home() {
           onClose={() => setLockedFeature(null)}
           onUpgrade={() => {
             setLockedFeature(null);
-            setView("billing");
+            goTo("billing");
           }}
         />
       )}
@@ -319,6 +715,7 @@ function Header({
   view,
   onNavigate,
   onAuth,
+  onLogout,
   onDark
 }: {
   signedIn: boolean;
@@ -326,6 +723,7 @@ function Header({
   view: ViewKey;
   onNavigate: (view: ViewKey, feature?: FeatureKey) => void;
   onAuth: (mode: "signup" | "login") => void;
+  onLogout: () => void;
   onDark: () => void;
 }) {
   return (
@@ -348,9 +746,14 @@ function Header({
           <Moon size={18} />
         </button>
         {signedIn ? (
-          <button className="primary compact" onClick={() => onNavigate(view === "dashboard" ? "billing" : "dashboard")}>
-            {view === "dashboard" ? "Manage" : "My Path"}
-          </button>
+          <>
+            <button className="primary compact" onClick={() => onNavigate(view === "dashboard" ? "billing" : "dashboard")}>
+              {view === "dashboard" ? "Manage" : "My Path"}
+            </button>
+            <button className="ghost" onClick={onLogout}>
+              Log out
+            </button>
+          </>
         ) : (
           <>
             <button className="ghost" onClick={() => onAuth("login")}>
@@ -1153,6 +1556,9 @@ function AuthModal({
   mode,
   name,
   program,
+  error,
+  notice,
+  isLoading,
   setName,
   setProgram,
   setMode,
@@ -1162,6 +1568,9 @@ function AuthModal({
   mode: "signup" | "login" | "forgot";
   name: string;
   program: string;
+  error: string;
+  notice: string;
+  isLoading: boolean;
   setName: (value: string) => void;
   setProgram: (value: string) => void;
   setMode: (mode: "signup" | "login" | "forgot") => void;
@@ -1181,13 +1590,13 @@ function AuthModal({
         {mode === "signup" && (
           <label>
             Name
-            <input value={name} onChange={(event) => setName(event.target.value)} autoComplete="name" required />
+            <input name="name" value={name} onChange={(event) => setName(event.target.value)} autoComplete="name" required />
           </label>
         )}
         {mode !== "forgot" && (
           <label>
             Program
-            <select value={program} onChange={(event) => setProgram(event.target.value)} required>
+            <select name="program" value={program} onChange={(event) => setProgram(event.target.value)} required>
               <option value="" disabled>
                 Select your program
               </option>
@@ -1199,16 +1608,18 @@ function AuthModal({
         )}
         <label>
           Email
-          <input type="email" autoComplete="email" required />
+          <input name="email" type="email" autoComplete="email" required />
         </label>
         {mode !== "forgot" && (
           <label>
             Password
-            <input type="password" autoComplete={mode === "signup" ? "new-password" : "current-password"} required />
+            <input name="password" type="password" autoComplete={mode === "signup" ? "new-password" : "current-password"} required />
           </label>
         )}
-        <button className="primary" type="submit">
-          {mode === "forgot" ? "Send reset link" : "Continue to My Path"}
+        {error && <p className="form-message error-message">{error}</p>}
+        {notice && <p className="form-message notice-message">{notice}</p>}
+        <button className="primary" type="submit" disabled={isLoading}>
+          {isLoading ? "Working..." : mode === "forgot" ? "Send reset link" : "Continue to My Path"}
         </button>
         <div className="auth-switch">
           <button type="button" onClick={() => setMode("login")}>Login</button>
