@@ -43,6 +43,7 @@ import {
   featureLabels,
   plans,
   roleBadges,
+  studentProgressSeed,
   subscriptionEvents,
   users
 } from "@/lib/medpath-data";
@@ -160,6 +161,16 @@ export default function Home() {
     `${user.name} ${user.email} ${user.role}`.toLowerCase().includes(adminSearch.toLowerCase())
   );
   const progress = plan === "explorer" ? 38 : plan === "student_plus" ? 64 : 82;
+  const studentProgress = useMemo(
+    () => ({
+      ...studentProgressSeed,
+      program: program || "Healthcare career",
+      weeklyProgress: progress,
+      pathProgress: plan === "explorer" ? 38 : studentProgressSeed.pathProgress,
+      streakDays: plan === "explorer" ? 3 : studentProgressSeed.streakDays
+    }),
+    [plan, program, progress]
+  );
 
   const generatedSchedule = useMemo(() => {
     const topics = [
@@ -229,8 +240,8 @@ export default function Home() {
               <Dashboard
                 name={name}
                 plan={plan}
-                progress={progress}
                 program={program}
+                progress={studentProgress}
                 onNavigate={goTo}
               />
             )}
@@ -480,71 +491,191 @@ function Sidebar({
 function Dashboard({
   name,
   plan,
-  progress,
   program,
+  progress,
   onNavigate
 }: {
   name: string;
   plan: PlanKey;
-  progress: number;
   program: string;
+  progress: typeof studentProgressSeed;
   onNavigate: (view: ViewKey, feature?: FeatureKey) => void;
 }) {
+  const firstName = name.trim().split(" ")[0] || "future healthcare professional";
+  const programLabel = program || progress.program;
+  const completedJourneySteps = Math.max(1, Math.round((progress.pathProgress / 100) * journey.length));
+  const quickAccess = [
+    {
+      title: "Quizzes",
+      copy: "Continue topic-based questions with explanations.",
+      icon: <Brain />,
+      view: "practice" as ViewKey,
+      feature: "practice" as FeatureKey,
+      metric: "72% ready"
+    },
+    {
+      title: "Flashcards",
+      copy: "Review high-yield terms before your next session.",
+      icon: <BookOpen />,
+      view: "practice" as ViewKey,
+      feature: "flashcards" as FeatureKey,
+      metric: "46% reviewed"
+    },
+    {
+      title: "Practice Exams",
+      copy: "Build confidence with timed certification checks.",
+      icon: <ClipboardCheck />,
+      view: "practice" as ViewKey,
+      feature: "mockExams" as FeatureKey,
+      metric: plan === "pro_student" || plan === "administrator" ? "Ready" : "Pro"
+    },
+    {
+      title: "Atlas AI",
+      copy: "Ask for a plan, a simple explanation, or encouragement.",
+      icon: <MessageCircleHeart />,
+      view: "atlas" as ViewKey,
+      feature: "atlas" as FeatureKey,
+      metric: "Open"
+    }
+  ];
+
   return (
     <div className="stack">
-      <div className="page-title">
-        <span className={`plan-pill ${plan}`}>{roleBadges[plan]}</span>
-          <h2>Welcome back, {name || "future healthcare professional"}.</h2>
-        <p>
-          You are 21 days away from your certification goal. Every step moves you closer to
-          confident patient care.
-        </p>
-      </div>
+      <section className="student-hero">
+        <div className="page-title">
+          <span className={`plan-pill ${plan}`}>{roleBadges[plan]}</span>
+          <h2>Welcome back, {firstName}.</h2>
+          <p>
+            Your {programLabel} dashboard is ready. Atlas recommends focusing on{" "}
+            {progress.recommendedTopic.toLowerCase()} next.
+          </p>
+        </div>
+        <div className="student-summary">
+          <span>{programLabel}</span>
+          <strong>{progress.level}</strong>
+          <small>{progress.xp.toLocaleString()} XP earned</small>
+        </div>
+      </section>
 
       <section className="metric-grid">
-        <Metric title="Today’s Study Goal" value="45 min" icon={<Target />} />
-        <Metric title="Study Streak" value={plan === "explorer" ? "3 days" : "14 days"} icon={<Sparkles />} />
-        <Metric title="Upcoming Exam" value="Aug 14" icon={<CalendarClock />} />
-        <Metric title="Weekly Progress" value={`${progress}%`} icon={<BarChart3 />} />
+        <Metric title="Today’s Study Goal" value={`${progress.upcomingGoals[0].minutes} min`} icon={<Target />} />
+        <Metric title="Study Streak" value={`${progress.streakDays} days`} icon={<Sparkles />} />
+        <Metric title="Upcoming Exam" value={new Date(progress.examDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })} icon={<CalendarClock />} />
+        <Metric title="Weekly Progress" value={`${progress.weeklyProgress}%`} icon={<BarChart3 />} />
       </section>
 
       <section className="journey-card">
         <div>
           <p className="eyebrow">Path Progress</p>
-          <h3>{program || "Healthcare career"} journey</h3>
+          <h3>{programLabel} journey</h3>
+          <p>
+            Next milestone: <strong>{progress.nextMilestone}</strong>. Progress is stored by user ID
+            and can expand as lessons, quizzes, and exams are added.
+          </p>
         </div>
         <div className="path-line">
           {journey.map((step, index) => (
-            <span className={index <= 3 ? "complete" : ""} key={step}>
+            <span className={index < completedJourneySteps ? "complete" : ""} key={step}>
               <i>{index + 1}</i>
               {step}
             </span>
           ))}
         </div>
+        <div className="progress-bar" aria-label={`${progress.pathProgress}% path progress`}>
+          <span style={{ width: `${progress.pathProgress}%` }} />
+        </div>
       </section>
 
-      <section className="dashboard-columns">
+      <section className="student-dashboard-grid">
         <article className="panel motivation">
           <div className="card-head">
-            <h3>Daily Motivation</h3>
+            <h3>Today’s Mentor Note</h3>
             <Sparkles />
           </div>
           <p>
-            Welcome back. Every study session moves you closer to your healthcare career. Today,
-            focus on steady progress, not perfection.
+            Welcome back. Every focused session moves you closer to your healthcare career. Today,
+            spend a short block on your recommended topic, then finish with a confidence-building
+            quiz.
           </p>
+        </article>
+        <article className="panel">
+          <div className="card-head">
+            <h3>Upcoming Study Goals</h3>
+            <Target />
+          </div>
+          <ul className="goal-list">
+            {progress.upcomingGoals.map((goal) => (
+              <li key={goal.id}>
+                <span>
+                  <strong>{goal.title}</strong>
+                  <small>{goal.due} · {goal.minutes} minutes</small>
+                </span>
+                <em>{goal.status.replace("_", " ")}</em>
+              </li>
+            ))}
+          </ul>
         </article>
         <article className="panel">
           <div className="card-head">
             <h3>Recent Activity</h3>
             <Trophy />
           </div>
-          <ul className="clean-list">
-            <li>Completed sterile technique quiz with 88%.</li>
-            <li>Earned Clinical Ready badge.</li>
-            <li>Reviewed pharmacology dosage safety.</li>
+          <ul className="activity-list">
+            {progress.recentActivity.map((activity) => (
+              <li key={activity.id}>
+                <span>
+                  <strong>{activity.title}</strong>
+                  <small>{activity.detail}</small>
+                </span>
+                <em>{activity.score ? `${activity.score}%` : activity.time}</em>
+              </li>
+            ))}
           </ul>
         </article>
+        <article className="panel">
+          <div className="card-head">
+            <h3>Learning Progress</h3>
+            <BarChart3 />
+          </div>
+          <div className="module-list">
+            {progress.learningModules.map((module) => (
+              <div className="module-progress" key={module.id}>
+                <div>
+                  <strong>{module.title}</strong>
+                  <small>{module.category} · {module.status}</small>
+                </div>
+                <span>{module.progress}%</span>
+                <div className="progress-bar">
+                  <i style={{ width: `${module.progress}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </article>
+      </section>
+
+      <section className="quick-access-panel" aria-label="Student quick access">
+        <div className="card-head">
+          <div>
+            <p className="eyebrow">Quick Access</p>
+            <h3>Continue your path</h3>
+          </div>
+          <MessageCircleHeart />
+        </div>
+        <div className="quick-access-grid">
+          {quickAccess.map((item) => (
+            <button
+              className="quick-access-card"
+              key={item.title}
+              onClick={() => onNavigate(item.view, item.feature)}
+            >
+              <span>{item.icon}</span>
+              <strong>{item.title}</strong>
+              <small>{item.copy}</small>
+              <em>{!canAccess(plan, item.feature) ? "Upgrade" : item.metric}</em>
+            </button>
+          ))}
+        </div>
       </section>
 
       <section className="quick-grid">
