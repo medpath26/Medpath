@@ -145,8 +145,8 @@ export default function Home() {
   const [darkMode, setDarkMode] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
   const [authMode, setAuthMode] = useState<"signup" | "login" | "forgot" | null>(null);
-  const [program, setProgram] = useState("Medical Assistant");
-  const [name, setName] = useState("Samara");
+  const [program, setProgram] = useState("");
+  const [name, setName] = useState("");
   const [lockedFeature, setLockedFeature] = useState<FeatureKey | null>(null);
   const [chatInput, setChatInput] = useState("");
   const [mentorAnswer, setMentorAnswer] = useState(mentorReplies.default);
@@ -223,7 +223,7 @@ export default function Home() {
 
       {view !== "landing" && (
         <div className="shell">
-          <Sidebar view={view} plan={plan} isAdmin={isAdmin} onNavigate={goTo} />
+          <Sidebar view={view} plan={plan} name={name} isAdmin={isAdmin} onNavigate={goTo} />
           <section className="workspace">
             {view === "dashboard" && (
               <Dashboard
@@ -423,11 +423,13 @@ function Landing({ onStart, onCareers }: { onStart: () => void; onCareers: () =>
 function Sidebar({
   view,
   plan,
+  name,
   isAdmin,
   onNavigate
 }: {
   view: ViewKey;
   plan: PlanKey;
+  name: string;
   isAdmin: boolean;
   onNavigate: (view: ViewKey, feature?: FeatureKey) => void;
 }) {
@@ -448,7 +450,7 @@ function Sidebar({
       <div className="mini-profile">
         <UserRound />
         <span>
-          <strong>Samara A.</strong>
+          <strong>{name || "Your profile"}</strong>
           <small>{roleBadges[plan]}</small>
         </span>
       </div>
@@ -492,7 +494,7 @@ function Dashboard({
     <div className="stack">
       <div className="page-title">
         <span className={`plan-pill ${plan}`}>{roleBadges[plan]}</span>
-        <h2>Welcome back, {name}.</h2>
+          <h2>Welcome back, {name || "future healthcare professional"}.</h2>
         <p>
           You are 21 days away from your certification goal. Every step moves you closer to
           confident patient care.
@@ -509,7 +511,7 @@ function Dashboard({
       <section className="journey-card">
         <div>
           <p className="eyebrow">Path Progress</p>
-          <h3>{program} journey</h3>
+          <h3>{program || "Healthcare career"} journey</h3>
         </div>
         <div className="path-line">
           {journey.map((step, index) => (
@@ -592,8 +594,8 @@ function Atlas({
         <div className="mentor-memory">
           <h3>Mentor Memory</h3>
           <ul>
-            <li>Student: {name}</li>
-            <li>Program: {program}</li>
+            <li>Student: {name || "Not set yet"}</li>
+            <li>Program: {program || "Not set yet"}</li>
             <li>Certification: NCCT / NHA track</li>
             <li>Focus: instrumentation and test anxiety</li>
             <li>Confidence level: building</li>
@@ -1048,13 +1050,16 @@ function AuthModal({
         {mode === "signup" && (
           <label>
             Name
-            <input value={name} onChange={(event) => setName(event.target.value)} />
+            <input value={name} onChange={(event) => setName(event.target.value)} autoComplete="name" required />
           </label>
         )}
         {mode !== "forgot" && (
           <label>
             Program
-            <select value={program} onChange={(event) => setProgram(event.target.value)}>
+            <select value={program} onChange={(event) => setProgram(event.target.value)} required>
+              <option value="" disabled>
+                Select your program
+              </option>
               <option>Medical Assistant</option>
               <option>Surgical Technologist</option>
               <option>Exploring Healthcare Careers</option>
@@ -1063,12 +1068,12 @@ function AuthModal({
         )}
         <label>
           Email
-          <input type="email" defaultValue="samara@example.com" />
+          <input type="email" autoComplete="email" required />
         </label>
         {mode !== "forgot" && (
           <label>
             Password
-            <input type="password" defaultValue="medpath-demo" />
+            <input type="password" autoComplete={mode === "signup" ? "new-password" : "current-password"} required />
           </label>
         )}
         <button className="primary" type="submit">
