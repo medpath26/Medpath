@@ -738,7 +738,12 @@ export default function Home() {
 
       {view === "billing" && !signedIn && (
         <section className="public-workspace">
-          <Billing plan="explorer" setPlan={() => setAuthMode("signup")} onLock={() => setAuthMode("signup")} />
+          <Billing
+            plan="explorer"
+            setPlan={() => setAuthMode("signup")}
+            onLock={() => setAuthMode("signup")}
+            isSignedIn={false}
+          />
         </section>
       )}
 
@@ -780,7 +785,7 @@ export default function Home() {
             {view === "resume" && <ResumeBuilder name={name} program={program} />}
             {view === "interview" && <InterviewCoach />}
             {view === "billing" && (
-              <Billing plan={plan} setPlan={updatePlan} onLock={setLockedFeature} />
+              <Billing plan={plan} setPlan={updatePlan} onLock={setLockedFeature} isSignedIn />
             )}
             {view === "admin" && isAdmin && (
               <Admin
@@ -1871,42 +1876,198 @@ function InterviewCoach() {
 function Billing({
   plan,
   setPlan,
-  onLock
+  onLock,
+  isSignedIn
 }: {
   plan: PlanKey;
   setPlan: (plan: PlanKey) => void;
   onLock: (feature: FeatureKey) => void;
+  isSignedIn: boolean;
 }) {
+  const pricingPlans = [
+    {
+      key: "explorer" as PlanKey,
+      name: "Free",
+      price: "$0/month",
+      badge: "",
+      description: "Begin your MedPath with core discovery tools and a sample Atlas experience.",
+      includes: [
+        "Limited Atlas Tutor (3 free questions)",
+        "Sample lessons",
+        "Career PathFinder",
+        "Basic study planner",
+        "Community updates"
+      ],
+      button: "Get Started Free"
+    },
+    {
+      key: "student_plus" as PlanKey,
+      name: "Pro",
+      price: "$14.99/month",
+      badge: "Most Popular",
+      description: "Unlock the full study system for daily practice, tutoring, and exam readiness.",
+      includes: [
+        "Everything in Free",
+        "Unlimited Atlas Tutor",
+        "Unlimited flashcards",
+        "Unlimited quizzes",
+        "Personalized study plans",
+        "Progress tracking",
+        "Practice exams",
+        "Exam readiness score",
+        "Bookmark lessons",
+        "Study streaks",
+        "Priority support"
+      ],
+      button: "Upgrade to Pro"
+    },
+    {
+      key: "pro_student" as PlanKey,
+      name: "Elite",
+      price: "$29.99/month",
+      badge: "",
+      description: "Advanced preparation for certification, clinical confidence, and career launch.",
+      includes: [
+        "Everything in Pro",
+        "Full certification exam simulations",
+        "Advanced analytics",
+        "AI learning recommendations",
+        "Clinical scenario practice",
+        "Resume Builder",
+        "Interview Coach",
+        "Early access to new healthcare programs",
+        "Premium support"
+      ],
+      button: "Go Elite"
+    }
+  ];
+  const comparisonRows = [
+    ["Atlas Tutor", "3 questions", "Unlimited", "Unlimited"],
+    ["Flashcards", "Sample", "Unlimited", "Unlimited"],
+    ["Quizzes", "Sample", "Unlimited", "Unlimited"],
+    ["Practice Exams", "—", "Included", "Simulations"],
+    ["Study Planner", "Basic", "Personalized", "Personalized"],
+    ["Progress Tracking", "—", "Included", "Advanced"],
+    ["Career PathFinder", "Included", "Included", "Included"],
+    ["Resume Builder", "—", "—", "Included"],
+    ["Interview Coach", "—", "—", "Included"],
+    ["Priority Support", "—", "Included", "Premium"]
+  ];
+  const pricingFaqs = [
+    ["What payment methods are accepted?", "MedPath is prepared for card-based checkout through Stripe, including major debit and credit cards."],
+    ["Can I cancel anytime?", "Yes. You can cancel from billing controls when subscription checkout is connected."],
+    ["Do I lose my progress if I downgrade?", "No. Your saved progress remains attached to your MedPath account, though some premium tools may become locked."],
+    ["Can I upgrade later?", "Yes. You can start free and move to Pro or Elite whenever you are ready for more support."]
+  ];
+
   return (
-    <div className="stack">
-      <div className="page-title">
-        <p className="eyebrow">Subscription Management</p>
-        <h2>Plans, permissions, billing history, and Stripe-ready checkout.</h2>
-      </div>
+    <div className="stack pricing-page">
+      <section className="pricing-hero">
+        <p className="eyebrow">Pricing</p>
+        <h2>Choose Your MedPath</h2>
+        <p>Learn with confidence. Practice with purpose. Pass your certification exam.</p>
+      </section>
+
       <section className="pricing-grid">
-        {(Object.keys(plans) as PlanKey[])
-          .filter((key) => !["institution_admin", "institution_student", "administrator"].includes(key))
-          .map((key) => (
-            <article className={plan === key ? "price-card current" : "price-card"} key={key}>
-              <span className={`plan-pill ${key}`}>{roleBadges[key]}</span>
-              <h3>{plans[key].name}</h3>
-              <p>{plans[key].description}</p>
-              <strong className="price">{plans[key].price}</strong>
-              <ul>
-                {plans[key].highlights.map((highlight) => (
-                  <li key={highlight}>
-                    <Check size={16} />
-                    {highlight}
-                  </li>
-                ))}
-              </ul>
-              <button className={plan === key ? "secondary" : "primary"} onClick={() => setPlan(key)}>
-                {plan === key ? "Current Plan" : key === "explorer" ? "Downgrade" : "Upgrade"}
-              </button>
+        {pricingPlans.map((pricingPlan) => (
+          <article
+            className={[
+              "price-card",
+              "public-price-card",
+              pricingPlan.key === "student_plus" ? "recommended" : "",
+              plan === pricingPlan.key ? "current" : ""
+            ].join(" ")}
+            key={pricingPlan.name}
+          >
+            <div className="pricing-card-top">
+              <span className={`plan-pill ${pricingPlan.key}`}>{pricingPlan.name}</span>
+              {pricingPlan.badge && <strong className="popular-badge">{pricingPlan.badge}</strong>}
+            </div>
+            <h3>{pricingPlan.name}</h3>
+            <strong className="price">{pricingPlan.price}</strong>
+            <p>{pricingPlan.description}</p>
+            <ul>
+              {pricingPlan.includes.map((highlight) => (
+                <li key={highlight}>
+                  <Check size={16} />
+                  {highlight}
+                </li>
+              ))}
+            </ul>
+            <button
+              className={pricingPlan.key === "student_plus" ? "primary" : "secondary"}
+              onClick={() => setPlan(pricingPlan.key)}
+            >
+              {isSignedIn && plan === pricingPlan.key ? "Current Plan" : pricingPlan.button}
+            </button>
+          </article>
+        ))}
+      </section>
+
+      <section className="panel comparison-panel">
+        <div className="card-head">
+          <div>
+            <p className="eyebrow">Compare Plans</p>
+            <h3>Everything students need, side by side.</h3>
+          </div>
+          <BarChart3 />
+        </div>
+        <div className="comparison-table-wrap">
+          <table className="comparison-table">
+            <thead>
+              <tr>
+                <th>Feature</th>
+                <th>Free</th>
+                <th>Pro</th>
+                <th>Elite</th>
+              </tr>
+            </thead>
+            <tbody>
+              {comparisonRows.map(([feature, free, pro, elite]) => (
+                <tr key={feature}>
+                  <td>{feature}</td>
+                  <td>{free}</td>
+                  <td>{pro}</td>
+                  <td>{elite}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section className="pricing-faq-section">
+        <div className="section-heading">
+          <p className="eyebrow">FAQ</p>
+          <h2>Questions before you choose?</h2>
+        </div>
+        <div className="faq-grid">
+          {pricingFaqs.map(([question, answer]) => (
+            <article className="faq-item" key={question}>
+              <h3>{question}</h3>
+              <p>{answer}</p>
             </article>
           ))}
+        </div>
       </section>
-      <section className="billing-grid">
+
+      <section className="pricing-cta">
+        <div>
+          <p className="eyebrow">Ready when you are</p>
+          <h2>Ready to pass with confidence?</h2>
+        </div>
+        <div className="pricing-cta-actions">
+          <button className="secondary" onClick={() => setPlan("explorer")}>
+            Start Free
+          </button>
+          <button className="primary" onClick={() => setPlan("student_plus")}>
+            Upgrade to Pro
+          </button>
+        </div>
+      </section>
+
+      {isSignedIn && (
+        <section className="billing-grid">
         <article className="panel">
           <div className="card-head">
             <h3>Billing controls</h3>
@@ -1960,6 +2121,7 @@ function Billing({
           </table>
         </article>
       </section>
+      )}
     </div>
   );
 }

@@ -1196,6 +1196,83 @@ dd {
   padding: 1.2rem;
 }
 
+.pricing-page {
+  gap: 1.5rem;
+}
+
+.pricing-hero {
+  display: grid;
+  gap: 0.8rem;
+  padding: clamp(1.5rem, 5vw, 3rem);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 86% 12%, rgba(34, 199, 200, 0.18), transparent 22rem),
+    linear-gradient(135deg, color-mix(in srgb, var(--white) 92%, transparent), color-mix(in srgb, var(--bg-2) 88%, transparent));
+  box-shadow: 0 22px 70px rgba(13, 43, 82, 0.1);
+}
+
+.pricing-hero h2,
+.pricing-cta h2 {
+  margin: 0;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(2.8rem, 7vw, 5.6rem);
+  line-height: 0.95;
+  letter-spacing: 0;
+  color: var(--navy);
+}
+
+.dark .pricing-hero h2,
+.dark .comparison-table th {
+  color: #f7fbff;
+}
+
+.pricing-hero p:not(.eyebrow) {
+  max-width: 680px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 1.15rem;
+  line-height: 1.65;
+}
+
+.public-price-card {
+  position: relative;
+  min-height: 100%;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.public-price-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(34, 199, 200, 0.32);
+  box-shadow: 0 24px 72px rgba(13, 43, 82, 0.13);
+}
+
+.public-price-card.recommended {
+  border-color: rgba(34, 199, 200, 0.62);
+  background:
+    linear-gradient(180deg, rgba(34, 199, 200, 0.12), transparent 34%),
+    color-mix(in srgb, var(--white) 92%, transparent);
+  box-shadow: 0 0 0 4px rgba(34, 199, 200, 0.13), 0 28px 86px rgba(13, 43, 82, 0.16);
+}
+
+.pricing-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.popular-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 0.7rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--navy), var(--teal));
+  color: white;
+  font-size: 0.78rem;
+}
+
 .price-card.current {
   border-color: var(--teal);
   box-shadow: 0 0 0 4px rgba(34, 199, 200, 0.13), var(--shadow);
@@ -1211,6 +1288,60 @@ dd {
 
 .billing-grid .wide {
   grid-column: 1 / -1;
+}
+
+.comparison-panel {
+  display: grid;
+  gap: 1rem;
+}
+
+.comparison-panel h3 {
+  margin: 0;
+}
+
+.comparison-table-wrap {
+  overflow-x: auto;
+}
+
+.comparison-table {
+  min-width: 720px;
+}
+
+.comparison-table th {
+  color: var(--navy);
+}
+
+.comparison-table td:first-child {
+  font-weight: 800;
+}
+
+.pricing-faq-section {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+.pricing-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: clamp(1.25rem, 4vw, 2rem);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(13, 43, 82, 0.95), rgba(21, 83, 129, 0.94) 58%, rgba(34, 199, 200, 0.9));
+  color: white;
+}
+
+.pricing-cta h2,
+.pricing-cta .eyebrow {
+  color: white;
+}
+
+.pricing-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
 }
 
 .billing-actions,
@@ -1462,6 +1593,11 @@ td small {
   }
 
   .landing-cta {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .pricing-cta {
     align-items: flex-start;
     flex-direction: column;
   }
