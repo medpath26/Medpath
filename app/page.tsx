@@ -525,10 +525,17 @@ export default function Home() {
   }, [studyHours]);
 
   function goTo(nextView: ViewKey, feature?: FeatureKey) {
-    if (!signedIn && !["landing", "career", "atlas", "billing"].includes(nextView)) {
+    const publicViews: ViewKey[] = ["landing", "career", "atlas", "billing"];
+
+    if (!signedIn && !publicViews.includes(nextView)) {
       setAuthMode("login");
       setAuthNotice("Please log in to open your MedPath workspace.");
       return;
+    }
+    if (publicViews.includes(nextView)) {
+      setAuthMode(null);
+      setAuthNotice("");
+      setLockedFeature(null);
     }
     if (signedIn && feature && !canAccess(plan, feature)) {
       setLockedFeature(feature);
@@ -751,6 +758,17 @@ export default function Home() {
         </section>
       )}
 
+      {view === "billing" && signedIn && !workspaceReady && (
+        <section className="public-workspace">
+          <Billing
+            plan={plan}
+            setPlan={() => undefined}
+            onLock={() => undefined}
+            isSignedIn={false}
+          />
+        </section>
+      )}
+
       {view !== "landing" && signedIn && workspaceReady && (
         <div className="shell">
           <Sidebar view={view} plan={plan} name={name} isAdmin={isAdmin} onNavigate={goTo} />
@@ -852,7 +870,7 @@ export default function Home() {
         <GuestAtlasUpgradeModal
           onPlans={() => {
             setShowGuestAtlasModal(false);
-            setView("billing");
+            goTo("billing");
           }}
           onSignup={() => {
             setShowGuestAtlasModal(false);
