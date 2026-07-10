@@ -31,6 +31,7 @@ import {
   UpgradeOverlay
 } from "@/components/MedPathComponents";
 import type { AtlasChatMessage, ViewKey } from "@/components/Common/types";
+import { getAuthCallbackUrl } from "@/lib/auth-redirects";
 import {
   LearningModuleRecord,
   ProfileRecord,
@@ -464,7 +465,7 @@ export default function Home() {
     try {
       if (authMode === "forgot") {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: window.location.origin
+          redirectTo: getAuthCallbackUrl("/")
         });
 
         if (error) throw error;
@@ -478,7 +479,7 @@ export default function Home() {
           email,
           password,
           options: {
-            emailRedirectTo: window.location.origin,
+            emailRedirectTo: getAuthCallbackUrl("/"),
             data: {
               full_name: authName.trim(),
               healthcare_program: authProgram
