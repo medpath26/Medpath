@@ -127,6 +127,7 @@ export default function Home() {
   const [workspaceReady, setWorkspaceReady] = useState(false);
   const [profile, setProfile] = useState<ProfileRecord | null>(null);
   const [studentProgress, setStudentProgress] = useState<StudentProgress>(studentProgressSeed);
+  const [examTrackerHidden, setExamTrackerHidden] = useState(false);
   const [authName, setAuthName] = useState("");
   const [authProgram, setAuthProgram] = useState("");
   const [authError, setAuthError] = useState("");
@@ -170,6 +171,7 @@ export default function Home() {
       setAuthSession(session);
       setAuthUser(session?.user ?? null);
       if (session?.user) {
+        setExamTrackerHidden(false);
         setWorkspaceReady(false);
         const loaded = await loadUserWorkspace(session.user);
         if (loaded) {
@@ -183,6 +185,7 @@ export default function Home() {
       setAuthSession(session);
       setAuthUser(session?.user ?? null);
       if (session?.user) {
+        setExamTrackerHidden(false);
         setWorkspaceReady(false);
         const loaded = await loadUserWorkspace(session.user);
         setWorkspaceReady(loaded);
@@ -190,6 +193,7 @@ export default function Home() {
         setWorkspaceReady(false);
         setProfile(null);
         setStudentProgress(studentProgressSeed);
+        setExamTrackerHidden(false);
         setView("landing");
       }
     });
@@ -540,6 +544,7 @@ export default function Home() {
     setWorkspaceReady(false);
     setProfile(null);
     setStudentProgress(studentProgressSeed);
+    setExamTrackerHidden(false);
     setAuthName("");
     setAuthProgram("");
     setView("landing");
@@ -562,6 +567,81 @@ export default function Home() {
       setAuthError(error.message);
       setProfile(profile);
     }
+  }
+
+  async function saveExamTracker(certificationGoal: string, nextExamDate: string) {
+    if (!supabase || !authUser) {
+      setAuthError("Please log in before updating your exam tracker.");
+      return false;
+    }
+
+    const trimmedGoal = certificationGoal.trim();
+    if (!trimmedGoal || !nextExamDate) {
+      setAuthError("Add both a certification name and exam date.");
+      return false;
+    }
+
+    const previousProgress = studentProgress;
+    const nextProgress = {
+      ...studentProgress,
+      certificationGoal: trimmedGoal,
+      examDate: nextExamDate
+    };
+
+    setStudentProgress(nextProgress);
+    setExamTrackerHidden(false);
+    setAuthError("");
+
+    const { error } = await supabase
+      .from("student_progress")
+      .update({
+        certification_goal: trimmedGoal,
+        exam_date: nextExamDate
+      })
+      .eq("user_id", authUser.id);
+
+    if (error) {
+      setStudentProgress(previousProgress);
+      setAuthError(error.message);
+      return false;
+    }
+
+    return true;
+  }
+
+  async function deleteExamTracker() {
+    if (!supabase || !authUser) {
+      setAuthError("Please log in before updating your exam tracker.");
+      return false;
+    }
+
+    const previousProgress = studentProgress;
+    const today = new Date().toISOString().slice(0, 10);
+    const nextProgress = {
+      ...studentProgress,
+      certificationGoal: "",
+      examDate: today
+    };
+
+    setStudentProgress(nextProgress);
+    setExamTrackerHidden(false);
+    setAuthError("");
+
+    const { error } = await supabase
+      .from("student_progress")
+      .update({
+        certification_goal: "",
+        exam_date: today
+      })
+      .eq("user_id", authUser.id);
+
+    if (error) {
+      setStudentProgress(previousProgress);
+      setAuthError(error.message);
+      return false;
+    }
+
+    return true;
   }
 
   function askAtlas(event: FormEvent<HTMLFormElement>) {
@@ -676,6 +756,10 @@ export default function Home() {
                 plan={plan}
                 program={program}
                 progress={studentProgress}
+                examTrackerHidden={examTrackerHidden}
+                onSaveExamTracker={saveExamTracker}
+                onDeleteExamTracker={deleteExamTracker}
+                onHideExamTracker={() => setExamTrackerHidden(true)}
                 onNavigate={goTo}
               />
             )}

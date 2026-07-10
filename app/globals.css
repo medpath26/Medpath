@@ -884,6 +884,72 @@ td button {
   font-size: 1.02rem;
 }
 
+.exam-tracker-card {
+  background:
+    radial-gradient(circle at 95% 8%, rgba(244, 183, 64, 0.18), transparent 18rem),
+    color-mix(in srgb, var(--white) 90%, transparent);
+}
+
+.exam-tracker-summary {
+  display: grid;
+  grid-template-columns: minmax(8rem, 0.28fr) minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+}
+
+.exam-tracker-summary > div:not(.exam-tracker-actions),
+.exam-tracker-empty {
+  display: grid;
+  gap: 0.3rem;
+  min-height: 100%;
+  padding: 0.95rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.58);
+}
+
+.exam-tracker-summary strong {
+  color: var(--navy);
+  font-size: clamp(1.05rem, 2vw, 1.45rem);
+}
+
+.exam-tracker-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(12rem, 0.42fr);
+  gap: 1rem;
+  align-items: end;
+}
+
+.exam-tracker-form input {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0 0.85rem;
+  background: rgba(255, 255, 255, 0.86);
+  color: var(--ink);
+  font: inherit;
+}
+
+.exam-tracker-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.exam-tracker-empty {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.exam-tracker-empty p {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 700;
+}
+
 .dashboard-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(16rem, 0.32fr);
@@ -2394,6 +2460,14 @@ td small {
   color: var(--navy);
 }
 
+.text-button.danger {
+  color: #b42318;
+}
+
+.text-button.danger:hover {
+  color: #7a1a13;
+}
+
 .close-button {
   position: absolute;
   top: 0.9rem;
@@ -2512,6 +2586,15 @@ td small {
 
   .sidebar nav {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .exam-tracker-summary,
+  .exam-tracker-form {
+    grid-template-columns: 1fr;
+  }
+
+  .exam-tracker-actions {
+    justify-content: flex-start;
   }
 
   .product-band,

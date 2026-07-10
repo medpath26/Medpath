@@ -259,8 +259,8 @@ export function Landing({ onStart, onCareers }: { onStart: () => void; onCareers
           />
           <div className="floating-card">
             <BadgeCheck />
-            <span>21 days to NCCT exam</span>
-            <strong>Today: instrumentation focus</strong>
+            <span>Personal exam tracker</span>
+            <strong>Set your certification goal after signup</strong>
           </div>
         </div>
       </section>
@@ -468,20 +468,37 @@ export function Dashboard({
   plan,
   program,
   progress,
+  examTrackerHidden,
+  onSaveExamTracker,
+  onDeleteExamTracker,
+  onHideExamTracker,
   onNavigate
 }: {
   name: string;
   plan: PlanKey;
   program: string;
   progress: typeof studentProgressSeed;
+  examTrackerHidden: boolean;
+  onSaveExamTracker: (certificationGoal: string, examDate: string) => Promise<boolean>;
+  onDeleteExamTracker: () => Promise<boolean>;
+  onHideExamTracker: () => void;
   onNavigate: (view: ViewKey, feature?: FeatureKey) => void;
 }) {
   const firstName = name.trim().split(" ")[0] || "future healthcare professional";
   const programLabel = program || progress.program;
   const [todayGoalComplete, setTodayGoalComplete] = useState(false);
+  const [examEditing, setExamEditing] = useState(false);
+  const [examSaving, setExamSaving] = useState(false);
+  const [examDraftName, setExamDraftName] = useState("");
+  const [examDraftDate, setExamDraftDate] = useState("");
   const currentHour = new Date().getHours();
   const greeting = currentHour < 12 ? "Good Morning" : currentHour < 18 ? "Good Afternoon" : "Good Evening";
   const xpProgress = Math.min(100, Math.max(8, Math.round((progress.xp % 1000) / 10)));
+  const hasPersonalExam = Boolean(progress.certificationGoal.trim()) && progress.certificationGoal !== studentProgressSeed.certificationGoal;
+  const examDateValue = progress.examDate ? new Date(`${progress.examDate}T00:00:00`) : null;
+  const daysRemaining = examDateValue
+    ? Math.max(0, Math.ceil((examDateValue.getTime() - Date.now()) / 86400000))
+    : 0;
   const todayGoal = progress.upcomingGoals[0] ?? {
     id: "default-goal",
     title: "Complete Sterile Technique Module",
@@ -620,6 +637,30 @@ export function Dashboard({
     }
   ];
 
+  useEffect(() => {
+    setExamDraftName(hasPersonalExam ? progress.certificationGoal : "");
+    setExamDraftDate(hasPersonalExam ? progress.examDate : "");
+  }, [hasPersonalExam, progress.certificationGoal, progress.examDate]);
+
+  async function handleExamSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setExamSaving(true);
+    const saved = await onSaveExamTracker(examDraftName, examDraftDate);
+    setExamSaving(false);
+    if (saved) {
+      setExamEditing(false);
+    }
+  }
+
+  async function handleExamDelete() {
+    setExamSaving(true);
+    const deleted = await onDeleteExamTracker();
+    setExamSaving(false);
+    if (deleted) {
+      setExamEditing(false);
+    }
+  }
+
   return (
     <div className="dashboard-workspace">
       <section className="dashboard-hero">
@@ -645,6 +686,84 @@ export function Dashboard({
           </div>
         </div>
       </section>
+
+      {!examTrackerHidden && (
+        <section className="dashboard-card exam-tracker-card" aria-label="Personal exam tracker">
+          <div className="card-head">
+            <div>
+              <p className="eyebrow">Exam Tracker</p>
+              <h3>{hasPersonalExam ? progress.certificationGoal : "No exam scheduled yet."}</h3>
+            </div>
+            <CalendarClock />
+          </div>
+
+          {examEditing ? (
+            <form className="exam-tracker-form" onSubmit={handleExamSubmit}>
+              <label>
+                Certification Name
+                <input
+                  type="text"
+                  value={examDraftName}
+                  onChange={(event) => setExamDraftName(event.target.value)}
+                  placeholder="NCCT TS-C"
+                  required
+                />
+              </label>
+              <label>
+                Exam Date
+                <input
+                  type="date"
+                  value={examDraftDate}
+                  onChange={(event) => setExamDraftDate(event.target.value)}
+                  required
+                />
+              </label>
+              <div className="exam-tracker-actions">
+                <button className="primary compact" type="submit" disabled={examSaving}>
+                  {examSaving ? "Saving..." : "Save Exam"}
+                </button>
+                <button className="secondary compact" type="button" onClick={() => setExamEditing(false)} disabled={examSaving}>
+                  Cancel
+                </button>
+                {hasPersonalExam && (
+                  <button className="text-button danger" type="button" onClick={handleExamDelete} disabled={examSaving}>
+                    Delete
+                  </button>
+                )}
+              </div>
+            </form>
+          ) : hasPersonalExam ? (
+            <div className="exam-tracker-summary">
+              <div>
+                <small>Days Remaining</small>
+                <strong>{daysRemaining}</strong>
+              </div>
+              <div>
+                <small>Today's Study Focus</small>
+                <strong>{progress.recommendedTopic}</strong>
+              </div>
+              <div className="exam-tracker-actions">
+                <button className="secondary compact" type="button" onClick={() => setExamEditing(true)}>
+                  Edit
+                </button>
+                <button className="secondary compact" type="button" onClick={onHideExamTracker}>
+                  Hide
+                </button>
+                <button className="text-button danger" type="button" onClick={handleExamDelete} disabled={examSaving}>
+                  Delete
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="exam-tracker-empty">
+              <p>No exam scheduled yet.</p>
+              <button className="primary compact" type="button" onClick={() => setExamEditing(true)}>
+                Set My Exam
+              </button>
+            </div>
+          )}
+        </section>
+      )}
 
       <section className="home-quick-access" aria-label="Explore MedPath quick access">
         <div className="section-title-row">
