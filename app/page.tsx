@@ -1383,39 +1383,76 @@ function Dashboard({
   const motivationMessage = motivationMessages[new Date().getDate() % motivationMessages.length];
   const quickAccess = [
     {
-      title: "Continue Learning",
-      copy: `Pick up with ${progress.recommendedTopic.toLowerCase()} and keep your study rhythm moving.`,
+      title: "Course Viewer",
+      copy: "Continue your lessons.",
       icon: <BookOpen />,
       view: "study" as ViewKey,
-      feature: "studyPlans" as FeatureKey
+      feature: "studyPlans" as FeatureKey,
+      action: "Open"
     },
     {
       title: "Atlas Tutor",
-      copy: "Ask Atlas for explanations, encouragement, and a focused next-step plan.",
+      copy: "Ask questions and get explanations.",
       icon: <MessageCircleHeart />,
       view: "atlas" as ViewKey,
-      feature: "atlas" as FeatureKey
+      feature: "atlas" as FeatureKey,
+      action: "Open"
     },
     {
       title: "Flashcards",
-      copy: "Review high-yield terms before your next session.",
+      copy: "Review with active recall.",
       icon: <BookOpen />,
       view: "practice" as ViewKey,
-      feature: "flashcards" as FeatureKey
+      feature: "flashcards" as FeatureKey,
+      action: "Study"
     },
     {
       title: "Practice Exams",
-      copy: "Build confidence with timed certification checks.",
+      copy: "Simulate your certification exam.",
       icon: <ClipboardCheck />,
       view: "practice" as ViewKey,
-      feature: "mockExams" as FeatureKey
+      feature: "mockExams" as FeatureKey,
+      action: "Start"
     },
     {
       title: "PathFinder",
-      copy: "Compare healthcare careers, certifications, skills, and growth paths.",
+      copy: "Explore healthcare careers.",
       icon: <Search />,
       view: "career" as ViewKey,
-      feature: "careerExplorer" as FeatureKey
+      feature: "careerExplorer" as FeatureKey,
+      action: "Explore"
+    },
+    {
+      title: "Progress",
+      copy: "View your learning progress.",
+      icon: <BarChart3 />,
+      view: "dashboard" as ViewKey,
+      feature: undefined,
+      action: "View"
+    },
+    {
+      title: "Pricing",
+      copy: "Compare plans and upgrade.",
+      icon: <CreditCard />,
+      view: "billing" as ViewKey,
+      feature: undefined,
+      action: "View Plans"
+    },
+    {
+      title: "Profile",
+      copy: "Manage your account.",
+      icon: <UserRound />,
+      view: "dashboard" as ViewKey,
+      feature: undefined,
+      action: "Open"
+    },
+    {
+      title: "Settings",
+      copy: "Preferences and notifications.",
+      icon: <Settings />,
+      view: "billing" as ViewKey,
+      feature: undefined,
+      action: "Open"
     }
   ];
 
@@ -1445,19 +1482,28 @@ function Dashboard({
         </div>
       </section>
 
-      <section className="dashboard-quick-actions" aria-label="Dashboard quick actions">
-        {quickAccess.map((item) => (
-          <button
-            className="dashboard-action-card"
-            key={item.title}
-            onClick={() => onNavigate(item.view, item.feature)}
-          >
-            <span>{item.icon}</span>
-            <strong>{item.title}</strong>
-            <small>{item.copy}</small>
-            {!canAccess(plan, item.feature) && <em>Upgrade</em>}
-          </button>
-        ))}
+      <section className="home-quick-access" aria-label="Explore MedPath quick access">
+        <div className="section-title-row">
+          <div>
+            <p className="eyebrow">Explore MedPath</p>
+            <h3>Everything you need to study, practice, and pass.</h3>
+          </div>
+          <Sparkles />
+        </div>
+        <div className="dashboard-quick-actions">
+          {quickAccess.map((item) => (
+            <button
+              className="dashboard-action-card"
+              key={item.title}
+              onClick={() => onNavigate(item.view, item.feature)}
+            >
+              <span>{item.icon}</span>
+              <strong>{item.title}</strong>
+              <small>{item.copy}</small>
+              <em>{item.feature && !canAccess(plan, item.feature) ? "Upgrade" : item.action}</em>
+            </button>
+          ))}
+        </div>
       </section>
 
       <div className="dashboard-layout">
