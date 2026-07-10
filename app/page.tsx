@@ -20,9 +20,11 @@ import {
   HeartHandshake,
   Lock,
   LogIn,
+  Menu,
   MessageCircleHeart,
   Moon,
   Search,
+  Settings,
   ShieldCheck,
   Sparkles,
   Star,
@@ -903,6 +905,42 @@ function Header({
   onDark: () => void;
 }) {
   const [logoFailed, setLogoFailed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const closeMobileMenu = () => setMobileMenuOpen(false);
+  const navigateMobile = (nextView: ViewKey, feature?: FeatureKey) => {
+    onNavigate(nextView, feature);
+    closeMobileMenu();
+  };
+  const authMobile = (mode: "signup" | "login") => {
+    onAuth(mode);
+    closeMobileMenu();
+  };
+  const logoutMobile = () => {
+    onLogout();
+    closeMobileMenu();
+  };
+  const authenticatedMobileItems = [
+    ["Dashboard", <Activity key="icon" />, () => navigateMobile("dashboard")],
+    ["Course Viewer", <BookOpen key="icon" />, () => navigateMobile("study", "studyPlans")],
+    ["PathPrep", <Brain key="icon" />, () => navigateMobile("practice", "practice")],
+    ["Flashcards", <BookOpen key="icon" />, () => navigateMobile("practice", "flashcards")],
+    ["Practice Exams", <ClipboardCheck key="icon" />, () => navigateMobile("practice", "mockExams")],
+    ["Atlas Tutor", <MessageCircleHeart key="icon" />, () => navigateMobile("atlas", "atlas")],
+    ["PathFinder", <Search key="icon" />, () => navigateMobile("career", "careerExplorer")],
+    ["Pricing", <CreditCard key="icon" />, () => navigateMobile("billing")],
+    ["Profile", <UserRound key="icon" />, () => navigateMobile("dashboard")],
+    ["Settings", <Settings key="icon" />, () => navigateMobile("billing")],
+    ["Logout", <LogIn key="icon" />, logoutMobile]
+  ] as const;
+  const guestMobileItems = [
+    ["Home", <Activity key="icon" />, () => navigateMobile("landing")],
+    ["Atlas", <MessageCircleHeart key="icon" />, () => navigateMobile("atlas", "atlas")],
+    ["PathFinder", <Search key="icon" />, () => navigateMobile("career", "careerExplorer")],
+    ["Pricing", <CreditCard key="icon" />, () => navigateMobile("billing")],
+    ["Login", <LogIn key="icon" />, () => authMobile("login")],
+    ["Sign Up", <UserRound key="icon" />, () => authMobile("signup")]
+  ] as const;
+  const mobileItems = signedIn ? authenticatedMobileItems : guestMobileItems;
 
   return (
     <header className="topbar">
@@ -931,6 +969,15 @@ function Header({
         <button className="icon-button" onClick={onDark} aria-label="Toggle dark mode">
           <Moon size={18} />
         </button>
+        <button
+          className="icon-button mobile-menu-toggle"
+          onClick={() => setMobileMenuOpen((open) => !open)}
+          aria-label="Toggle mobile navigation"
+          aria-expanded={mobileMenuOpen}
+          aria-controls="mobile-navigation"
+        >
+          {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+        </button>
         {signedIn ? (
           <>
             <button className="primary compact" onClick={() => onNavigate(view === "dashboard" ? "billing" : "dashboard")}>
@@ -952,6 +999,22 @@ function Header({
           </>
         )}
       </div>
+      <nav
+        className={mobileMenuOpen ? "mobile-nav open" : "mobile-nav"}
+        id="mobile-navigation"
+        aria-label="Mobile"
+      >
+        {mobileItems.map(([label, icon, action]) => (
+          <button
+            className={label === "Logout" ? "mobile-nav-danger" : ""}
+            key={label}
+            onClick={action}
+          >
+            {icon}
+            {label}
+          </button>
+        ))}
+      </nav>
     </header>
   );
 }
