@@ -803,15 +803,13 @@ td button {
 .dashboard-action-card small,
 .timeline-item small,
 .sidebar-goal-list span,
-.exam-readiness small,
 .announcement-card p {
   color: var(--muted);
   line-height: 1.5;
 }
 
 .dashboard-hero-stats strong,
-.dashboard-card > strong,
-.exam-readiness strong {
+.dashboard-card > strong {
   color: var(--navy);
   font-size: 1.35rem;
 }
@@ -902,8 +900,7 @@ td button {
   gap: 1rem;
 }
 
-.goal-card-footer span,
-.countdown-badge {
+.goal-card-footer span {
   width: fit-content;
   padding: 0.35rem 0.7rem;
   border-radius: 999px;
@@ -952,12 +949,6 @@ td button {
   width: fit-content;
 }
 
-.dashboard-two-column {
-  display: grid;
-  grid-template-columns: minmax(0, 1.12fr) minmax(15rem, 0.88fr);
-  gap: 1rem;
-}
-
 .activity-timeline {
   display: grid;
   gap: 0.85rem;
@@ -991,19 +982,6 @@ td button {
   color: var(--muted);
   font-size: 0.78rem;
   font-style: normal;
-}
-
-.exam-card {
-  align-content: start;
-}
-
-.exam-readiness {
-  display: grid;
-  gap: 0.2rem;
-}
-
-.exam-readiness strong {
-  font-size: 2.7rem;
 }
 
 .achievement-badge {
@@ -1063,9 +1041,7 @@ td button {
 .dark .dashboard-hero-stats strong,
 .dark .dashboard-card > strong,
 .dark .learning-progress-card > span,
-.dark .exam-readiness strong,
-.dark .goal-card-footer span,
-.dark .countdown-badge {
+.dark .goal-card-footer span {
   color: #f7fbff;
 }
 
@@ -2488,7 +2464,6 @@ td small {
   .flashcard-study-layout,
   .dashboard-hero,
   .dashboard-layout,
-  .dashboard-two-column,
   .dashboard-columns,
   .student-hero,
   .mentor,

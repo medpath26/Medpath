@@ -1300,10 +1300,6 @@ function Dashboard({
     "Consistency beats intensity."
   ];
   const motivationMessage = motivationMessages[new Date().getDate() % motivationMessages.length];
-  const daysRemaining = Math.max(
-    0,
-    Math.ceil((new Date(progress.examDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
-  );
   const quickAccess = [
     {
       title: "Continue Learning",
@@ -1444,46 +1440,26 @@ function Dashboard({
             </div>
           </section>
 
-          <section className="dashboard-two-column">
-            <article className="dashboard-card">
-              <div className="card-head">
-                <div>
-                  <p className="eyebrow">Recent Activity</p>
-                  <h3>Newest first</h3>
-                </div>
-                <Trophy />
+          <section className="dashboard-card">
+            <div className="card-head">
+              <div>
+                <p className="eyebrow">Recent Activity</p>
+                <h3>Newest first</h3>
               </div>
-              <div className="activity-timeline">
-                {recentTimeline.map((activity) => (
-                  <div className="timeline-item" key={activity.title}>
-                    <span>{activity.icon}</span>
-                    <div>
-                      <strong>{activity.title}</strong>
-                      <small>{activity.detail}</small>
-                    </div>
-                    <em>{activity.time}</em>
+              <Trophy />
+            </div>
+            <div className="activity-timeline">
+              {recentTimeline.map((activity) => (
+                <div className="timeline-item" key={activity.title}>
+                  <span>{activity.icon}</span>
+                  <div>
+                    <strong>{activity.title}</strong>
+                    <small>{activity.detail}</small>
                   </div>
-                ))}
-              </div>
-            </article>
-
-            <article className="dashboard-card exam-card">
-              <div className="card-head">
-                <div>
-                  <p className="eyebrow">Upcoming Exams</p>
-                  <h3>{progress.certificationGoal}</h3>
+                  <em>{activity.time}</em>
                 </div>
-                <CalendarClock />
-              </div>
-              <span className="countdown-badge">{daysRemaining} days remaining</span>
-              <div className="exam-readiness">
-                <strong>{Math.max(progress.pathProgress, 72)}%</strong>
-                <small>Readiness score</small>
-              </div>
-              <div className="progress-bar">
-                <span style={{ width: `${Math.max(progress.pathProgress, 72)}%` }} />
-              </div>
-            </article>
+              ))}
+            </div>
           </section>
 
           <section className="dashboard-section">
