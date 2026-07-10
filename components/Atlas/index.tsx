@@ -1,0 +1,1 @@
+export { Atlas } from "../MedPathComponents";

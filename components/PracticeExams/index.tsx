@@ -1,0 +1,1 @@
+export { Practice } from "../MedPathComponents";
