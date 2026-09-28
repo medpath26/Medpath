@@ -865,3 +865,5 @@ export default function Home() {
     </main>
   );
 }
+const [darkMode, setDarkMode] = useState(false);
+
