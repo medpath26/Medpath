@@ -130,9 +130,6 @@ export function Header({
       </nav>
       <div className="top-actions">
         {signedIn && <span className={`plan-pill ${plan}`}>{roleBadges[plan]}</span>}
-        <button className="icon-button" onClick={onDark} aria-label="Toggle dark mode">
-          <Moon size={18} />
-        </button>
         <button
           className="icon-button mobile-menu-toggle"
           onClick={() => setMobileMenuOpen((open) => !open)}
