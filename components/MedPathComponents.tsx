@@ -3312,10 +3312,10 @@ export function Footer() {
         <span>Learn. Practice. Pass.</span>
       </div>
       <nav aria-label="Footer navigation">
-        <a>About</a>
-        <a>Privacy Policy</a>
-        <a>Terms</a>
-        <a>Contact</a>
+        <a href="/about">About</a>
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/terms">Terms</a>
+        <a href="/contact">Contact</a>
       </nav>
     </footer>
   );
