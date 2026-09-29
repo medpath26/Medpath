@@ -8,7 +8,10 @@ const requiredTables = [
   "recent_activity",
   "learning_modules",
   "quiz_attempts",
-  "study_sessions"
+  "study_sessions",
+  "user_preferences",
+  "subscriptions",
+  "atlas_questions"
 ];
 
 function readEnvFile(path) {

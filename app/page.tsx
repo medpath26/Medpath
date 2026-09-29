@@ -53,6 +53,79 @@ const mentorReplies: Record<string, string> = {
     "Let us turn that into a clear path. I will explain the concept simply, give you one example, and suggest a focused practice set. Atlas guidance should be verified with your instructor and trusted course materials."
 };
 
+type AuthFieldErrors = Partial<Record<"name" | "program" | "email" | "password", string>>;
+
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function logAuthDiagnostics(label: string, payload: unknown) {
+  if (process.env.NODE_ENV !== "production") {
+    console.log(`[MedPath auth] ${label}`, payload);
+  }
+}
+
+function getFriendlyAuthError(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error || "");
+  const normalized = message.toLowerCase();
+
+  if (normalized.includes("already registered") || normalized.includes("already exists") || normalized.includes("user already")) {
+    return "An account with this email already exists.";
+  }
+
+  if (normalized.includes("invalid email") || normalized.includes("email address") && normalized.includes("invalid")) {
+    return "Please enter a valid email address.";
+  }
+
+  if (normalized.includes("password") && (normalized.includes("weak") || normalized.includes("short") || normalized.includes("least"))) {
+    return "Password must be at least 8 characters.";
+  }
+
+  if (normalized.includes("invalid login credentials")) {
+    return "The email or password you entered is incorrect.";
+  }
+
+  if (normalized.includes("email not confirmed")) {
+    return "Please verify your email before logging in.";
+  }
+
+  if (normalized.includes("load failed") || normalized.includes("failed to fetch") || normalized.includes("network") || normalized.includes("fetch")) {
+    return "Unable to connect. Check your internet connection.";
+  }
+
+  if (normalized.includes("database error") || normalized.includes("saving new user") || normalized.includes("row-level security") || normalized.includes("permission denied")) {
+    return "We couldn't finish creating your MedPath workspace. Please try again, or contact support if it continues.";
+  }
+
+  return "Something went wrong. Please try again.";
+}
+
+function validateAuthForm(mode: "signup" | "login" | "forgot" | "reset", email: string, password: string, name: string, program: string) {
+  const errors: AuthFieldErrors = {};
+
+  if (mode === "signup" && !name.trim()) {
+    errors.name = "Name is required.";
+  }
+
+  if (mode === "signup" && !program) {
+    errors.program = "Please select your program.";
+  }
+
+  if (mode !== "reset" && !email) {
+    errors.email = "Email is required.";
+  } else if (mode !== "reset" && !emailPattern.test(email)) {
+    errors.email = "Please enter a valid email address.";
+  }
+
+  if (mode !== "forgot") {
+    if (!password) {
+      errors.password = "Password is required.";
+    } else if (password.length < 8) {
+      errors.password = "Password must be at least 8 characters.";
+    }
+  }
+
+  return errors;
+}
+
 
 function mapProgressRecord(
   record: StudentProgressRecord,
@@ -118,10 +191,22 @@ function getAtlasReply(message: string) {
   return mentorReplies[key];
 }
 
-export default function Home() {
-  const [view, setView] = useState<ViewKey>("landing");
+function getBrowserView(): ViewKey | null {
+  if (typeof window === "undefined") return null;
+  const pathViews: Record<string, ViewKey> = {
+    "/": "landing",
+    "/atlas": "atlas",
+    "/pathfinder": "career",
+    "/pricing": "billing"
+  };
+  const queryView = new URLSearchParams(window.location.search).get("view") as ViewKey | null;
+  return queryView ?? pathViews[window.location.pathname] ?? null;
+}
+
+export default function Home({ initialView = "landing" }: { initialView?: ViewKey }) {
+  const [view, setView] = useState<ViewKey>(initialView);
   const [darkMode, setDarkMode] = useState(false);
-  const [authMode, setAuthMode] = useState<"signup" | "login" | "forgot" | null>(null);
+  const [authMode, setAuthMode] = useState<"signup" | "login" | "forgot" | "reset" | null>(null);
   const [authSession, setAuthSession] = useState<Session | null>(null);
   const [authUser, setAuthUser] = useState<User | null>(null);
   const [workspaceReady, setWorkspaceReady] = useState(false);
@@ -132,12 +217,14 @@ export default function Home() {
   const [authProgram, setAuthProgram] = useState("");
   const [authError, setAuthError] = useState("");
   const [authNotice, setAuthNotice] = useState("");
+  const [authFieldErrors, setAuthFieldErrors] = useState<AuthFieldErrors>({});
   const [isAuthLoading, setIsAuthLoading] = useState(false);
   const [lockedFeature, setLockedFeature] = useState<FeatureKey | null>(null);
   const [chatInput, setChatInput] = useState("");
   const [mentorAnswer, setMentorAnswer] = useState(mentorReplies.default);
   const [guestAtlasInput, setGuestAtlasInput] = useState("");
   const [guestAtlasQuestionCount, setGuestAtlasQuestionCount] = useState(0);
+  const [memberAtlasQuestionCount, setMemberAtlasQuestionCount] = useState(0);
   const [showGuestAtlasModal, setShowGuestAtlasModal] = useState(false);
   const [practiceMode, setPracticeMode] = useState<"flashcards" | "practiceExams">("flashcards");
   const [guestAtlasHistory, setGuestAtlasHistory] = useState<AtlasChatMessage[]>([
@@ -161,12 +248,40 @@ export default function Home() {
   );
 
   useEffect(() => {
+    const readView = () => {
+      const requested = getBrowserView();
+      const publicViews: ViewKey[] = ["landing", "career", "atlas", "billing"];
+      if (requested && (signedIn || publicViews.includes(requested))) setView(requested);
+    };
+    readView();
+    window.addEventListener("popstate", readView);
+    return () => window.removeEventListener("popstate", readView);
+  }, [signedIn]);
+
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const savedTheme = window.localStorage.getItem("medpath-theme");
+    setDarkMode(savedTheme ? savedTheme === "dark" : media.matches);
+
+    const syncSystemTheme = (event: MediaQueryListEvent) => {
+      if (!window.localStorage.getItem("medpath-theme")) setDarkMode(event.matches);
+    };
+    media.addEventListener("change", syncSystemTheme);
+    return () => media.removeEventListener("change", syncSystemTheme);
+  }, []);
+
+  useEffect(() => {
     if (!supabase) return;
 
     let isMounted = true;
 
-    supabase.auth.getSession().then(async ({ data }) => {
+    supabase.auth.getSession().then(async ({ data, error }) => {
       if (!isMounted) return;
+      if (error) {
+        logAuthDiagnostics("session restore error", error);
+        setAuthError("We couldn't restore your session. Please log in again.");
+        return;
+      }
       const session = data.session ?? null;
       setAuthSession(session);
       setAuthUser(session?.user ?? null);
@@ -176,25 +291,30 @@ export default function Home() {
         const loaded = await loadUserWorkspace(session.user);
         if (loaded) {
           setWorkspaceReady(true);
-          setView("dashboard");
+          const search = new URLSearchParams(window.location.search);
+          const requestedView = getBrowserView();
+          if (search.get("reset") === "1") setAuthMode("reset");
+          setView(requestedView === "billing" ? "billing" : "dashboard");
         }
       }
     });
 
-    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
       setAuthSession(session);
       setAuthUser(session?.user ?? null);
+      if (event === "PASSWORD_RECOVERY") setAuthMode("reset");
       if (session?.user) {
         setExamTrackerHidden(false);
         setWorkspaceReady(false);
         const loaded = await loadUserWorkspace(session.user);
         setWorkspaceReady(loaded);
-      } else {
+      } else if (event === "SIGNED_OUT") {
         setWorkspaceReady(false);
         setProfile(null);
         setStudentProgress(studentProgressSeed);
         setExamTrackerHidden(false);
-        setView("landing");
+        const requested = getBrowserView();
+        setView(requested && ["career", "atlas", "billing"].includes(requested) ? requested : "landing");
       }
     });
 
@@ -215,6 +335,7 @@ export default function Home() {
 
     const readError = goalResult.error ?? activityResult.error ?? moduleResult.error;
     if (readError) {
+      logAuthDiagnostics("dashboard seed read error", readError);
       throw readError;
     }
 
@@ -268,13 +389,14 @@ export default function Home() {
     const writeError = results.find((result) => result.error)?.error;
 
     if (writeError) {
+      logAuthDiagnostics("dashboard seed write error", writeError);
       throw writeError;
     }
 
     return true;
   }
 
-  async function loadUserWorkspace(user: User) {
+  async function loadUserWorkspaceOnce(user: User) {
     if (!supabase) return false;
     setWorkspaceReady(false);
 
@@ -289,8 +411,7 @@ export default function Home() {
     const profileUpsert = {
       id: user.id,
       full_name: defaultName,
-      healthcare_program: defaultProgram,
-      role: "explorer"
+      healthcare_program: defaultProgram
     };
 
     const { data: existingProfile, error: profileReadError } = await supabase
@@ -300,6 +421,7 @@ export default function Home() {
       .maybeSingle<ProfileRecord>();
 
     if (profileReadError) {
+      logAuthDiagnostics("profile read error", profileReadError);
       setAuthError("We couldn't prepare your MedPath profile yet. Please try again in a moment.");
       return false;
     }
@@ -314,6 +436,7 @@ export default function Home() {
         .single<ProfileRecord>();
 
       if (error) {
+        logAuthDiagnostics("profile insert error", error);
         setAuthError("We couldn't create your MedPath profile yet. Please try again in a moment.");
         return false;
       }
@@ -328,6 +451,7 @@ export default function Home() {
       .maybeSingle<StudentProgressRecord>();
 
     if (progressError) {
+      logAuthDiagnostics("student progress read error", progressError);
       setAuthError("We couldn't load your MedPath progress yet. Please try again in a moment.");
       return false;
     }
@@ -353,6 +477,7 @@ export default function Home() {
         .single<StudentProgressRecord>();
 
       if (error) {
+        logAuthDiagnostics("student progress insert error", error);
         setAuthError("We couldn't initialize your MedPath progress yet. Please try again in a moment.");
         return false;
       }
@@ -362,7 +487,8 @@ export default function Home() {
 
     try {
       await seedDashboardCollections(user.id);
-    } catch {
+    } catch (error) {
+      logAuthDiagnostics("dashboard initialization error", error);
       setAuthError("We couldn't finish setting up your MedPath dashboard yet. Please try again in a moment.");
       return false;
     }
@@ -389,6 +515,11 @@ export default function Home() {
     ]);
 
     if (goals.error || activity.error || modules.error) {
+      logAuthDiagnostics("dashboard collection load error", {
+        goals: goals.error,
+        activity: activity.error,
+        modules: modules.error
+      });
       setAuthError("We couldn't load all of your MedPath dashboard records yet. Please try again in a moment.");
       return false;
     }
@@ -399,6 +530,14 @@ export default function Home() {
     }
 
     setProfile(activeProfile);
+    const { count: atlasCount, error: atlasUsageError } = await supabase
+      .from("atlas_questions")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id);
+    if (atlasUsageError && atlasUsageError.code !== "PGRST205") {
+      logAuthDiagnostics("Atlas usage load error", atlasUsageError);
+    }
+    setMemberAtlasQuestionCount(atlasCount ?? 0);
     setStudentProgress(
       mapProgressRecord(
         activeProgress,
@@ -413,6 +552,25 @@ export default function Home() {
     return true;
   }
 
+  async function loadUserWorkspace(user: User) {
+    if (!supabase) return false;
+
+    const { error: recoveryError } = await supabase.rpc("ensure_medpath_workspace");
+    if (recoveryError && recoveryError.code !== "PGRST202") {
+      logAuthDiagnostics("workspace recovery function error", recoveryError);
+    }
+
+    for (let attempt = 1; attempt <= 3; attempt += 1) {
+      if (await loadUserWorkspaceOnce(user)) return true;
+      if (attempt < 3) {
+        await new Promise((resolve) => window.setTimeout(resolve, attempt * 500));
+      }
+    }
+
+    setAuthError("We couldn't finish setting up your workspace. Retry now or sign out and try again.");
+    return false;
+  }
+
   const generatedSchedule = useMemo(() => {
     const topics = [
       "Medical terminology roots",
@@ -425,11 +583,18 @@ export default function Home() {
     return topics.slice(0, Math.min(6, Math.max(3, Math.round(studyHours / 2))));
   }, [studyHours]);
 
+  function openAuthMode(mode: "signup" | "login" | "forgot" | "reset") {
+    setAuthError("");
+    setAuthNotice("");
+    setAuthFieldErrors({});
+    setAuthMode(mode);
+  }
+
   function goTo(nextView: ViewKey, feature?: FeatureKey) {
     const publicViews: ViewKey[] = ["landing", "career", "atlas", "billing"];
 
     if (!signedIn && !publicViews.includes(nextView)) {
-      setAuthMode("login");
+      openAuthMode("login");
       setAuthNotice("Please log in to open your MedPath workspace.");
       return;
     }
@@ -446,12 +611,23 @@ export default function Home() {
       setPracticeMode(feature === "mockExams" ? "practiceExams" : "flashcards");
     }
     setView(nextView);
+    const publicPaths: Partial<Record<ViewKey, string>> = {
+      landing: "/",
+      career: "/pathfinder",
+      atlas: "/atlas",
+      billing: "/pricing"
+    };
+    const nextPath = publicPaths[nextView] ?? `/?view=${nextView}`;
+    window.history.pushState({}, "", nextPath);
   }
 
   async function handleAuth(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (isAuthLoading) return;
+
     setAuthError("");
     setAuthNotice("");
+    setAuthFieldErrors({});
 
     if (!supabase || !isSupabaseConfigured) {
       setAuthError(
@@ -463,41 +639,66 @@ export default function Home() {
     const form = new FormData(event.currentTarget);
     const email = String(form.get("email") ?? "").trim();
     const password = String(form.get("password") ?? "");
+    const submittedName = String(form.get("name") ?? authName).trim();
+    const submittedProgram = String(form.get("program") ?? authProgram);
+    const fieldErrors = validateAuthForm(authMode ?? "login", email, password, submittedName, submittedProgram);
+
+    if (Object.keys(fieldErrors).length) {
+      setAuthFieldErrors(fieldErrors);
+      setAuthError("Please complete all required fields.");
+      return;
+    }
+
+    if (authMode === "signup") {
+      setAuthName(submittedName);
+      setAuthProgram(submittedProgram);
+    }
 
     setIsAuthLoading(true);
 
     try {
       if (authMode === "forgot") {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: getAuthCallbackUrl("/")
+        const resetResponse = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: getAuthCallbackUrl("/?reset=1")
         });
+        logAuthDiagnostics("resetPasswordForEmail response", resetResponse);
 
-        if (error) throw error;
+        if (resetResponse.error) throw resetResponse.error;
 
         setAuthNotice("Password reset instructions were sent to your email.");
         return;
       }
 
+      if (authMode === "reset") {
+        const { error } = await supabase.auth.updateUser({ password });
+        if (error) throw error;
+        setAuthMode(null);
+        setAuthNotice("Your password has been updated.");
+        setView("dashboard");
+        return;
+      }
+
       if (authMode === "signup") {
-        const { data, error } = await supabase.auth.signUp({
+        const signUpResponse = await supabase.auth.signUp({
           email,
           password,
           options: {
             emailRedirectTo: getAuthCallbackUrl("/"),
             data: {
-              full_name: authName.trim(),
-              healthcare_program: authProgram
+              full_name: submittedName,
+              healthcare_program: submittedProgram
             }
           }
         });
+        logAuthDiagnostics("signUp response", signUpResponse);
 
-        if (error) throw error;
+        if (signUpResponse.error) throw signUpResponse.error;
 
-        if (data.session?.user) {
-          setAuthSession(data.session);
-          setAuthUser(data.session.user);
+        if (signUpResponse.data.session?.user) {
+          setAuthSession(signUpResponse.data.session);
+          setAuthUser(signUpResponse.data.session.user);
           setWorkspaceReady(false);
-          const loaded = await loadUserWorkspace(data.session.user);
+          const loaded = await loadUserWorkspace(signUpResponse.data.session.user);
           if (loaded) {
             setWorkspaceReady(true);
             setAuthMode(null);
@@ -505,22 +706,23 @@ export default function Home() {
           }
         }
 
-        if (!data.session) {
-          setAuthNotice("Check your email to confirm your account, then log in to MedPath.");
+        if (!signUpResponse.data.session) {
+          setAuthNotice("🎉 Welcome to MedPath! Please verify your email to continue.");
         }
 
         return;
       }
 
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const signInResponse = await supabase.auth.signInWithPassword({ email, password });
+      logAuthDiagnostics("signInWithPassword response", signInResponse);
 
-      if (error) throw error;
+      if (signInResponse.error) throw signInResponse.error;
 
-      if (data.session?.user) {
-        setAuthSession(data.session);
-        setAuthUser(data.session.user);
+      if (signInResponse.data.session?.user) {
+        setAuthSession(signInResponse.data.session);
+        setAuthUser(signInResponse.data.session.user);
         setWorkspaceReady(false);
-        const loaded = await loadUserWorkspace(data.session.user);
+        const loaded = await loadUserWorkspace(signInResponse.data.session.user);
         if (loaded) {
           setWorkspaceReady(true);
           setAuthMode(null);
@@ -528,7 +730,8 @@ export default function Home() {
         }
       }
     } catch (error) {
-      setAuthError(error instanceof Error ? error.message : "Authentication failed.");
+      logAuthDiagnostics("auth flow error", error);
+      setAuthError(getFriendlyAuthError(error));
     } finally {
       setIsAuthLoading(false);
     }
@@ -550,22 +753,57 @@ export default function Home() {
     setView("landing");
   }
 
-  async function updatePlan(nextPlan: PlanKey) {
-    if (!supabase || !authUser || !profile) {
+  async function startCheckout(nextPlan: PlanKey) {
+    if (!supabase || !authUser) {
+      openAuthMode("login");
+      return;
+    }
+    if (nextPlan === "explorer" || nextPlan === plan) return;
+
+    setAuthError("");
+    const { data, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError || !data.session) {
+      setAuthError("Your session expired. Please log in again before upgrading.");
       return;
     }
 
-    const nextProfile = { ...profile, role: nextPlan };
-    setProfile(nextProfile);
+    try {
+      const response = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${data.session.access_token}`
+        },
+        body: JSON.stringify({ plan: nextPlan })
+      });
+      const result = (await response.json()) as { url?: string; error?: string };
+      if (!response.ok || !result.url) throw new Error(result.error || "Checkout could not be started.");
+      window.location.assign(result.url);
+    } catch (error) {
+      logAuthDiagnostics("checkout error", error);
+      setAuthError(error instanceof Error ? error.message : "Checkout could not be started.");
+    }
+  }
 
-    const { error } = await supabase
-      .from("profiles")
-      .update({ role: nextPlan })
-      .eq("id", authUser.id);
-
-    if (error) {
-      setAuthError(error.message);
-      setProfile(profile);
+  async function openBillingPortal() {
+    if (!supabase) return;
+    setAuthError("");
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) {
+      setAuthError("Your session expired. Please log in again.");
+      return;
+    }
+    try {
+      const response = await fetch("/api/stripe/portal", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${data.session.access_token}` }
+      });
+      const result = (await response.json()) as { url?: string; error?: string };
+      if (!response.ok || !result.url) throw new Error(result.error || "Billing could not be opened.");
+      window.location.assign(result.url);
+    } catch (error) {
+      logAuthDiagnostics("billing portal error", error);
+      setAuthError(error instanceof Error ? error.message : "Billing could not be opened.");
     }
   }
 
@@ -644,9 +882,27 @@ export default function Home() {
     return true;
   }
 
-  function askAtlas(event: FormEvent<HTMLFormElement>) {
+  async function askAtlas(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setMentorAnswer(getAtlasReply(chatInput));
+    const question = chatInput.trim();
+    if (!question) return;
+    if (plan === "explorer" && memberAtlasQuestionCount >= 3) {
+      setLockedFeature("atlas");
+      return;
+    }
+    if (plan === "explorer" && supabase && authUser) {
+      const { error } = await supabase.from("atlas_questions").insert({
+        user_id: authUser.id,
+        question
+      });
+      if (error) {
+        logAuthDiagnostics("Atlas usage save error", error);
+        setAuthError("We couldn't save this Atlas question. Please try again.");
+        return;
+      }
+      setMemberAtlasQuestionCount((count) => count + 1);
+    }
+    setMentorAnswer(getAtlasReply(question));
     setChatInput("");
   }
 
@@ -690,14 +946,18 @@ export default function Home() {
         plan={plan}
         view={view}
         onNavigate={goTo}
-        onAuth={setAuthMode}
+        onAuth={openAuthMode}
         onLogout={handleLogout}
-        onDark={() => setDarkMode((value) => !value)}
+        onDark={() => setDarkMode((value) => {
+          const next = !value;
+          window.localStorage.setItem("medpath-theme", next ? "dark" : "light");
+          return next;
+        })}
       />
 
       {view === "landing" && (
         <Landing
-          onStart={() => setAuthMode("signup")}
+          onStart={() => openAuthMode("signup")}
           onCareers={() => goTo("career", "careerExplorer")}
         />
       )}
@@ -728,8 +988,8 @@ export default function Home() {
         <section className="public-workspace">
           <Billing
             plan="explorer"
-            setPlan={() => setAuthMode("signup")}
-            onLock={() => setAuthMode("signup")}
+            setPlan={() => openAuthMode("signup")}
+            onLock={() => openAuthMode("signup")}
             isSignedIn={false}
           />
         </section>
@@ -771,6 +1031,8 @@ export default function Home() {
                 input={chatInput}
                 setInput={setChatInput}
                 onSubmit={askAtlas}
+                freeQuestionsRemaining={plan === "explorer" ? Math.max(0, 3 - memberAtlasQuestionCount) : undefined}
+                isChatDisabled={plan === "explorer" && memberAtlasQuestionCount >= 3}
               />
             )}
             {view === "practice" && <Practice initialMode={practiceMode} />}
@@ -788,14 +1050,14 @@ export default function Home() {
             {view === "resume" && <ResumeBuilder name={name} program={program} />}
             {view === "interview" && <InterviewCoach />}
             {view === "billing" && (
-              <Billing plan={plan} setPlan={updatePlan} onLock={setLockedFeature} isSignedIn />
+              <Billing plan={plan} setPlan={startCheckout} onLock={setLockedFeature} isSignedIn error={authError} onManageBilling={openBillingPortal} />
             )}
             {view === "admin" && isAdmin && (
               <Admin
                 users={filteredUsers}
                 search={adminSearch}
                 setSearch={setAdminSearch}
-                setPlan={updatePlan}
+                setPlan={() => undefined}
               />
             )}
           </section>
@@ -815,6 +1077,17 @@ export default function Home() {
                 activity. Your dashboard will stay locked until those records are ready.
               </p>
               {authError && <p className="form-message error-message">{authError}</p>}
+              {authUser && (
+                <button
+                  className="primary compact"
+                  onClick={async () => {
+                    setAuthError("");
+                    setWorkspaceReady(await loadUserWorkspace(authUser));
+                  }}
+                >
+                  Retry setup
+                </button>
+              )}
             </article>
           </section>
         </div>
@@ -827,11 +1100,17 @@ export default function Home() {
           program={authProgram}
           error={authError}
           notice={authNotice}
+          fieldErrors={authFieldErrors}
           isLoading={isAuthLoading}
           setName={setAuthName}
           setProgram={setAuthProgram}
-          setMode={setAuthMode}
-          onClose={() => setAuthMode(null)}
+          setMode={openAuthMode}
+          onClose={() => {
+            setAuthMode(null);
+            setAuthError("");
+            setAuthNotice("");
+            setAuthFieldErrors({});
+          }}
           onSubmit={handleAuth}
         />
       )}
@@ -855,7 +1134,7 @@ export default function Home() {
           }}
           onSignup={() => {
             setShowGuestAtlasModal(false);
-            setAuthMode("signup");
+            openAuthMode("signup");
           }}
           onClose={() => setShowGuestAtlasModal(false)}
         />

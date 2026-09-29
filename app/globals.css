@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap");
-
 :root {
   --navy: #0d2b52;
   --teal: #22c7c8;
@@ -25,7 +23,7 @@ html {
 
 body {
   margin: 0;
-  font-family: Inter, system-ui, sans-serif;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background: var(--bg);
   color: var(--ink);
 }
@@ -41,6 +39,11 @@ button {
   cursor: pointer;
 }
 
+:where(button, a, input, select, textarea):focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--teal) 72%, white);
+  outline-offset: 3px;
+}
+
 button:disabled,
 input:disabled {
   cursor: not-allowed;
@@ -49,6 +52,7 @@ input:disabled {
 
 .app {
   min-height: 100vh;
+  color: var(--ink);
   background:
     radial-gradient(circle at 15% 10%, rgba(34, 199, 200, 0.16), transparent 28rem),
     linear-gradient(180deg, #f9fbfc 0%, #eef4f6 100%);
@@ -613,6 +617,7 @@ td button {
 
 .stack {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 1.25rem;
 }
 
@@ -1380,6 +1385,14 @@ textarea {
   background: var(--white);
   color: var(--ink);
   padding: 0.85rem 0.95rem;
+}
+
+input.invalid,
+select.invalid,
+textarea.invalid,
+.password-input.invalid {
+  border-color: var(--error);
+  box-shadow: 0 0 0 3px rgba(228, 93, 93, 0.14);
 }
 
 textarea {
@@ -2262,6 +2275,12 @@ dd {
   color: #f7fbff;
 }
 
+.dark .public-price-card h3,
+.dark .public-price-card .price,
+.dark .public-price-card li {
+  color: var(--ink);
+}
+
 .pricing-hero p:not(.eyebrow) {
   max-width: 680px;
   margin: 0;
@@ -2431,6 +2450,104 @@ td small {
   padding: 1.4rem;
 }
 
+.auth-modal .primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+}
+
+.field-error {
+  color: var(--error);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.form-message {
+  margin: 0;
+  border-radius: 8px;
+  padding: 0.75rem 0.85rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.error-message {
+  border: 1px solid rgba(228, 93, 93, 0.28);
+  background: rgba(228, 93, 93, 0.12);
+  color: #b42318;
+}
+
+.notice-message {
+  border: 1px solid rgba(107, 203, 119, 0.3);
+  background: rgba(107, 203, 119, 0.14);
+  color: #147a3d;
+}
+
+.password-field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.password-input {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--white);
+}
+
+.password-input input {
+  border: 0;
+  box-shadow: none;
+}
+
+.password-input button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+}
+
+.password-hints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  color: var(--muted);
+}
+
+.password-hints span {
+  flex-basis: 100%;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.password-hints small {
+  width: fit-content;
+  border-radius: 999px;
+  padding: 0.22rem 0.5rem;
+  background: var(--bg-2);
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.password-hints small.met {
+  background: rgba(107, 203, 119, 0.16);
+  color: #147a3d;
+}
+
+.button-spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  border-top-color: #ffffff;
+  border-radius: 999px;
+  animation: spin 720ms linear infinite;
+}
+
 .upgrade-modal {
   width: min(100%, 540px);
 }
@@ -2491,17 +2608,20 @@ td small {
   margin: 0;
   padding: 0.8rem 0.9rem;
   border-radius: 8px;
+  font-weight: 700;
   line-height: 1.45;
 }
 
 .error-message {
+  border: 1px solid rgba(228, 93, 93, 0.28);
   background: rgba(228, 93, 93, 0.14);
-  color: var(--error);
+  color: #b42318;
 }
 
 .notice-message {
+  border: 1px solid rgba(107, 203, 119, 0.3);
   background: rgba(107, 203, 119, 0.16);
-  color: color-mix(in srgb, var(--success) 55%, var(--navy));
+  color: #147a3d;
 }
 
 .auth-switch button {
@@ -2519,7 +2639,7 @@ td small {
   justify-content: space-between;
   width: min(100% - 2rem, 1180px);
   margin: 0 auto;
-  padding: 2rem 0 2.4rem;
+  padding: 2rem 0 calc(2.4rem + env(safe-area-inset-bottom));
   color: var(--muted);
 }
 
@@ -2554,6 +2674,27 @@ td small {
   }
 }
 
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 @media (max-width: 1050px) {
   .hero,
   .shell,
@@ -2568,7 +2709,7 @@ td small {
   .study-layout,
   .resume-layout,
   .billing-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .sidebar {
@@ -2590,7 +2731,7 @@ td small {
 
   .exam-tracker-summary,
   .exam-tracker-form {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .exam-tracker-actions {
@@ -2654,7 +2795,7 @@ td small {
 
   .mobile-nav.open {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 0.45rem;
     width: 100%;
     padding: 0.85rem;
@@ -2726,7 +2867,7 @@ td small {
   .pricing-grid,
   .metric-grid,
   .sidebar nav {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .landing-cta {
@@ -2785,7 +2926,7 @@ td small {
   }
 
   .chat-input {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .floating-card {

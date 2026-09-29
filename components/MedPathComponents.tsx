@@ -16,6 +16,8 @@ import {
   ClipboardCheck,
   CreditCard,
   Download,
+  Eye,
+  EyeOff,
   GraduationCap,
   HeartHandshake,
   Lock,
@@ -2523,13 +2525,21 @@ export function CareerExplorer({ plan }: { plan: PlanKey }) {
       .filter((career): career is CareerPath => Boolean(career)),
     ...careers.filter((career) => !requiredCareerTitles.includes(career.title))
   ];
-  const availableCareers = plan === "explorer" ? orderedCareers.slice(0, 6) : orderedCareers;
+  const availableCareers = orderedCareers;
   const filteredCareers = availableCareers.filter((career) => {
     const query = careerSearch.trim().toLowerCase();
     if (!query) {
       return true;
     }
-    return [career.title, career.responsibilities, career.education, career.certification, career.skills]
+    return [
+      career.title,
+      career.responsibilities,
+      career.education,
+      career.certification,
+      career.skills,
+      career.workSetting,
+      career.bestFor
+    ]
       .join(" ")
       .toLowerCase()
       .includes(query);
@@ -2544,7 +2554,7 @@ export function CareerExplorer({ plan }: { plan: PlanKey }) {
         <p className="eyebrow">Career Discovery</p>
         <h2>PathFinder</h2>
         <p>
-          Discover healthcare career paths, compare training options, and find the role that fits
+          Explore {availableCareers.length} healthcare career paths, compare training options, and find the role that fits
           your strengths before, during, and after school.
         </p>
       </div>
@@ -2624,6 +2634,18 @@ export function CareerExplorer({ plan }: { plan: PlanKey }) {
             <strong>{selectedCareer.advancement}</strong>
             Growth path
           </span>
+          <span>
+            <strong>{selectedCareer.trainingLength ?? selectedCareer.education}</strong>
+            Typical training
+          </span>
+          <span>
+            <strong>{selectedCareer.workSetting ?? "Hospitals, clinics, and specialty care settings"}</strong>
+            Where you may work
+          </span>
+          <span>
+            <strong>{selectedCareer.bestFor ?? selectedCareer.skills}</strong>
+            A strong fit for
+          </span>
         </div>
       </section>
     </div>
@@ -2697,13 +2719,18 @@ export function Billing({
   plan,
   setPlan,
   onLock,
-  isSignedIn
+  isSignedIn,
+  error = "",
+  onManageBilling
 }: {
   plan: PlanKey;
-  setPlan: (plan: PlanKey) => void;
+  setPlan: (plan: PlanKey) => void | Promise<void>;
   onLock: (feature: FeatureKey) => void;
   isSignedIn: boolean;
+  error?: string;
+  onManageBilling?: () => void | Promise<void>;
 }) {
+  const [pendingPlan, setPendingPlan] = useState<PlanKey | null>(null);
   const pricingPlans = [
     {
       key: "explorer" as PlanKey,
@@ -2816,13 +2843,24 @@ export function Billing({
             </ul>
             <button
               className={pricingPlan.key === "student_plus" ? "primary" : "secondary"}
-              onClick={() => setPlan(pricingPlan.key)}
+              disabled={pendingPlan !== null || (isSignedIn && plan === pricingPlan.key)}
+              onClick={async () => {
+                setPendingPlan(pricingPlan.key);
+                await setPlan(pricingPlan.key);
+                setPendingPlan(null);
+              }}
             >
-              {isSignedIn && plan === pricingPlan.key ? "Current Plan" : pricingPlan.button}
+              {pendingPlan === pricingPlan.key
+                ? "Opening checkout..."
+                : isSignedIn && plan === pricingPlan.key
+                  ? "Current Plan"
+                  : pricingPlan.button}
             </button>
           </article>
         ))}
       </section>
+
+      {error && <p className="form-message error-message" role="alert">{error}</p>}
 
       <section className="panel comparison-panel">
         <div className="card-head">
@@ -2894,10 +2932,7 @@ export function Billing({
             <CreditCard />
           </div>
           <div className="billing-actions">
-            <button>Update payment method</button>
-            <button>Cancel subscription</button>
-            <button>Resume subscription</button>
-            <button>Download invoices</button>
+            <button onClick={() => onManageBilling?.()}>Manage subscription and payment</button>
           </div>
         </article>
         <article className="panel">
@@ -3012,6 +3047,7 @@ export function AuthModal({
   program,
   error,
   notice,
+  fieldErrors,
   isLoading,
   setName,
   setProgram,
@@ -3019,38 +3055,85 @@ export function AuthModal({
   onClose,
   onSubmit
 }: {
-  mode: "signup" | "login" | "forgot";
+  mode: "signup" | "login" | "forgot" | "reset";
   name: string;
   program: string;
   error: string;
   notice: string;
+  fieldErrors: Partial<Record<"name" | "program" | "email" | "password", string>>;
   isLoading: boolean;
   setName: (value: string) => void;
   setProgram: (value: string) => void;
-  setMode: (mode: "signup" | "login" | "forgot") => void;
+  setMode: (mode: "signup" | "login" | "forgot" | "reset") => void;
   onClose: () => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }) {
-  const title = mode === "signup" ? "Create your MedPath account" : mode === "login" ? "Welcome back" : "Reset password";
+  const title = mode === "signup" ? "Create your MedPath account" : mode === "login" ? "Welcome back" : mode === "reset" ? "Choose a new password" : "Reset password";
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [passwordValue, setPasswordValue] = useState("");
+  const passwordScore = [
+    passwordValue.length >= 8,
+    /[A-Z]/.test(passwordValue),
+    /\d/.test(passwordValue),
+    /[^A-Za-z0-9]/.test(passwordValue)
+  ].filter(Boolean).length;
+  const passwordStrength = passwordScore >= 4 ? "Strong" : passwordScore >= 3 ? "Good" : passwordScore >= 2 ? "Fair" : "Weak";
+  const submitText = isLoading
+    ? mode === "signup"
+      ? "Creating your account..."
+      : mode === "forgot"
+        ? "Sending reset link..."
+        : mode === "reset"
+          ? "Updating password..."
+          : "Signing in..."
+    : mode === "forgot"
+      ? "Send reset link"
+      : mode === "reset"
+        ? "Update password"
+        : mode === "signup"
+        ? "Create Account"
+        : "Log In";
+
+  useEffect(() => {
+    setPasswordValue("");
+    setPasswordVisible(false);
+  }, [mode]);
+
   return (
-    <div className="modal-backdrop">
-      <form className="auth-modal" onSubmit={onSubmit}>
+    <div className="modal-backdrop" role="presentation">
+      <form className="auth-modal" onSubmit={onSubmit} noValidate key={mode} role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
         <button className="close-button" type="button" onClick={onClose} aria-label="Close">
           <X size={18} />
         </button>
         <LogoMark />
-        <h2>{title}</h2>
-        <p>Start with a 7-day Student Plus trial. No commitment.</p>
+        <h2 id="auth-modal-title">{title}</h2>
+        <p>{mode === "forgot" ? "Enter your email and we will send a secure reset link." : mode === "reset" ? "Enter a secure new password for your MedPath account." : "Start with a 7-day Student Plus trial. No commitment."}</p>
         {mode === "signup" && (
           <label>
             Name
-            <input name="name" value={name} onChange={(event) => setName(event.target.value)} autoComplete="name" required />
+            <input
+              className={fieldErrors.name ? "invalid" : ""}
+              name="name"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              autoComplete="name"
+              aria-invalid={Boolean(fieldErrors.name)}
+              aria-describedby={fieldErrors.name ? "auth-name-error" : undefined}
+            />
+            {fieldErrors.name && <small className="field-error" id="auth-name-error">{fieldErrors.name}</small>}
           </label>
         )}
-        {mode !== "forgot" && (
+        {mode === "signup" && (
           <label>
             Program
-            <select name="program" value={program} onChange={(event) => setProgram(event.target.value)} required>
+            <select
+              className={fieldErrors.program ? "invalid" : ""}
+              name="program"
+              value={program}
+              onChange={(event) => setProgram(event.target.value)}
+              aria-invalid={Boolean(fieldErrors.program)}
+              aria-describedby={fieldErrors.program ? "auth-program-error" : undefined}
+            >
               <option value="" disabled>
                 Select your program
               </option>
@@ -3058,28 +3141,61 @@ export function AuthModal({
               <option>Surgical Technologist</option>
               <option>Exploring Healthcare Careers</option>
             </select>
+            {fieldErrors.program && <small className="field-error" id="auth-program-error">{fieldErrors.program}</small>}
           </label>
         )}
-        <label>
+        {mode !== "reset" && <label>
           Email
-          <input name="email" type="email" autoComplete="email" required />
-        </label>
+          <input
+            className={fieldErrors.email ? "invalid" : ""}
+            name="email"
+            type="email"
+            autoComplete="email"
+            aria-invalid={Boolean(fieldErrors.email)}
+            aria-describedby={fieldErrors.email ? "auth-email-error" : undefined}
+          />
+          {fieldErrors.email && <small className="field-error" id="auth-email-error">{fieldErrors.email}</small>}
+        </label>}
         {mode !== "forgot" && (
-          <label>
-            Password
-            <input name="password" type="password" autoComplete={mode === "signup" ? "new-password" : "current-password"} required />
-          </label>
+          <div className="password-field">
+            <label htmlFor="auth-password">Password</label>
+            <div className={fieldErrors.password ? "password-input invalid" : "password-input"}>
+              <input
+                id="auth-password"
+                name="password"
+                type={passwordVisible ? "text" : "password"}
+                value={passwordValue}
+                onChange={(event) => setPasswordValue(event.target.value)}
+                autoComplete={mode === "signup" || mode === "reset" ? "new-password" : "current-password"}
+                aria-invalid={Boolean(fieldErrors.password)}
+                aria-describedby={fieldErrors.password ? "auth-password-error auth-password-hints" : "auth-password-hints"}
+              />
+              <button type="button" onClick={() => setPasswordVisible((value) => !value)} aria-label={passwordVisible ? "Hide password" : "Show password"}>
+                {passwordVisible ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+            {fieldErrors.password && <small className="field-error" id="auth-password-error">{fieldErrors.password}</small>}
+            {mode === "signup" && (
+              <div className="password-hints" id="auth-password-hints">
+                <span>Password strength: {passwordValue ? passwordStrength : "Start typing"}</span>
+                <small className={passwordValue.length >= 8 ? "met" : ""}>At least 8 characters</small>
+                <small className={/[A-Z]/.test(passwordValue) ? "met" : ""}>One uppercase letter</small>
+                <small className={/\d/.test(passwordValue) ? "met" : ""}>One number</small>
+              </div>
+            )}
+          </div>
         )}
-        {error && <p className="form-message error-message">{error}</p>}
-        {notice && <p className="form-message notice-message">{notice}</p>}
+        {error && <p className="form-message error-message" role="alert" aria-live="assertive">{error}</p>}
+        {notice && <p className="form-message notice-message" role="status" aria-live="polite">{notice}</p>}
         <button className="primary" type="submit" disabled={isLoading}>
-          {isLoading ? "Working..." : mode === "forgot" ? "Send reset link" : "Continue to My Path"}
+          {isLoading && <span className="button-spinner" aria-hidden="true" />}
+          {submitText}
         </button>
-        <div className="auth-switch">
-          <button type="button" onClick={() => setMode("login")}>Login</button>
-          <button type="button" onClick={() => setMode("signup")}>Sign Up</button>
-          <button type="button" onClick={() => setMode("forgot")}>Forgot Password</button>
-        </div>
+        {mode !== "reset" && <div className="auth-switch">
+          <button type="button" onClick={() => setMode("login")} disabled={isLoading}>Login</button>
+          <button type="button" onClick={() => setMode("signup")} disabled={isLoading}>Sign Up</button>
+          <button type="button" onClick={() => setMode("forgot")} disabled={isLoading}>Forgot Password</button>
+        </div>}
       </form>
     </div>
   );

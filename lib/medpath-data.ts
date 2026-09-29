@@ -54,10 +54,7 @@ export const planAccess: Record<PlanKey, FeatureKey[]> = {
   explorer: [
     "careerExplorer",
     "pathFinderQuiz",
-    "atlas",
-    "practice",
-    "flashcards",
-    "pathTrack"
+    "atlas"
   ],
   student_plus: [
     "careerExplorer",
@@ -365,7 +362,22 @@ export const studentProgressSeed: StudentProgress = {
   ]
 };
 
-export const careers = [
+export type CareerPath = {
+  title: string;
+  icon: string;
+  salary: string;
+  education: string;
+  certification: string;
+  outlook: string;
+  responsibilities: string;
+  skills: string;
+  advancement: string;
+  trainingLength?: string;
+  workSetting?: string;
+  bestFor?: string;
+};
+
+export const careers: CareerPath[] = [
   {
     title: "Medical Assistant",
     icon: "MA",
@@ -497,6 +509,146 @@ export const careers = [
     responsibilities: "Respond to emergencies, assess patients, and provide prehospital care.",
     skills: "Calm under pressure, rapid assessment",
     advancement: "Paramedic, fire service, emergency nursing"
+  },
+  {
+    title: "Certified Nursing Assistant",
+    icon: "CNA",
+    salary: "$40k median",
+    education: "State-approved nursing assistant program",
+    certification: "State CNA competency exam",
+    outlook: "Ongoing long-term care demand",
+    responsibilities: "Assist with daily living, mobility, vital signs, comfort, and care-team reporting.",
+    skills: "Compassion, observation, safe transfers",
+    advancement: "Medication aide, LPN, RN pathway",
+    trainingLength: "4–12 weeks",
+    workSetting: "Nursing homes, hospitals, home care",
+    bestFor: "Hands-on caregivers who enjoy close patient interaction"
+  },
+  {
+    title: "Patient Care Technician",
+    icon: "PCT",
+    salary: "$41k median",
+    education: "Certificate program or employer training",
+    certification: "CPCT/A or state-specific credential",
+    outlook: "Steady hospital support demand",
+    responsibilities: "Support bedside care, collect specimens, perform EKGs, check vitals, and assist mobility.",
+    skills: "Bedside care, teamwork, time management",
+    advancement: "Nursing, dialysis, emergency department tech",
+    trainingLength: "3–9 months",
+    workSetting: "Hospitals, clinics, dialysis centers",
+    bestFor: "Students who want broad bedside experience"
+  },
+  {
+    title: "Pharmacy Technician",
+    icon: "RX",
+    salary: "$43k median",
+    education: "Certificate, employer training, or associate pathway",
+    certification: "CPhT through PTCB or NHA; rules vary by state",
+    outlook: "Consistent retail and health-system demand",
+    responsibilities: "Prepare prescriptions, manage inventory, process claims, and support medication safety.",
+    skills: "Accuracy, calculations, customer service",
+    advancement: "Lead technician, sterile compounding, pharmacy school",
+    trainingLength: "4–12 months",
+    workSetting: "Retail, hospitals, mail-order pharmacies",
+    bestFor: "Detail-focused learners interested in medications"
+  },
+  {
+    title: "Diagnostic Medical Sonographer",
+    icon: "US",
+    salary: "$89k median",
+    education: "Associate degree or accredited certificate",
+    certification: "ARDMS, ARRT(S), or CCI",
+    outlook: "Strong diagnostic imaging growth",
+    responsibilities: "Use ultrasound equipment to capture images and help physicians evaluate organs, blood flow, and pregnancy.",
+    skills: "Anatomy, patient positioning, image analysis",
+    advancement: "Cardiac, vascular, OB/GYN, lead sonographer",
+    trainingLength: "18–24 months",
+    workSetting: "Hospitals, imaging centers, physician offices",
+    bestFor: "Visual thinkers who enjoy technology and patient care"
+  },
+  {
+    title: "Medical Laboratory Technician",
+    icon: "MLT",
+    salary: "$61k median",
+    education: "Associate degree in medical laboratory technology",
+    certification: "ASCP MLT or AMT MLT",
+    outlook: "Reliable diagnostic laboratory demand",
+    responsibilities: "Analyze blood, tissue, and body-fluid specimens and validate results used in diagnosis.",
+    skills: "Laboratory technique, precision, troubleshooting",
+    advancement: "Medical laboratory scientist, specialist, lab management",
+    trainingLength: "About 2 years",
+    workSetting: "Hospital, reference, and public-health labs",
+    bestFor: "Analytical students who prefer science-focused work"
+  },
+  {
+    title: "Health Information Technician",
+    icon: "HIT",
+    salary: "$50k median",
+    education: "Certificate or associate degree",
+    certification: "RHIT, CCS, or CCA depending on role",
+    outlook: "Growing digital health data needs",
+    responsibilities: "Maintain accurate health records, code diagnoses, protect privacy, and support data quality.",
+    skills: "Organization, coding, privacy, data accuracy",
+    advancement: "Coding specialist, health informatics, revenue cycle leadership",
+    trainingLength: "9–24 months",
+    workSetting: "Hospitals, insurers, clinics, remote teams",
+    bestFor: "Detail-oriented learners who like healthcare and technology"
+  },
+  {
+    title: "Cardiovascular Technologist",
+    icon: "CVT",
+    salary: "$67k median",
+    education: "Associate degree or accredited certificate",
+    certification: "CCI or ARDMS credential by specialty",
+    outlook: "Growing cardiac diagnostic need",
+    responsibilities: "Perform EKG, stress, vascular, or cardiac imaging studies and assist with procedures.",
+    skills: "Cardiac anatomy, equipment operation, calm communication",
+    advancement: "Echocardiography, vascular specialty, cath lab leadership",
+    trainingLength: "18–24 months",
+    workSetting: "Hospitals, cardiology offices, diagnostic labs",
+    bestFor: "Tech-minded students fascinated by heart health"
+  },
+  {
+    title: "Dialysis Technician",
+    icon: "DT",
+    salary: "$47k median",
+    education: "Certificate program or employer training",
+    certification: "CCHT, CHT, or CCNT after eligibility requirements",
+    outlook: "Steady kidney-care demand",
+    responsibilities: "Prepare dialysis equipment, monitor treatments, document vitals, and support patients with kidney disease.",
+    skills: "Equipment safety, observation, patient support",
+    advancement: "Senior technician, biomedical equipment, nursing",
+    trainingLength: "3–12 months",
+    workSetting: "Dialysis centers, hospitals, home programs",
+    bestFor: "Consistent caregivers who value ongoing patient relationships"
+  },
+  {
+    title: "Medical Coder",
+    icon: "MC",
+    salary: "$49k median",
+    education: "Certificate or associate degree",
+    certification: "CPC, CCS, or CCA",
+    outlook: "Stable reimbursement and compliance demand",
+    responsibilities: "Translate clinical documentation into standardized diagnosis and procedure codes for billing and reporting.",
+    skills: "Medical terminology, analysis, accuracy",
+    advancement: "Auditor, compliance specialist, revenue cycle manager",
+    trainingLength: "6–18 months",
+    workSetting: "Hospitals, clinics, insurers, remote offices",
+    bestFor: "Independent, detail-focused learners"
+  },
+  {
+    title: "Community Health Worker",
+    icon: "CHW",
+    salary: "$48k median",
+    education: "Certificate, community program, or employer training",
+    certification: "State credential where required",
+    outlook: "Growing community-care coordination need",
+    responsibilities: "Connect people with care, explain health information, address barriers, and advocate for community needs.",
+    skills: "Trust building, cultural awareness, resource navigation",
+    advancement: "Care coordinator, public health, social services leadership",
+    trainingLength: "Weeks to 1 year",
+    workSetting: "Community organizations, clinics, public-health agencies",
+    bestFor: "Relationship builders passionate about health equity"
   }
 ];
 
