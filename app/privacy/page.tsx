@@ -69,9 +69,8 @@ export default function PrivacyPage() {
       </section>
       <section>
         <h2>Contact</h2>
-        <p>Questions about privacy may be sent to <a href="mailto:ops@medpath.ai">ops@medpath.ai</a>.</p>
+        <p>Questions about privacy may be sent to <a href="mailto:Medpath.space@gmail.com">Medpath.space@gmail.com</a>.</p>
       </section>
     </PublicInfoPage>
   );
 }
-

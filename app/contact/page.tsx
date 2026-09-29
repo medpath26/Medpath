@@ -16,7 +16,7 @@ export default function ContactPage() {
       <section>
         <h2>Email support</h2>
         <p>
-          Send a message to <a href="mailto:ops@medpath.ai">ops@medpath.ai</a>. Include the email
+          Send a message to <a href="mailto:Medpath.space@gmail.com">Medpath.space@gmail.com</a>. Include the email
           address connected to your account and a short description of the issue. Never email your
           password or complete payment-card details.
         </p>
@@ -38,4 +38,3 @@ export default function ContactPage() {
     </PublicInfoPage>
   );
 }
-

@@ -668,5 +668,5 @@ export const users: Array<{
   { name: "Luis Ramirez", email: "luis@example.com", role: "pro_student", status: "Active" },
   { name: "Ari Chen", email: "ari@example.com", role: "explorer", status: "Trial ending" },
   { name: "North Valley College", email: "admin@nvc.edu", role: "institution_admin", status: "Active" },
-  { name: "Operations Admin", email: "ops@medpath.ai", role: "administrator", status: "Internal" }
+  { name: "Operations Admin", email: "Medpath.space@gmail.com", role: "administrator", status: "Internal" }
 ];
