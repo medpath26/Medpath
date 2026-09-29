@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createSupabaseAdminClient, getRequestUser } from "@/lib/supabase-server";
 
-const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null;
+const stripeSecret = process.env.STRIPE_SECRET_KEY || process.env.stripemedpath_STRIPE_SECRET_KEY;
+const stripe = stripeSecret ? new Stripe(stripeSecret) : null;
 
 export async function POST(request: Request) {
   const user = await getRequestUser(request);
@@ -11,8 +12,8 @@ export async function POST(request: Request) {
   }
 
   const supabase = createSupabaseAdminClient();
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
-  if (!stripe || !supabase || !appUrl) {
+  const appUrl = "https://medpathmentor.space";
+  if (!stripe || !supabase) {
     return NextResponse.json({ error: "Billing management is temporarily unavailable." }, { status: 503 });
   }
 

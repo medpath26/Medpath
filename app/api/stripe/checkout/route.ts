@@ -69,10 +69,7 @@ export async function POST(request: Request) {
     }
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
-  if (!appUrl) {
-    return NextResponse.json({ error: "Checkout is not configured for this site." }, { status: 503 });
-  }
+  const appUrl = "https://medpathmentor.space";
 
   try {
     const session = await stripe.checkout.sessions.create({
