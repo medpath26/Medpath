@@ -291,18 +291,22 @@ td button {
 }
 
 .floating-card {
-  position: absolute;
-  right: 6%;
-  bottom: 5%;
+  position: static;
   display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
   gap: 0.25rem;
-  max-width: 18rem;
+  max-width: none;
+  margin-top: 0.85rem;
   padding: 1rem;
   border: 1px solid rgba(255, 255, 255, 0.48);
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.76);
   box-shadow: 0 20px 50px rgba(13, 43, 82, 0.16);
   backdrop-filter: blur(16px);
+}
+
+.floating-card strong {
+  grid-column: 2;
 }
 
 .floating-card svg {
@@ -3040,7 +3044,6 @@ td small {
   }
 
   .floating-card {
-    position: static;
     margin-top: 0.8rem;
   }
 
