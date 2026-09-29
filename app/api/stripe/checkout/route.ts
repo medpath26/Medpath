@@ -13,6 +13,7 @@ const priceEnv: Record<string, string | undefined> = {
 };
 
 const allowedPlans = new Set(Object.keys(priceEnv));
+const trialPlans = new Set(["student_plus", "founding_member"]);
 
 export async function POST(request: Request) {
   const user = await getRequestUser(request);
@@ -85,7 +86,7 @@ export async function POST(request: Request) {
       success_url: `${appUrl}/?view=billing&checkout=success`,
       cancel_url: `${appUrl}/?view=billing&checkout=cancelled`,
       subscription_data: {
-        trial_period_days: 7,
+        ...(trialPlans.has(plan) ? { trial_period_days: 7 } : {}),
         metadata: { userId: user.id, plan }
       },
       metadata: { userId: user.id, plan }

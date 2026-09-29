@@ -2754,6 +2754,7 @@ export function Billing({
       badge: "Most Popular",
       description: "Unlock the full study system for daily practice, tutoring, and exam readiness.",
       includes: [
+        "7-day free trial",
         "Everything in Free",
         "Unlimited Atlas Tutor",
         "Unlimited flashcards",
@@ -2794,6 +2795,7 @@ export function Billing({
       badge: "First 20 Members",
       description: "Lock in early-adopter pricing and help shape the future of MedPath.",
       includes: [
+        "7-day free trial",
         "Everything in Pro",
         "Founding Member badge",
         "Locked-in $9.99 monthly price",
