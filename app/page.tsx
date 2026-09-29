@@ -750,6 +750,10 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
     setExamTrackerHidden(false);
     setAuthName("");
     setAuthProgram("");
+    setAuthError("");
+    setAuthNotice("");
+    setLockedFeature(null);
+    setShowGuestAtlasModal(false);
     setView("landing");
   }
 
