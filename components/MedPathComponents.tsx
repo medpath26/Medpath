@@ -250,7 +250,7 @@ export function Landing({ onStart, onCareers }: { onStart: () => void; onCareers
         </div>
         <div className="hero-art">
           <Image
-            src="/medpath-hero.png"
+            src="/medpath-hero-diverse.png"
             width={1100}
             height={760}
             alt="Healthcare students and a mentor studying together"
