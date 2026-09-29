@@ -2248,6 +2248,10 @@ dd {
   gap: 1.5rem;
 }
 
+.pricing-page .pricing-grid {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
 .pricing-hero {
   display: grid;
   gap: 0.8rem;

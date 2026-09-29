@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { getRequestUser } from "@/lib/supabase-server";
+import { createSupabaseAdminClient, getRequestUser } from "@/lib/supabase-server";
 
 const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY)
@@ -39,6 +39,36 @@ export async function POST(request: Request) {
       { error: "Checkout is temporarily unavailable. Please try again later." },
       { status: 503 }
     );
+  }
+
+  if (plan === "founding_member") {
+    const supabase = createSupabaseAdminClient();
+    if (!supabase) {
+      return NextResponse.json(
+        { error: "Founding Member checkout is temporarily unavailable." },
+        { status: 503 }
+      );
+    }
+
+    const { count, error } = await supabase
+      .from("subscriptions")
+      .select("id", { count: "exact", head: true })
+      .eq("plan", "founding_member");
+
+    if (error) {
+      console.error("Founding Member availability check failed", error);
+      return NextResponse.json(
+        { error: "We couldn't confirm Founding Member availability. Please try again." },
+        { status: 503 }
+      );
+    }
+
+    if ((count ?? 0) >= 20) {
+      return NextResponse.json(
+        { error: "All 20 Founding Member spots have been claimed." },
+        { status: 409 }
+      );
+    }
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");

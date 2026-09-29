@@ -2786,6 +2786,21 @@ export function Billing({
         "Premium support"
       ],
       button: "Go Elite"
+    },
+    {
+      key: "founding_member" as PlanKey,
+      name: "Founding Member",
+      price: "$9.99/month",
+      badge: "First 20 Members",
+      description: "Lock in early-adopter pricing and help shape the future of MedPath.",
+      includes: [
+        "Everything in Pro",
+        "Founding Member badge",
+        "Locked-in $9.99 monthly price",
+        "Early access to new features",
+        "Opportunities to influence MedPath"
+      ],
+      button: "Claim a Founding Spot"
     }
   ];
   const comparisonRows = [
@@ -2821,7 +2836,7 @@ export function Billing({
             className={[
               "price-card",
               "public-price-card",
-              pricingPlan.key === "student_plus" ? "recommended" : "",
+              pricingPlan.key === "student_plus" || pricingPlan.key === "founding_member" ? "recommended" : "",
               plan === pricingPlan.key ? "current" : ""
             ].join(" ")}
             key={pricingPlan.name}
@@ -2842,7 +2857,7 @@ export function Billing({
               ))}
             </ul>
             <button
-              className={pricingPlan.key === "student_plus" ? "primary" : "secondary"}
+              className={pricingPlan.key === "student_plus" || pricingPlan.key === "founding_member" ? "primary" : "secondary"}
               disabled={pendingPlan !== null || (isSignedIn && plan === pricingPlan.key)}
               onClick={async () => {
                 setPendingPlan(pricingPlan.key);
