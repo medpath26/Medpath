@@ -2526,7 +2526,11 @@ export function CareerExplorer({ plan }: { plan: PlanKey }) {
       .filter((career): career is CareerPath => Boolean(career)),
     ...careers.filter((career) => !requiredCareerTitles.includes(career.title))
   ];
-  const availableCareers = orderedCareers;
+  const salaryValue = (salary: string) => Number(salary.replace(/[^\d.]/g, "")) || 0;
+  const availableCareers = [...orderedCareers].sort(
+    (first, second) =>
+      salaryValue(second.salary) - salaryValue(first.salary) || first.title.localeCompare(second.title)
+  );
   const filteredCareers = availableCareers.filter((career) => {
     const query = careerSearch.trim().toLowerCase();
     if (!query) {
