@@ -294,7 +294,7 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
           const search = new URLSearchParams(window.location.search);
           const requestedView = getBrowserView();
           if (search.get("reset") === "1") setAuthMode("reset");
-          setView(requestedView === "billing" ? "billing" : "dashboard");
+          setView(requestedView && requestedView !== "landing" ? requestedView : "dashboard");
         }
       }
     });
@@ -1144,4 +1144,3 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
     </main>
   );
 }
-
