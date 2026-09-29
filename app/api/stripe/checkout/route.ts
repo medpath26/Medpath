@@ -1,15 +1,16 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { createSupabaseAdminClient, getRequestUser } from "@/lib/supabase-server";
+import { getRequestUser } from "@/lib/supabase-server";
 
-const stripe = process.env.STRIPE_SECRET_KEY
-  ? new Stripe(process.env.STRIPE_SECRET_KEY)
+const stripeSecret = process.env.STRIPE_SECRET_KEY || process.env.stripemedpath_STRIPE_SECRET_KEY;
+const stripe = stripeSecret
+  ? new Stripe(stripeSecret)
   : null;
 
 const priceEnv: Record<string, string | undefined> = {
-  student_plus: process.env.STRIPE_STUDENT_PLUS_PRICE_ID,
-  pro_student: process.env.STRIPE_PRO_STUDENT_PRICE_ID,
-  founding_member: process.env.STRIPE_FOUNDING_MEMBER_PRICE_ID
+  student_plus: process.env.STRIPE_STUDENT_PLUS_PRICE_ID || "price_1UL21U7jTIbt8vqef1yRISSV",
+  pro_student: process.env.STRIPE_PRO_STUDENT_PRICE_ID || "price_1UL21q7jTIbt8vqe883zeJGh",
+  founding_member: process.env.STRIPE_FOUNDING_MEMBER_PRICE_ID || "price_1UL2267jTIbt8vqesTuaLZzg"
 };
 
 const allowedPlans = new Set(Object.keys(priceEnv));
@@ -43,31 +44,27 @@ export async function POST(request: Request) {
   }
 
   if (plan === "founding_member") {
-    const supabase = createSupabaseAdminClient();
-    if (!supabase) {
-      return NextResponse.json(
-        { error: "Founding Member checkout is temporarily unavailable." },
-        { status: 503 }
-      );
-    }
+    try {
+      const subscriptions = await stripe.subscriptions.list({
+        price,
+        status: "all",
+        limit: 100
+      });
+      const claimedSpots = subscriptions.data.filter((subscription) =>
+        ["active", "trialing", "past_due", "unpaid"].includes(subscription.status)
+      ).length;
 
-    const { count, error } = await supabase
-      .from("subscriptions")
-      .select("id", { count: "exact", head: true })
-      .eq("plan", "founding_member");
-
-    if (error) {
+      if (claimedSpots >= 20) {
+        return NextResponse.json(
+          { error: "All 20 Founding Member spots have been claimed." },
+          { status: 409 }
+        );
+      }
+    } catch (error) {
       console.error("Founding Member availability check failed", error);
       return NextResponse.json(
         { error: "We couldn't confirm Founding Member availability. Please try again." },
         { status: 503 }
-      );
-    }
-
-    if ((count ?? 0) >= 20) {
-      return NextResponse.json(
-        { error: "All 20 Founding Member spots have been claimed." },
-        { status: 409 }
       );
     }
   }
