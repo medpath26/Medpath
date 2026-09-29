@@ -381,7 +381,7 @@ export const careers: CareerPath[] = [
   {
     title: "Medical Assistant",
     icon: "MA",
-    salary: "$42k median",
+    salary: "$46k median",
     education: "Certificate or diploma",
     certification: "CMA, RMA, CCMA, or NCMA",
     outlook: "Strong outpatient growth",
@@ -392,7 +392,7 @@ export const careers: CareerPath[] = [
   {
     title: "Surgical Technologist",
     icon: "ST",
-    salary: "$60k median",
+    salary: "$65k median",
     education: "Accredited surgical technology program",
     certification: "CST or TS-C",
     outlook: "Stable OR demand",
@@ -403,7 +403,7 @@ export const careers: CareerPath[] = [
   {
     title: "Sterile Processing Technician",
     icon: "SP",
-    salary: "$47k median",
+    salary: "$48k median",
     education: "Certificate or employer training",
     certification: "CRCST or CSPDT",
     outlook: "High demand in hospitals",
@@ -414,7 +414,7 @@ export const careers: CareerPath[] = [
   {
     title: "Phlebotomist",
     icon: "PH",
-    salary: "$41k median",
+    salary: "$45k median",
     education: "Short certificate program",
     certification: "CPT or equivalent",
     outlook: "Consistent lab demand",
@@ -425,7 +425,7 @@ export const careers: CareerPath[] = [
   {
     title: "Respiratory Therapist",
     icon: "RT",
-    salary: "$77k median",
+    salary: "$82k median",
     education: "Associate degree",
     certification: "CRT or RRT",
     outlook: "Growing cardiopulmonary need",
@@ -436,7 +436,7 @@ export const careers: CareerPath[] = [
   {
     title: "Radiologic Technologist",
     icon: "XR",
-    salary: "$73k median",
+    salary: "$81k median",
     education: "Associate degree",
     certification: "ARRT",
     outlook: "Strong imaging demand",
@@ -447,7 +447,7 @@ export const careers: CareerPath[] = [
   {
     title: "Dental Assistant",
     icon: "DA",
-    salary: "$47k median",
+    salary: "$48k median",
     education: "Certificate or employer training",
     certification: "CDA varies by state",
     outlook: "Steady dental practice demand",
@@ -458,7 +458,7 @@ export const careers: CareerPath[] = [
   {
     title: "Occupational Therapy Assistant",
     icon: "OTA",
-    salary: "$67k median",
+    salary: "$71k median",
     education: "Associate degree",
     certification: "NBCOT COTA",
     outlook: "Strong rehab demand",
@@ -469,7 +469,7 @@ export const careers: CareerPath[] = [
   {
     title: "Physical Therapist Assistant",
     icon: "PTA",
-    salary: "$64k median",
+    salary: "$69k median",
     education: "Associate degree",
     certification: "State licensure",
     outlook: "Strong rehab demand",
@@ -480,7 +480,7 @@ export const careers: CareerPath[] = [
   {
     title: "Licensed Practical Nurse",
     icon: "LPN",
-    salary: "$59k median",
+    salary: "$64k median",
     education: "Practical nursing program",
     certification: "NCLEX-PN",
     outlook: "Broad care setting demand",
@@ -491,7 +491,7 @@ export const careers: CareerPath[] = [
   {
     title: "Registered Nurse",
     icon: "RN",
-    salary: "$86k median",
+    salary: "$98k median",
     education: "ADN or BSN",
     certification: "NCLEX-RN",
     outlook: "High demand across care settings",
@@ -502,7 +502,7 @@ export const careers: CareerPath[] = [
   {
     title: "Emergency Medical Technician",
     icon: "EMT",
-    salary: "$40k median",
+    salary: "$47k median",
     education: "EMT program",
     certification: "NREMT and state credential",
     outlook: "Ongoing emergency response need",
@@ -513,7 +513,7 @@ export const careers: CareerPath[] = [
   {
     title: "Certified Nursing Assistant",
     icon: "CNA",
-    salary: "$40k median",
+    salary: "$42k median",
     education: "State-approved nursing assistant program",
     certification: "State CNA competency exam",
     outlook: "Ongoing long-term care demand",
@@ -527,7 +527,7 @@ export const careers: CareerPath[] = [
   {
     title: "Patient Care Technician",
     icon: "PCT",
-    salary: "$41k median",
+    salary: "$42k median",
     education: "Certificate program or employer training",
     certification: "CPCT/A or state-specific credential",
     outlook: "Steady hospital support demand",
@@ -541,7 +541,7 @@ export const careers: CareerPath[] = [
   {
     title: "Pharmacy Technician",
     icon: "RX",
-    salary: "$43k median",
+    salary: "$46k median",
     education: "Certificate, employer training, or associate pathway",
     certification: "CPhT through PTCB or NHA; rules vary by state",
     outlook: "Consistent retail and health-system demand",
@@ -555,7 +555,7 @@ export const careers: CareerPath[] = [
   {
     title: "Diagnostic Medical Sonographer",
     icon: "US",
-    salary: "$89k median",
+    salary: "$97k median",
     education: "Associate degree or accredited certificate",
     certification: "ARDMS, ARRT(S), or CCI",
     outlook: "Strong diagnostic imaging growth",
@@ -569,7 +569,7 @@ export const careers: CareerPath[] = [
   {
     title: "Medical Laboratory Technician",
     icon: "MLT",
-    salary: "$61k median",
+    salary: "$63k median",
     education: "Associate degree in medical laboratory technology",
     certification: "ASCP MLT or AMT MLT",
     outlook: "Reliable diagnostic laboratory demand",
@@ -583,7 +583,7 @@ export const careers: CareerPath[] = [
   {
     title: "Health Information Technician",
     icon: "HIT",
-    salary: "$50k median",
+    salary: "$51k median",
     education: "Certificate or associate degree",
     certification: "RHIT, CCS, or CCA depending on role",
     outlook: "Growing digital health data needs",
@@ -597,7 +597,7 @@ export const careers: CareerPath[] = [
   {
     title: "Cardiovascular Technologist",
     icon: "CVT",
-    salary: "$67k median",
+    salary: "$74k median",
     education: "Associate degree or accredited certificate",
     certification: "CCI or ARDMS credential by specialty",
     outlook: "Growing cardiac diagnostic need",
@@ -611,7 +611,7 @@ export const careers: CareerPath[] = [
   {
     title: "Dialysis Technician",
     icon: "DT",
-    salary: "$47k median",
+    salary: "$50k median",
     education: "Certificate program or employer training",
     certification: "CCHT, CHT, or CCNT after eligibility requirements",
     outlook: "Steady kidney-care demand",
@@ -625,7 +625,7 @@ export const careers: CareerPath[] = [
   {
     title: "Medical Coder",
     icon: "MC",
-    salary: "$49k median",
+    salary: "$51k median",
     education: "Certificate or associate degree",
     certification: "CPC, CCS, or CCA",
     outlook: "Stable reimbursement and compliance demand",
@@ -639,7 +639,7 @@ export const careers: CareerPath[] = [
   {
     title: "Community Health Worker",
     icon: "CHW",
-    salary: "$48k median",
+    salary: "$52k median",
     education: "Certificate, community program, or employer training",
     certification: "State credential where required",
     outlook: "Growing community-care coordination need",

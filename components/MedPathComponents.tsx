@@ -2478,7 +2478,7 @@ export function CareerExplorer({ plan }: { plan: PlanKey }) {
     {
       title: "Surgical Technologist",
       icon: "ST",
-      salary: "$60k median",
+      salary: "$65k median",
       education: "Accredited surgical technology program",
       certification: "CST or TS-C",
       outlook: "Stable OR demand",
@@ -2489,7 +2489,7 @@ export function CareerExplorer({ plan }: { plan: PlanKey }) {
     {
       title: "Medical Assistant",
       icon: "MA",
-      salary: "$42k median",
+      salary: "$46k median",
       education: "Certificate or diploma",
       certification: "CMA, RMA, CCMA, or NCMA",
       outlook: "Strong outpatient growth",
@@ -2500,7 +2500,7 @@ export function CareerExplorer({ plan }: { plan: PlanKey }) {
     {
       title: "Sterile Processing Technician",
       icon: "SP",
-      salary: "$47k median",
+      salary: "$48k median",
       education: "Certificate or employer training",
       certification: "CRCST or CSPDT",
       outlook: "High demand in hospitals",
@@ -2511,7 +2511,7 @@ export function CareerExplorer({ plan }: { plan: PlanKey }) {
     {
       title: "Phlebotomist",
       icon: "PH",
-      salary: "$41k median",
+      salary: "$45k median",
       education: "Short certificate program",
       certification: "CPT or equivalent",
       outlook: "Consistent lab demand",
@@ -2573,6 +2573,12 @@ export function CareerExplorer({ plan }: { plan: PlanKey }) {
           aria-label="Search healthcare careers"
         />
       </section>
+
+      <p className="career-data-note">
+        Approximate U.S. annual median pay based on May 2025 Bureau of Labor Statistics data.
+        Earnings, requirements, and job titles vary by location and employer. Some specialized roles
+        use the closest BLS occupational category. <a href="https://www.bls.gov/ooh/healthcare/" target="_blank" rel="noreferrer">View source</a>.
+      </p>
 
       {careerSearch && filteredCareers.length === 0 && (
         <section className="panel pathfinder-empty">
