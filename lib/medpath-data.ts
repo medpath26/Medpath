@@ -195,7 +195,7 @@ export const plans: Record<
   },
   pro_student: {
     name: "Pro Student",
-    price: "$24.99/mo",
+    price: "$29.99/mo",
     description: "Advanced adaptive learning and career acceleration.",
     highlights: [
       "Adaptive daily lessons",
