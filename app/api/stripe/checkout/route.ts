@@ -61,7 +61,7 @@ if (claimedSpots >= 50) {
     { status: 409 }
   );
 }
-      }
+    
     } catch (error) {
       console.error("Founding Member availability check failed", error);
       return NextResponse.json(
