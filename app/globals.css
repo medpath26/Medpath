@@ -2379,12 +2379,13 @@ dd {
 }
 
 .comparison-table {
-  min-width: 720px;
+width: 100%;
+min-width: 0;
 }
 
 .comparison-table th {
   color: var(--navy);
-}
+white-space: normal;}
 
 .comparison-table td:first-child {
   font-weight: 800;
