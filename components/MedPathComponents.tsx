@@ -2910,10 +2910,11 @@ export function Billing({
     First 50 Only
   </span>
 </th>
-  ⭐ Founding
-  <span className="block text-[10px] font-bold uppercase tracking-wide">
-    First 50 Only
-  </span>
+
+
+
+
+
 </th>
                 <th>Pro</th>
                 <th>Elite</th>
