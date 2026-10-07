@@ -2905,11 +2905,18 @@ export function Billing({
                 <th>Feature</th>
                 <th>Free</th>
 
-<th className="bg-blue-950/10 dark:bg-blue-900/40 border-x-2 border-t-2 border-blue-900 font-bold">
-  <span className="block whitespace-nowrap">⭐ Founding Member</span>
-  <span className="block text-[10px] font-semibold">
+<th className="bg-blue-100 dark:bg-blue-900/40 border-x-2 border-t-2 border-blue-900 font-bold min-w-[160px]">
+  <span className="block">⭐ Founding Member</span>
+  <span className="block mt-1 text-xs font-medium">
     (First 50 Members)
   </span>
+</th>
+
+
+
+
+
+
 </th>
 
 
