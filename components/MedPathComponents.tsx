@@ -2910,12 +2910,6 @@ export function Billing({
     First 50 Only
   </span>
 </th>
-
-
-
-
-
-</th>
                 <th>Pro</th>
                 <th>Elite</th>
               </tr>
