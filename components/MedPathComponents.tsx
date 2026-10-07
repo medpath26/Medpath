@@ -2904,12 +2904,19 @@ export function Billing({
               <tr>
                 <th>Feature</th>
                 <th>Free</th>
-<th className="bg-amber-50 dark:bg-amber-950/30 font-bold">
+
+<th className="bg-blue-950/10 dark:bg-blue-900/40 border-x-2 border-t-2 border-blue-900 font-bold">
   <span className="block whitespace-nowrap">⭐ Founding Member</span>
-  <span className="block mt-1 text-[10px] font-bold uppercase tracking-wide whitespace-nowrap">
-    First 50 Only
+  <span className="block text-[10px] font-semibold">
+    (First 50 Members)
   </span>
 </th>
+
+
+
+
+
+
                 <th>Pro</th>
                 <th>Elite</th>
               </tr>
@@ -2919,7 +2926,9 @@ export function Billing({
                 <tr key={feature}>
                   <td>{feature}</td>
                   <td>{free}</td>
-<td className="bg-amber-50 dark:bg-amber-950/30 font-semibold">{founding}</td>
+
+<td className="bg-blue-950/10 dark:bg-blue-900/40 border-x-2 border-blue-900 font-semibold">{founding}</td>
+
                   <td>{pro}</td>
                   <td>{elite}</td>
                 </tr>
