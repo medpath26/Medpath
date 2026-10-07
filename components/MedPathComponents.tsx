@@ -2820,13 +2820,13 @@ export function Billing({
     ["Atlas Tutor", "3 questions", "Unlimited", "Unlimited"],
     ["Flashcards", "Sample", "Unlimited", "Unlimited"],
     ["Quizzes", "Sample", "Unlimited", "Unlimited"],
-    ["Practice Exams", "—", "Included", "Simulations"],
+    ["Practice Exams", "Not included", "Full access", "Full access"],
     ["Study Planner", "Basic", "Personalized", "Personalized"],
-    ["Progress Tracking", "—", "Included", "Advanced"],
-    ["Career PathFinder", "Included", "Included", "Included"],
-    ["Resume Builder", "—", "—", "Included"],
-    ["Interview Coach", "—", "—", "Included"],
-    ["Priority Support", "—", "Included", "Premium"]
+  ["Progress Tracking", "Not included", "Included", "Advanced"],
+["Career PathFinder", "Included", "Included", "Included"],
+  ["Course Access", "Limited", "Full access", "Full access"],
+  ["Certificates", "Not included", "Included", "Included"],
+    ["Priority Support", "Not included", "Not included", "Included"],
   ];
   const pricingFaqs = [
   ["What payment methods are accepted?", "MedPath accepts major debit and credit cards through secure Stripe checkout."],
