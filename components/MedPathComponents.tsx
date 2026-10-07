@@ -2905,6 +2905,11 @@ export function Billing({
                 <th>Feature</th>
                 <th>Free</th>
 <th className="bg-amber-50 dark:bg-amber-950/30 font-bold">
+  <span className="block whitespace-nowrap">⭐ Founding Member</span>
+  <span className="block mt-1 text-[10px] font-bold uppercase tracking-wide whitespace-nowrap">
+    First 50 Only
+  </span>
+</th>
   ⭐ Founding
   <span className="block text-[10px] font-bold uppercase tracking-wide">
     First 50 Only
