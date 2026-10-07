@@ -2920,6 +2920,8 @@ export function Billing({
 </th>
 
 
+<td className="bg-blue-100 dark:bg-blue-900/40 border-x-2 border-blue-900 font-semibold">{founding}</td>
+
 
 
 
