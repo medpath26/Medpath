@@ -2803,11 +2803,11 @@ export function Billing({
       key: "founding_member" as PlanKey,
       name: "Founding Member",
       price: "$9.99/month",
-      badge: "First 20 Members",
-      description: "Lock in early-adopter pricing and help shape the future of MedPath.",
+      badge: "First 50 Members",
+      description: "First 50 members get full Elite access at the Founding Member price.",
       includes: [
         "7-day free trial",
-        "Everything in Pro",
+      "Everything in Elite",
         "Founding Member badge",
         "Locked-in $9.99 monthly price",
         "Early access to new features",
@@ -2817,16 +2817,16 @@ export function Billing({
     }
   ];
   const comparisonRows = [
-    ["Atlas Tutor", "3 questions", "Unlimited", "Unlimited"],
-    ["Flashcards", "Sample", "Unlimited", "Unlimited"],
-    ["Quizzes", "Sample", "Unlimited", "Unlimited"],
-    ["Practice Exams", "Not included", "Full access", "Full access"],
-    ["Study Planner", "Basic", "Personalized", "Personalized"],
-  ["Progress Tracking", "Not included", "Included", "Advanced"],
-["Career PathFinder", "Included", "Included", "Included"],
-  ["Course Access", "Limited", "Full access", "Full access"],
-  ["Certificates", "Not included", "Included", "Included"],
-    ["Priority Support", "Not included", "Not included", "Included"],
+    ["Atlas Tutor", "3 questions", "Unlimited", "Unlimited", "Unlimited"],
+    ["Flashcards", "Sample", "Unlimited", "Unlimited", "Unlimited"],
+    ["Quizzes", "Sample", "Unlimited", "Unlimited", "Unlimited"],
+    ["Practice Exams", "Not included", "Full access", "Full access", "Full access"],
+      ["Study Planner", "Basic", "Personalized", "Personalized", "Personalized"],
+  ["Progress Tracking", "Not included", "Advanced", "Included", "Advanced"],
+["Career PathFinder", "Included", "Included", "Included", "Included"],
+["Course Access", "Limited", "Full access", "Full access", "Full access"],
+  ["Certificates", "Not included", "Included", "Included", "Included"],
+  ["Priority Support", "Not included", "Included", "Not included", "Included"],
   ];
   const pricingFaqs = [
   ["What payment methods are accepted?", "MedPath accepts major debit and credit cards through secure Stripe checkout."],
@@ -2904,15 +2904,22 @@ export function Billing({
               <tr>
                 <th>Feature</th>
                 <th>Free</th>
+<th className="bg-amber-50 dark:bg-amber-950/30 font-bold">
+  ⭐ Founding
+  <span className="block text-[10px] font-bold uppercase tracking-wide">
+    First 50 Only
+  </span>
+</th>
                 <th>Pro</th>
                 <th>Elite</th>
               </tr>
             </thead>
             <tbody>
-              {comparisonRows.map(([feature, free, pro, elite]) => (
+{comparisonRows.map(([feature, free, founding, pro, elite]) => (
                 <tr key={feature}>
                   <td>{feature}</td>
                   <td>{free}</td>
+<td className="bg-amber-50 dark:bg-amber-950/30 font-semibold">{founding}</td>
                   <td>{pro}</td>
                   <td>{elite}</td>
                 </tr>
