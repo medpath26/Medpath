@@ -2911,21 +2911,6 @@ export function Billing({
     (First 50 Members)
   </span>
 </th>
-
-
-
-
-
-
-</th>
-
-
-<td className="bg-blue-100 dark:bg-blue-900/40 border-x-2 border-blue-900 font-semibold">{founding}</td>
-
-
-
-
-
                 <th>Pro</th>
                 <th>Elite</th>
               </tr>
@@ -2936,7 +2921,9 @@ export function Billing({
                   <td>{feature}</td>
                   <td>{free}</td>
 
+
 <td className="bg-blue-950/10 dark:bg-blue-900/40 border-x-2 border-blue-900 font-semibold">{founding}</td>
+
 
                   <td>{pro}</td>
                   <td>{elite}</td>
