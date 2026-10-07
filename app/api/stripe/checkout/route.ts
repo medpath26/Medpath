@@ -61,14 +61,6 @@ if (claimedSpots >= 50) {
     { status: 409 }
   );
 }
-
-        return NextResponse.json(
-"All 50 Founding Member spots have been claimed."
-return NextResponse.json(
-  { error: "All 50 Founding Member spots have been claimed." },
-  { status: 409 }
-);
-        );
       }
     } catch (error) {
       console.error("Founding Member availability check failed", error);
