@@ -2898,7 +2898,7 @@ export function Billing({
           </div>
           <BarChart3 />
         </div>
-        <div className="comparison-table-wrap">
+        <div className="comparison-table-wrap mobile-scroll">
           <table className="comparison-table">
             <thead>
               <tr>
