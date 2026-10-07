@@ -2829,8 +2829,8 @@ export function Billing({
     ["Priority Support", "—", "Included", "Premium"]
   ];
   const pricingFaqs = [
-    ["What payment methods are accepted?", "MedPath is prepared for card-based checkout through Stripe, including major debit and credit cards."],
-    ["Can I cancel anytime?", "Yes. You can cancel from billing controls when subscription checkout is connected."],
+  ["What payment methods are accepted?", "MedPath accepts major debit and credit cards through secure Stripe checkout."],
+    ["Can I cancel anytime?", "Yes. You can cancel your subscription anytime from your account's billing settings."],
     ["Do I lose my progress if I downgrade?", "No. Your saved progress remains attached to your MedPath account, though some premium tools may become locked."],
     ["Can I upgrade later?", "Yes. You can start free and move to Pro or Elite whenever you are ready for more support."]
   ];
