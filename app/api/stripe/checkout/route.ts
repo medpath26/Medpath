@@ -54,9 +54,9 @@ export async function POST(request: Request) {
         ["active", "trialing", "past_due", "unpaid"].includes(subscription.status)
       ).length;
 
-      if (claimedSpots >= 20) {
+if (claimedSpots >= 50) {
         return NextResponse.json(
-          { error: "All 20 Founding Member spots have been claimed." },
+"All 50 Founding Member spots have been claimed."
           { status: 409 }
         );
       }
