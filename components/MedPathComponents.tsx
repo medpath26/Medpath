@@ -487,6 +487,11 @@ export function Dashboard({
   const firstName = name.trim().split(" ")[0] || "future healthcare professional";
   const programLabel = program || progress.program;
   const [todayGoalComplete, setTodayGoalComplete] = useState(false);
+  const [dashboardPanel, setDashboardPanel] = useState<"profile" | "settings" | null>(null);
+  const [studyReminders, setStudyReminders] = useState(false);
+  useEffect(() => {
+    setStudyReminders(window.localStorage.getItem("medpath-study-reminders") === "true");
+  }, []);
   const [examEditing, setExamEditing] = useState(false);
   const [examSaving, setExamSaving] = useState(false);
   const [examDraftName, setExamDraftName] = useState("");
@@ -661,6 +666,20 @@ export function Dashboard({
     }
   }
 
+  function handleQuickAccess(title: string, nextView: ViewKey, feature?: FeatureKey) {
+    if (title === "Progress") {
+      setDashboardPanel(null);
+      document.getElementById("medpath-learning-progress")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    if (title === "Profile" || title === "Settings") {
+      setDashboardPanel(title === "Profile" ? "profile" : "settings");
+      window.requestAnimationFrame(() => document.getElementById("medpath-account-panel")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+      return;
+    }
+    onNavigate(nextView, feature);
+  }
+
   return (
     <div className="dashboard-workspace">
       <section className="dashboard-hero">
@@ -778,7 +797,7 @@ export function Dashboard({
             <button
               className="dashboard-action-card"
               key={item.title}
-              onClick={() => onNavigate(item.view, item.feature)}
+              onClick={() => handleQuickAccess(item.title, item.view, item.feature)}
             >
               <span>{item.icon}</span>
               <strong>{item.title}</strong>
@@ -788,6 +807,35 @@ export function Dashboard({
           ))}
         </div>
       </section>
+
+      {dashboardPanel && (
+        <section id="medpath-account-panel" className="dashboard-card" aria-label={dashboardPanel === "profile" ? "Your profile" : "Your settings"}>
+          <div className="card-head">
+            <h3>{dashboardPanel === "profile" ? "Your Profile" : "Settings"}</h3>
+            <button className="secondary compact" type="button" onClick={() => setDashboardPanel(null)}>Close</button>
+          </div>
+          {dashboardPanel === "profile" ? (
+            <div>
+              <p><strong>Name:</strong> {name || "Not set"}</p>
+              <p><strong>Healthcare program:</strong> {programLabel || "Not set"}</p>
+              <p><strong>Membership:</strong> {roleBadges[plan]}</p>
+              <button className="secondary compact" type="button" onClick={() => onNavigate("billing")}>Manage membership</button>
+            </div>
+          ) : (
+            <div>
+              <p>Personalize your MedPath experience.</p>
+              <label style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <input type="checkbox" checked={studyReminders} onChange={(event) => {
+                  setStudyReminders(event.target.checked);
+                  window.localStorage.setItem("medpath-study-reminders", String(event.target.checked));
+                }} />
+                Save my study reminder preference on this device
+              </label>
+              <small>This preference is saved locally. Automated notifications are not yet enabled.</small>
+            </div>
+          )}
+        </section>
+      )}
 
       <div className="dashboard-layout">
         <div className="dashboard-main">
@@ -810,7 +858,7 @@ export function Dashboard({
             </div>
           </section>
 
-          <section className="dashboard-section">
+          <section id="medpath-learning-progress" className="dashboard-section">
             <div className="section-title-row">
               <div>
                 <p className="eyebrow">Learning Progress</p>
