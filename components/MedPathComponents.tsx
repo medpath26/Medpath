@@ -4282,6 +4282,17 @@ export function AuthModal({
               </option>
               <option>Medical Assistant</option>
               <option>Surgical Technologist</option>
+              <option>Sterile Processing Technician</option>
+              <option>Phlebotomy Technician</option>
+              <option>Patient Care Technician</option>
+              <option>EKG Technician</option>
+              <option>Certified Nursing Assistant</option>
+              <option>Pharmacy Technician</option>
+              <option>Medical Billing and Coding</option>
+              <option>Emergency Medical Technician</option>
+              <option>Dental Assistant</option>
+              <option>Radiologic Technologist</option>
+              <option>Diagnostic Medical Sonographer</option>
               <option>Exploring Healthcare Careers</option>
             </select>
             {fieldErrors.program && <small className="field-error" id="auth-program-error">{fieldErrors.program}</small>}
