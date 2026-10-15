@@ -827,7 +827,7 @@ const achievements: [string, string][] = [];
               <Target />
             </div>
             <div className="progress-bar" aria-label={`${todayGoalComplete ? 100 : progress.weeklyProgress}% today's goal progress`}>
-              <span style={{ width: `${todayGoalComplete ? 100 : progress.weeklyProgress
+            <span style={{ width: `${todayGoalComplete ? 100 : progress.weeklyProgress}%` }} />
             </div>
             <div className="goal-card-footer">
               <span>{todayGoalComplete ? "Completed" : `${todayGoal.minutes || 35} min remaining`}</span>
