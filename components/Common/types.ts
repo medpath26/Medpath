@@ -6,6 +6,7 @@ export type ViewKey =
   | "study"
   | "clinical"
   | "career"
+  | "roadmaps"
   | "resume"
   | "interview"
   | "billing"
