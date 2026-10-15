@@ -32,6 +32,7 @@ import {
 } from "@/components/MedPathComponents";
 import type { AtlasChatMessage, ViewKey } from "@/components/Common/types";
 import { getAuthCallbackUrl } from "@/lib/auth-redirects";
+import { healthcarePathways } from "@/lib/healthcare-pathways";
 import {
   LearningModuleRecord,
   ProfileRecord,
@@ -212,6 +213,8 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
   const [workspaceReady, setWorkspaceReady] = useState(false);
   const [profile, setProfile] = useState<ProfileRecord | null>(null);
   const [studentProgress, setStudentProgress] = useState<StudentProgress>(studentProgressSeed);
+  const [pathwaySwitching, setPathwaySwitching] = useState(false);
+  const [pathwaySwitchError, setPathwaySwitchError] = useState("");
   const [examTrackerHidden, setExamTrackerHidden] = useState(false);
   const [authName, setAuthName] = useState("");
   const [authProgram, setAuthProgram] = useState("");
@@ -811,6 +814,64 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
     }
   }
 
+  async function switchPathway(nextPathway: string) {
+    if (!supabase || !authUser || !profile || pathwaySwitching) return;
+    if (!healthcarePathways.some((path) => path.label === nextPathway)) return;
+    const currentPathway = profile.healthcare_program;
+    if (currentPathway === nextPathway) return;
+
+    setPathwaySwitchError("");
+    setPathwaySwitching(true);
+    try {
+      // Preserve the current pathway before changing the active profile.
+      const { error: saveError } = await supabase.from("pathway_progress").upsert({
+        user_id: authUser.id,
+        pathway: currentPathway,
+        progress_data: studentProgress,
+        updated_at: new Date().toISOString()
+      }, { onConflict: "user_id,pathway" });
+      if (saveError) throw saveError;
+
+      const { data: savedPath, error: readError } = await supabase
+        .from("pathway_progress")
+        .select("progress_data")
+        .eq("user_id", authUser.id)
+        .eq("pathway", nextPathway)
+        .maybeSingle<{ progress_data: StudentProgress }>();
+      if (readError) throw readError;
+
+      // Save the destination snapshot before activating it, so switching back is safe.
+      const nextProgress: StudentProgress = savedPath?.progress_data
+        ? { ...savedPath.progress_data, userId: authUser.id, program: nextPathway }
+        : { ...studentProgressSeed, userId: authUser.id, program: nextPathway,
+            certificationGoal: "", examDate: "", weeklyProgress: 0, pathProgress: 0,
+            streakDays: 0, xp: 0, level: 1, upcomingGoals: [], recentActivity: [],
+            learningModules: [] };
+      if (!savedPath) {
+        const { error: createError } = await supabase.from("pathway_progress").insert({
+          user_id: authUser.id, pathway: nextPathway, progress_data: nextProgress
+        });
+        if (createError) throw createError;
+      }
+
+      const { data: updatedProfile, error: profileError } = await supabase
+        .from("profiles")
+        .update({ healthcare_program: nextPathway })
+        .eq("id", authUser.id)
+        .select("*")
+        .single<ProfileRecord>();
+      if (profileError) throw profileError;
+      setProfile(updatedProfile);
+      setStudentProgress(nextProgress);
+      setExamTrackerHidden(false);
+    } catch (error) {
+      logAuthDiagnostics("pathway switch failed", error);
+      setPathwaySwitchError("Couldn't switch pathways. Your current pathway is unchanged. Please try again.");
+    } finally {
+      setPathwaySwitching(false);
+    }
+  }
+
   async function saveExamTracker(certificationGoal: string, nextExamDate: string) {
     if (!supabase || !authUser) {
       setAuthError("Please log in before updating your exam tracker.");
@@ -1024,6 +1085,9 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
                 onSaveExamTracker={saveExamTracker}
                 onDeleteExamTracker={deleteExamTracker}
                 onHideExamTracker={() => setExamTrackerHidden(true)}
+                onSwitchPathway={switchPathway}
+                pathwaySwitching={pathwaySwitching}
+                pathwaySwitchError={pathwaySwitchError}
                 onNavigate={goTo}
               />
             )}
