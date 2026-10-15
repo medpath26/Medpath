@@ -51,7 +51,6 @@ import {
   users
 } from "@/lib/medpath-data";
 import { healthcarePathways } from "@/lib/healthcare-pathways";
-import { careerRoadmaps } from "@/lib/career-roadmaps";
 import type { AtlasChatMessage, ViewKey } from "./Common/types";
 
 export function Header({
@@ -93,6 +92,7 @@ export function Header({
     ["Flashcards", <BookOpen key="icon" />, () => navigateMobile("practice", "flashcards")],
     ["Practice Exams", <ClipboardCheck key="icon" />, () => navigateMobile("practice", "mockExams")],
     ["Atlas Tutor", <MessageCircleHeart key="icon" />, () => navigateMobile("atlas", "atlas")],
+    ["Explorer", <GraduationCap key="icon" />, () => navigateMobile("roadmaps")],
     ["PathFinder", <Search key="icon" />, () => navigateMobile("career", "careerExplorer")],
     ["Pricing", <CreditCard key="icon" />, () => navigateMobile("billing")],
     ["Profile", <UserRound key="icon" />, () => navigateMobile("dashboard")],
@@ -127,6 +127,7 @@ export function Header({
         )}
       </button>
       <nav className="desktop-nav" aria-label="Primary">
+        <button onClick={() => onNavigate("roadmaps")}>Explorer</button>
         <button onClick={() => onNavigate("career", "careerExplorer")}>PathFinder</button>
         <button onClick={() => onNavigate("atlas", "atlas")}>Atlas</button>
         <button onClick={() => onNavigate("billing")}>Pricing</button>
@@ -3604,7 +3605,6 @@ export function CareerExplorer({ plan }: { plan: PlanKey }) {
   const [careerSearch, setCareerSearch] = useState("");
   const [selectedCareerTitle, setSelectedCareerTitle] = useState("Surgical Technologist");
   const [compareTitles, setCompareTitles] = useState<string[]>(["Medical Assistant", "Surgical Technologist"]);
-  const [roadmapTitle, setRoadmapTitle] = useState("Surgeon (MD/DO Specialty)");
   type CareerPath = (typeof careers)[number];
   const requiredCareerTitles = [
     "Surgical Technologist",
@@ -3708,45 +3708,6 @@ export function CareerExplorer({ plan }: { plan: PlanKey }) {
           your strengths before, during, and after school.
         </p>
       </div>
-
-      <section className="panel" aria-label="Career roadmaps">
-        <div className="card-head">
-          <div>
-            <p className="eyebrow">Your next steps</p>
-            <h3>Career Roadmaps</h3>
-            <p>Explore the training route and possible specialties for a healthcare career.</p>
-          </div>
-        </div>
-        <label htmlFor="explorer-roadmap-select">Choose a career roadmap</label>
-        <select id="explorer-roadmap-select" value={roadmapTitle}
-          onChange={(event) => setRoadmapTitle(event.target.value)}
-          style={{ display: "block", width: "100%", maxWidth: "34rem", margin: "0.75rem 0 1.25rem" }}>
-          {careerRoadmaps.map((roadmap) => (
-            <option key={roadmap.title} value={roadmap.title}>{roadmap.title}</option>
-          ))}
-        </select>
-        {careerRoadmaps.filter((roadmap) => roadmap.title === roadmapTitle).map((roadmap) => (
-          <div key={roadmap.title}>
-            <ol style={{ display: "grid", gap: "1rem", paddingLeft: "1.5rem" }}>
-              {roadmap.steps.map((step) => (
-                <li key={step.heading}>
-                  <strong>{step.heading}</strong>
-                  <p>{step.detail}</p>
-                </li>
-              ))}
-            </ol>
-            <h4 style={{ marginTop: "1.5rem" }}>Specialties and directions to explore</h4>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginTop: "0.75rem" }}>
-              {roadmap.specialties.map((specialty) => (
-                <span key={specialty} className="plan-pill">{specialty}</span>
-              ))}
-            </div>
-          </div>
-        ))}
-        <p className="career-data-note" style={{ marginTop: "1rem" }}>
-          Roadmaps are educational guides, not automatic credential transfers. Admission, examination, training, and licensure requirements vary by program and state.
-        </p>
-      </section>
 
       <section className="panel" aria-label="Compare healthcare careers">
         <div className="card-head">

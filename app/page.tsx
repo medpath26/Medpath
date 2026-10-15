@@ -31,6 +31,7 @@ import {
   UpgradeOverlay
 } from "@/components/MedPathComponents";
 import type { AtlasChatMessage, ViewKey } from "@/components/Common/types";
+import { CareerRoadmaps } from "@/components/CareerRoadmaps";
 import { getAuthCallbackUrl } from "@/lib/auth-redirects";
 import { healthcarePathways } from "@/lib/healthcare-pathways";
 import {
@@ -198,6 +199,7 @@ function getBrowserView(): ViewKey | null {
     "/": "landing",
     "/atlas": "atlas",
     "/pathfinder": "career",
+    "/roadmaps": "roadmaps",
     "/pricing": "billing"
   };
   const queryView = new URLSearchParams(window.location.search).get("view") as ViewKey | null;
@@ -253,7 +255,7 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
   useEffect(() => {
     const readView = () => {
       const requested = getBrowserView();
-      const publicViews: ViewKey[] = ["landing", "career", "atlas", "billing"];
+      const publicViews: ViewKey[] = ["landing", "career", "roadmaps", "atlas", "billing"];
       if (requested && (signedIn || publicViews.includes(requested))) setView(requested);
     };
     readView();
@@ -317,7 +319,7 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
         setStudentProgress(studentProgressSeed);
         setExamTrackerHidden(false);
         const requested = getBrowserView();
-        setView(requested && ["career", "atlas", "billing"].includes(requested) ? requested : "landing");
+        setView(requested && ["career", "roadmaps", "atlas", "billing"].includes(requested) ? requested : "landing");
       }
     });
 
@@ -608,7 +610,7 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
   }
 
   function goTo(nextView: ViewKey, feature?: FeatureKey) {
-    const publicViews: ViewKey[] = ["landing", "career", "atlas", "billing"];
+    const publicViews: ViewKey[] = ["landing", "career", "roadmaps", "atlas", "billing"];
 
     if (!signedIn && !publicViews.includes(nextView)) {
       openAuthMode("login");
@@ -631,6 +633,7 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
     const publicPaths: Partial<Record<ViewKey, string>> = {
       landing: "/",
       career: "/pathfinder",
+      roadmaps: "/roadmaps",
       atlas: "/atlas",
       billing: "/pricing"
     };
@@ -1041,6 +1044,10 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
         />
       )}
 
+      {view === "roadmaps" && !signedIn && (
+        <section className="public-workspace"><CareerRoadmaps /></section>
+      )}
+
       {view === "career" && !signedIn && (
         <section className="public-workspace">
           <CareerExplorer plan="explorer" />
@@ -1131,6 +1138,7 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
             )}
             {view === "clinical" && <Clinical plan={plan} />}
             {view === "career" && <CareerExplorer plan={plan} />}
+            {view === "roadmaps" && <CareerRoadmaps />}
             {view === "resume" && <ResumeBuilder name={name} program={program} />}
             {view === "interview" && <InterviewCoach />}
             {view === "billing" && (

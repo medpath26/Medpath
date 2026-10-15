@@ -75,5 +75,115 @@ export const careerRoadmaps: CareerRoadmap[] = [
       { heading: "Choose an advancement goal", detail: "Explore surgical first assisting where eligible, OR leadership, or a separate MD/DO medical school route." }
     ],
     specialties: ["Cardiovascular OR", "Orthopedic OR", "Neurosurgery OR", "Surgical first assistant"]
+  },
+  {
+    title: "Sterile Processing Technician",
+    steps: [
+      { heading: "Prepare and train", detail: "Complete an employer-approved or formal sterile processing training route." },
+      { heading: "Develop clinical skills", detail: "Build decontamination, assembly, sterilization, and infection-prevention skills." },
+      { heading: "Meet credential requirements", detail: "Meet applicable CRCST or CSPDT certification requirements, including experience requirements." },
+      { heading: "Advance your career", detail: "Explore lead technician, educator, or sterile processing management roles." }
+    ],
+    specialties: ["Instrument specialist","Lead sterile processing technician","Educator"]
+  },
+  {
+    title: "Phlebotomy Technician",
+    steps: [
+      { heading: "Prepare and train", detail: "Complete an appropriate phlebotomy training program and supervised venipuncture practice." },
+      { heading: "Develop clinical skills", detail: "Check state rules and employer expectations for clinical experience and certification." },
+      { heading: "Meet credential requirements", detail: "Qualify for an applicable national certification such as CPT where required." },
+      { heading: "Advance your career", detail: "Explore specimen processing, laboratory support, or separately qualified clinical roles." }
+    ],
+    specialties: ["Hospital phlebotomy","Mobile phlebotomy","Laboratory specimen processing"]
+  },
+  {
+    title: "Patient Care Technician",
+    steps: [
+      { heading: "Prepare and train", detail: "Complete employer-accepted patient care technician education or clinical training." },
+      { heading: "Develop clinical skills", detail: "Develop safe bedside care, vital signs, specimen collection, and EKG skills where permitted." },
+      { heading: "Meet credential requirements", detail: "Check employer and state requirements; consider CPCT/A if appropriate." },
+      { heading: "Advance your career", detail: "Explore dialysis, emergency department support, or a separate nursing education route." }
+    ],
+    specialties: ["Hospital patient care","Dialysis technician","Emergency department technician"]
+  },
+  {
+    title: "EKG Technician",
+    steps: [
+      { heading: "Prepare and train", detail: "Complete an EKG or cardiovascular technician training pathway accepted by employers." },
+      { heading: "Develop clinical skills", detail: "Practice accurate 12-lead ECG placement, rhythm recording, and patient preparation." },
+      { heading: "Meet credential requirements", detail: "Check certification eligibility, including practical experience requirements where applicable." },
+      { heading: "Advance your career", detail: "Explore telemetry, ambulatory monitoring, or broader cardiovascular technology education." }
+    ],
+    specialties: ["Telemetry monitoring","Holter monitoring","Cardiology clinic"]
+  },
+  {
+    title: "Certified Nursing Assistant",
+    steps: [
+      { heading: "Prepare and train", detail: "Enroll in a state-approved nurse aide training program." },
+      { heading: "Develop clinical skills", detail: "Complete required supervised clinical practice and competency evaluation." },
+      { heading: "Meet credential requirements", detail: "Obtain placement on the state nurse aide registry or required state credential." },
+      { heading: "Advance your career", detail: "Gain experience and, if desired, pursue separate LPN or RN education." }
+    ],
+    specialties: ["Long-term care","Hospital nursing assistant","Home health"]
+  },
+  {
+    title: "Pharmacy Technician",
+    steps: [
+      { heading: "Prepare and train", detail: "Complete a pharmacy technician training route or qualifying employer training." },
+      { heading: "Develop clinical skills", detail: "Learn medication safety, pharmacy calculations, inventory, and prescription workflows." },
+      { heading: "Meet credential requirements", detail: "Meet state registration/licensing rules and consider PTCB or NHA certification where applicable." },
+      { heading: "Advance your career", detail: "Explore hospital pharmacy, sterile compounding, or pharmacy operations leadership." }
+    ],
+    specialties: ["Hospital pharmacy","Sterile compounding","Medication reconciliation"]
+  },
+  {
+    title: "Medical Billing and Coding",
+    steps: [
+      { heading: "Prepare and train", detail: "Study medical terminology, anatomy, ICD-10-CM, CPT, HCPCS, and reimbursement workflows." },
+      { heading: "Develop clinical skills", detail: "Complete a suitable coding/billing certificate or employer-accepted preparation." },
+      { heading: "Meet credential requirements", detail: "Choose an appropriate credential path such as CPC or CCA/CCS and meet exam eligibility." },
+      { heading: "Advance your career", detail: "Build experience in claims, audits, revenue cycle, or coding specialties." }
+    ],
+    specialties: ["Outpatient coding","Inpatient coding","Revenue cycle management"]
+  },
+  {
+    title: "Emergency Medical Technician",
+    steps: [
+      { heading: "Prepare and train", detail: "Complete a state-approved EMT education program with practical skills training." },
+      { heading: "Develop clinical skills", detail: "Pass applicable National Registry or state examinations and meet state certification requirements." },
+      { heading: "Meet credential requirements", detail: "Gain supervised field experience with EMS systems and protocols." },
+      { heading: "Advance your career", detail: "Explore advanced EMT, paramedic, or other separately credentialed emergency-care pathways." }
+    ],
+    specialties: ["Ambulance EMS","Emergency response","Paramedic pathway"]
+  },
+  {
+    title: "Dental Assistant",
+    steps: [
+      { heading: "Prepare and train", detail: "Review state-specific dental assistant and radiography requirements." },
+      { heading: "Develop clinical skills", detail: "Complete accepted training or employer-based preparation and supervised chairside experience." },
+      { heading: "Meet credential requirements", detail: "Earn required state credentials and consider DANB CDA where relevant." },
+      { heading: "Advance your career", detail: "Explore expanded functions, dental office leadership, or separate dental hygiene education." }
+    ],
+    specialties: ["Orthodontic assisting","Oral surgery assisting","Expanded functions"]
+  },
+  {
+    title: "Radiologic Technologist",
+    steps: [
+      { heading: "Prepare and train", detail: "Complete an appropriate accredited radiography education program and clinical rotations." },
+      { heading: "Develop clinical skills", detail: "Meet ARRT certification eligibility and pass required examinations." },
+      { heading: "Meet credential requirements", detail: "Obtain state radiologic technologist licensure where required." },
+      { heading: "Advance your career", detail: "Pursue modality-specific education, clinical experience, and credentials as applicable." }
+    ],
+    specialties: ["CT imaging","MRI imaging","Mammography"]
+  },
+  {
+    title: "Diagnostic Medical Sonographer",
+    steps: [
+      { heading: "Prepare and train", detail: "Complete an appropriate accredited sonography program or qualifying certificate route." },
+      { heading: "Develop clinical skills", detail: "Develop supervised scanning and patient-care skills in a clinical setting." },
+      { heading: "Meet credential requirements", detail: "Meet ARDMS, ARRT(S), or CCI credential eligibility requirements for the chosen specialty." },
+      { heading: "Advance your career", detail: "Advance into specialized sonography, teaching, or laboratory leadership." }
+    ],
+    specialties: ["Abdominal sonography","Obstetric and gynecologic sonography","Cardiac sonography"]
   }
 ];
