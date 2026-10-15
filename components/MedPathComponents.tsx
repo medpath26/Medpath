@@ -51,6 +51,7 @@ import {
   subscriptionEvents,
   users
 } from "@/lib/medpath-data";
+import { healthcarePathways } from "@/lib/healthcare-pathways";
 import type { AtlasChatMessage, ViewKey } from "./Common/types";
 
 export function Header({
@@ -472,7 +473,10 @@ export function Dashboard({
   onSaveExamTracker,
   onDeleteExamTracker,
   onHideExamTracker,
-  onNavigate
+  onNavigate,
+  onSwitchPathway,
+  pathwaySwitching,
+  pathwaySwitchError
 }: {
   name: string;
   plan: PlanKey;
@@ -483,6 +487,9 @@ export function Dashboard({
   onDeleteExamTracker: () => Promise<boolean>;
   onHideExamTracker: () => void;
   onNavigate: (view: ViewKey, feature?: FeatureKey) => void;
+  onSwitchPathway: (pathway: string) => Promise<void>;
+  pathwaySwitching: boolean;
+  pathwaySwitchError: string;
 }) {
   const firstName = name.trim().split(" ")[0] || "future healthcare professional";
   const programLabel = program || progress.program;
@@ -683,6 +690,32 @@ const achievements: [string, string][] = [];
             <strong>{progress.streakDays} days</strong>
           </div>
         </div>
+      </section>
+
+      <section className="dashboard-card" aria-label="Active healthcare pathway">
+        <div className="card-head">
+          <div>
+            <p className="eyebrow">Your Learning Path</p>
+            <h3>{programLabel}</h3>
+            <p>Switch careers without discarding your saved pathway snapshot.</p>
+          </div>
+        </div>
+        <label htmlFor="medpath-switch-pathway">Switch Pathway</label>
+        <select
+          id="medpath-switch-pathway"
+          value={program}
+          disabled={pathwaySwitching}
+          onChange={(event) => void onSwitchPathway(event.target.value)}
+        >
+          {healthcarePathways.map((path) => (
+            <option key={path.id} value={path.label}>{path.label}</option>
+          ))}
+          {program && !healthcarePathways.some((path) => path.label === program) && (
+            <option value={program}>{program}</option>
+          )}
+        </select>
+        {pathwaySwitching && <p role="status">Saving and loading your pathway…</p>}
+        {pathwaySwitchError && <p role="alert" className="form-message error-message">{pathwaySwitchError}</p>}
       </section>
 
       {!examTrackerHidden && (
@@ -4280,8 +4313,9 @@ export function AuthModal({
               <option value="" disabled>
                 Select your program
               </option>
-              <option>Medical Assistant</option>
-              <option>Surgical Technologist</option>
+              {healthcarePathways.map((path) => (
+                <option key={path.id} value={path.label}>{path.label}</option>
+              ))}
               <option>Exploring Healthcare Careers</option>
             </select>
             {fieldErrors.program && <small className="field-error" id="auth-program-error">{fieldErrors.program}</small>}
