@@ -3252,7 +3252,7 @@ export function StudyPlan({
             height={760}
           />
           <div className="lesson-rich-text">
-            <p>{'material' in selectedLesson ? selectedLesson.material : selectedLesson.definition}</p>
+            <p>{('material' in selectedLesson && typeof selectedLesson.material === 'string') ? selectedLesson.material : selectedLesson.definition}</p>
             <p>
               {selectedLesson.title} is part of the {selectedModule.title} module and supports your
               readiness for patient care, clinical rotations, and exam-style questions.
