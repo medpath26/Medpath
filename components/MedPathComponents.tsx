@@ -1176,6 +1176,125 @@ export function Practice({ initialMode, plan }: { initialMode: "flashcards" | "p
             "Delayed charting": "Charting is documentation, not real-time communication.",
             "Abbreviated guessing": "Guessing increases risk."
           }
+        },
+        {
+          "topic": "Sterile Technique",
+          "question": "A sterile glove touches an unsterile surface. What is the safest next action?",
+          "choices": [
+            "Continue if the glove looks clean",
+            "Replace the contaminated glove",
+            "Wipe the glove with alcohol",
+            "Ask someone to inspect it"
+          ],
+          "answer": "Replace the contaminated glove",
+          "explanation": "Contact with an unsterile surface contaminates the glove, so it must be replaced.",
+          "incorrect": {
+            "Continue if the glove looks clean": "This does not address the correct clinical or safety principle. Contact with an unsterile surface contaminates the glove, so it must be replaced.",
+            "Wipe the glove with alcohol": "This does not address the correct clinical or safety principle. Contact with an unsterile surface contaminates the glove, so it must be replaced.",
+            "Ask someone to inspect it": "This does not address the correct clinical or safety principle. Contact with an unsterile surface contaminates the glove, so it must be replaced."
+          }
+        },
+        {
+          "topic": "Patient Safety",
+          "question": "During a surgical count, a sponge is missing. What should the team do?",
+          "choices": [
+            "Close the incision quickly",
+            "Document the discrepancy only",
+            "Stop and follow the missing-item protocol",
+            "Assume the count was mistaken"
+          ],
+          "answer": "Stop and follow the missing-item protocol",
+          "explanation": "An unresolved count discrepancy requires immediate investigation using the facility protocol.",
+          "incorrect": {
+            "Close the incision quickly": "This does not address the correct clinical or safety principle. An unresolved count discrepancy requires immediate investigation using the facility protocol.",
+            "Document the discrepancy only": "This does not address the correct clinical or safety principle. An unresolved count discrepancy requires immediate investigation using the facility protocol.",
+            "Assume the count was mistaken": "This does not address the correct clinical or safety principle. An unresolved count discrepancy requires immediate investigation using the facility protocol."
+          }
+        },
+        {
+          "topic": "Surgical Instruments",
+          "question": "Which instrument is commonly used to clamp a bleeding vessel?",
+          "choices": [
+            "Hemostat",
+            "Retractor",
+            "Scalpel",
+            "Suction tip"
+          ],
+          "answer": "Hemostat",
+          "explanation": "A hemostat clamps vessels or tissue to control bleeding.",
+          "incorrect": {
+            "Retractor": "This does not address the correct clinical or safety principle. A hemostat clamps vessels or tissue to control bleeding.",
+            "Scalpel": "This does not address the correct clinical or safety principle. A hemostat clamps vessels or tissue to control bleeding.",
+            "Suction tip": "This does not address the correct clinical or safety principle. A hemostat clamps vessels or tissue to control bleeding."
+          }
+        },
+        {
+          "topic": "Sterile Technique",
+          "question": "Which part of a sterile gown is generally considered sterile?",
+          "choices": [
+            "The entire back",
+            "The front from chest to sterile-field level and sleeves",
+            "The neckline and shoulders only",
+            "The area below the waist"
+          ],
+          "answer": "The front from chest to sterile-field level and sleeves",
+          "explanation": "The gown's designated sterile areas are the front and sleeves; the back and lower areas are not sterile.",
+          "incorrect": {
+            "The entire back": "This does not address the correct clinical or safety principle. The gown's designated sterile areas are the front and sleeves; the back and lower areas are not sterile.",
+            "The neckline and shoulders only": "This does not address the correct clinical or safety principle. The gown's designated sterile areas are the front and sleeves; the back and lower areas are not sterile.",
+            "The area below the waist": "This does not address the correct clinical or safety principle. The gown's designated sterile areas are the front and sleeves; the back and lower areas are not sterile."
+          }
+        },
+        {
+          "topic": "Patient Safety",
+          "question": "Before a patient enters the operating room, what should be verified?",
+          "choices": [
+            "Only the surgeon's name",
+            "Only the procedure time",
+            "Patient identity, planned procedure, and consent",
+            "The patient's preferred meal"
+          ],
+          "answer": "Patient identity, planned procedure, and consent",
+          "explanation": "Verifying identity, procedure, and consent is a key part of surgical safety.",
+          "incorrect": {
+            "Only the surgeon's name": "This does not address the correct clinical or safety principle. Verifying identity, procedure, and consent is a key part of surgical safety.",
+            "Only the procedure time": "This does not address the correct clinical or safety principle. Verifying identity, procedure, and consent is a key part of surgical safety.",
+            "The patient's preferred meal": "This does not address the correct clinical or safety principle. Verifying identity, procedure, and consent is a key part of surgical safety."
+          }
+        },
+        {
+          "topic": "Surgical Instruments",
+          "question": "What is the main function of a retractor?",
+          "choices": [
+            "Cut tissue",
+            "Hold tissue aside for exposure",
+            "Control suction",
+            "Close skin"
+          ],
+          "answer": "Hold tissue aside for exposure",
+          "explanation": "Retractors hold tissue or organs aside to improve visibility and access.",
+          "incorrect": {
+            "Cut tissue": "This does not address the correct clinical or safety principle. Retractors hold tissue or organs aside to improve visibility and access.",
+            "Control suction": "This does not address the correct clinical or safety principle. Retractors hold tissue or organs aside to improve visibility and access.",
+            "Close skin": "This does not address the correct clinical or safety principle. Retractors hold tissue or organs aside to improve visibility and access."
+          }
+        },
+        {
+          "topic": "Sterile Technique",
+          "question": "If a sterile item falls below table level, how should it be treated?",
+          "choices": [
+            "Sterile if picked up immediately",
+            "Sterile if the floor is clean",
+            "Contaminated",
+            "Sterile after a quick rinse"
+          ],
+          "answer": "Contaminated",
+          "explanation": "Items that fall below the sterile field are treated as contaminated.",
+          "incorrect": {
+            "Sterile if picked up immediately": "This does not address the correct clinical or safety principle. Items that fall below the sterile field are treated as contaminated.",
+            "Sterile if the floor is clean": "This does not address the correct clinical or safety principle. Items that fall below the sterile field are treated as contaminated.",
+            "Sterile after a quick rinse": "This does not address the correct clinical or safety principle. Items that fall below the sterile field are treated as contaminated."
+          }
         }
       ]
     },
@@ -1222,6 +1341,125 @@ export function Practice({ initialMode, plan }: { initialMode: "flashcards" | "p
             "Public elevator": "Public spaces are not appropriate for private patient information.",
             "Social media": "Posting patient information can violate privacy.",
             "With friends": "Friends are not authorized care team members."
+          }
+        },
+        {
+          "topic": "Operating Room Procedures",
+          "question": "Who usually coordinates nonsterile activities in the operating room?",
+          "choices": [
+            "Scrub person",
+            "Circulating nurse",
+            "Patient transporter",
+            "Anesthesia machine"
+          ],
+          "answer": "Circulating nurse",
+          "explanation": "The circulator coordinates nonsterile room activities and supports patient safety.",
+          "incorrect": {
+            "Scrub person": "This does not address the correct clinical or safety principle. The circulator coordinates nonsterile room activities and supports patient safety.",
+            "Patient transporter": "This does not address the correct clinical or safety principle. The circulator coordinates nonsterile room activities and supports patient safety.",
+            "Anesthesia machine": "This does not address the correct clinical or safety principle. The circulator coordinates nonsterile room activities and supports patient safety."
+          }
+        },
+        {
+          "topic": "Infection Control",
+          "question": "What is the safest response to a break in sterile technique?",
+          "choices": [
+            "Ignore it if brief",
+            "Notify the team and correct the contamination",
+            "Wait until the case ends",
+            "Cover it with a towel"
+          ],
+          "answer": "Notify the team and correct the contamination",
+          "explanation": "Sterility breaks must be communicated and corrected promptly.",
+          "incorrect": {
+            "Ignore it if brief": "This does not address the correct clinical or safety principle. Sterility breaks must be communicated and corrected promptly.",
+            "Wait until the case ends": "This does not address the correct clinical or safety principle. Sterility breaks must be communicated and corrected promptly.",
+            "Cover it with a towel": "This does not address the correct clinical or safety principle. Sterility breaks must be communicated and corrected promptly."
+          }
+        },
+        {
+          "topic": "Professional Ethics",
+          "question": "A coworker asks about a patient without a care-related reason. What should you do?",
+          "choices": [
+            "Share the details privately",
+            "Decline to share protected information",
+            "Send the chart later",
+            "Discuss it after work"
+          ],
+          "answer": "Decline to share protected information",
+          "explanation": "Patient information is shared only with authorized individuals for legitimate purposes.",
+          "incorrect": {
+            "Share the details privately": "This does not address the correct clinical or safety principle. Patient information is shared only with authorized individuals for legitimate purposes.",
+            "Send the chart later": "This does not address the correct clinical or safety principle. Patient information is shared only with authorized individuals for legitimate purposes.",
+            "Discuss it after work": "This does not address the correct clinical or safety principle. Patient information is shared only with authorized individuals for legitimate purposes."
+          }
+        },
+        {
+          "topic": "Operating Room Procedures",
+          "question": "Why are surgical counts performed?",
+          "choices": [
+            "To estimate supply costs",
+            "To help prevent retained surgical items",
+            "To schedule turnover",
+            "To measure procedure speed"
+          ],
+          "answer": "To help prevent retained surgical items",
+          "explanation": "Counts help prevent sponges, sharps, and instruments from being retained.",
+          "incorrect": {
+            "To estimate supply costs": "This does not address the correct clinical or safety principle. Counts help prevent sponges, sharps, and instruments from being retained.",
+            "To schedule turnover": "This does not address the correct clinical or safety principle. Counts help prevent sponges, sharps, and instruments from being retained.",
+            "To measure procedure speed": "This does not address the correct clinical or safety principle. Counts help prevent sponges, sharps, and instruments from being retained."
+          }
+        },
+        {
+          "topic": "Infection Control",
+          "question": "When should hand hygiene be performed around glove use?",
+          "choices": [
+            "Only before gloves",
+            "Only after gloves",
+            "Before donning and after removing gloves, as indicated",
+            "Never when gloves are worn"
+          ],
+          "answer": "Before donning and after removing gloves, as indicated",
+          "explanation": "Gloves do not replace appropriate hand hygiene.",
+          "incorrect": {
+            "Only before gloves": "This does not address the correct clinical or safety principle. Gloves do not replace appropriate hand hygiene.",
+            "Only after gloves": "This does not address the correct clinical or safety principle. Gloves do not replace appropriate hand hygiene.",
+            "Never when gloves are worn": "This does not address the correct clinical or safety principle. Gloves do not replace appropriate hand hygiene."
+          }
+        },
+        {
+          "topic": "Operating Room Procedures",
+          "question": "What is the purpose of positioning and padding a patient carefully?",
+          "choices": [
+            "To shorten anesthesia",
+            "To prevent pressure and nerve injuries",
+            "To improve instrument storage",
+            "To reduce documentation"
+          ],
+          "answer": "To prevent pressure and nerve injuries",
+          "explanation": "Safe positioning and padding reduce preventable pressure and nerve injuries.",
+          "incorrect": {
+            "To shorten anesthesia": "This does not address the correct clinical or safety principle. Safe positioning and padding reduce preventable pressure and nerve injuries.",
+            "To improve instrument storage": "This does not address the correct clinical or safety principle. Safe positioning and padding reduce preventable pressure and nerve injuries.",
+            "To reduce documentation": "This does not address the correct clinical or safety principle. Safe positioning and padding reduce preventable pressure and nerve injuries."
+          }
+        },
+        {
+          "topic": "Professional Ethics",
+          "question": "You notice a safety concern during a case. What is the best response?",
+          "choices": [
+            "Remain silent",
+            "Report it promptly through the appropriate team process",
+            "Post about it online",
+            "Wait for someone else to act"
+          ],
+          "answer": "Report it promptly through the appropriate team process",
+          "explanation": "Promptly speaking up supports patient safety and professional accountability.",
+          "incorrect": {
+            "Remain silent": "This does not address the correct clinical or safety principle. Promptly speaking up supports patient safety and professional accountability.",
+            "Post about it online": "This does not address the correct clinical or safety principle. Promptly speaking up supports patient safety and professional accountability.",
+            "Wait for someone else to act": "This does not address the correct clinical or safety principle. Promptly speaking up supports patient safety and professional accountability."
           }
         }
       ]
@@ -1270,6 +1508,125 @@ export function Practice({ initialMode, plan }: { initialMode: "flashcards" | "p
             "Lunch schedule": "This does not verify injection safety.",
             "Insurance status": "Insurance status is not part of medication safety checks."
           }
+        },
+        {
+          "topic": "Medical Assisting",
+          "question": "Which vital sign measures the number of heartbeats per minute?",
+          "choices": [
+            "Respiratory rate",
+            "Pulse",
+            "Temperature",
+            "Blood pressure"
+          ],
+          "answer": "Pulse",
+          "explanation": "Pulse rate counts heartbeats per minute.",
+          "incorrect": {
+            "Respiratory rate": "This does not address the correct clinical or safety principle. Pulse rate counts heartbeats per minute.",
+            "Temperature": "This does not address the correct clinical or safety principle. Pulse rate counts heartbeats per minute.",
+            "Blood pressure": "This does not address the correct clinical or safety principle. Pulse rate counts heartbeats per minute."
+          }
+        },
+        {
+          "topic": "Patient Safety",
+          "question": "What should you do if a patient's stated name does not match the chart?",
+          "choices": [
+            "Continue the visit",
+            "Verify identity and resolve the discrepancy",
+            "Change the chart without checking",
+            "Use the room number instead"
+          ],
+          "answer": "Verify identity and resolve the discrepancy",
+          "explanation": "Identity discrepancies must be resolved before care or specimen collection.",
+          "incorrect": {
+            "Continue the visit": "This does not address the correct clinical or safety principle. Identity discrepancies must be resolved before care or specimen collection.",
+            "Change the chart without checking": "This does not address the correct clinical or safety principle. Identity discrepancies must be resolved before care or specimen collection.",
+            "Use the room number instead": "This does not address the correct clinical or safety principle. Identity discrepancies must be resolved before care or specimen collection."
+          }
+        },
+        {
+          "topic": "Medical Terminology",
+          "question": "What does the suffix -itis mean?",
+          "choices": [
+            "Inflammation",
+            "Removal",
+            "Pain",
+            "Enlargement"
+          ],
+          "answer": "Inflammation",
+          "explanation": "The suffix -itis means inflammation.",
+          "incorrect": {
+            "Removal": "This does not address the correct clinical or safety principle. The suffix -itis means inflammation.",
+            "Pain": "This does not address the correct clinical or safety principle. The suffix -itis means inflammation.",
+            "Enlargement": "This does not address the correct clinical or safety principle. The suffix -itis means inflammation."
+          }
+        },
+        {
+          "topic": "Medical Assisting",
+          "question": "Which action helps prevent specimen labeling errors?",
+          "choices": [
+            "Label specimens later at the desk",
+            "Label at collection using verified patient identifiers",
+            "Use only the room number",
+            "Ask another patient to confirm"
+          ],
+          "answer": "Label at collection using verified patient identifiers",
+          "explanation": "Specimens should be labeled promptly using verified patient identifiers.",
+          "incorrect": {
+            "Label specimens later at the desk": "This does not address the correct clinical or safety principle. Specimens should be labeled promptly using verified patient identifiers.",
+            "Use only the room number": "This does not address the correct clinical or safety principle. Specimens should be labeled promptly using verified patient identifiers.",
+            "Ask another patient to confirm": "This does not address the correct clinical or safety principle. Specimens should be labeled promptly using verified patient identifiers."
+          }
+        },
+        {
+          "topic": "Patient Safety",
+          "question": "A patient feels faint during a blood draw. What should the medical assistant do first?",
+          "choices": [
+            "Continue quickly",
+            "Stop the procedure and protect the patient from falling",
+            "Ask the patient to stand",
+            "Leave the room"
+          ],
+          "answer": "Stop the procedure and protect the patient from falling",
+          "explanation": "Stop the procedure and help keep the patient safe while seeking appropriate assistance.",
+          "incorrect": {
+            "Continue quickly": "This does not address the correct clinical or safety principle. Stop the procedure and help keep the patient safe while seeking appropriate assistance.",
+            "Ask the patient to stand": "This does not address the correct clinical or safety principle. Stop the procedure and help keep the patient safe while seeking appropriate assistance.",
+            "Leave the room": "This does not address the correct clinical or safety principle. Stop the procedure and help keep the patient safe while seeking appropriate assistance."
+          }
+        },
+        {
+          "topic": "Medical Terminology",
+          "question": "Which term refers to a fast heart rate?",
+          "choices": [
+            "Bradycardia",
+            "Tachycardia",
+            "Apnea",
+            "Hypothermia"
+          ],
+          "answer": "Tachycardia",
+          "explanation": "Tachycardia refers to an abnormally fast heart rate.",
+          "incorrect": {
+            "Bradycardia": "This does not address the correct clinical or safety principle. Tachycardia refers to an abnormally fast heart rate.",
+            "Apnea": "This does not address the correct clinical or safety principle. Tachycardia refers to an abnormally fast heart rate.",
+            "Hypothermia": "This does not address the correct clinical or safety principle. Tachycardia refers to an abnormally fast heart rate."
+          }
+        },
+        {
+          "topic": "Medical Assisting",
+          "question": "What is a key reason to document care promptly?",
+          "choices": [
+            "To avoid speaking with patients",
+            "To support accurate, timely clinical records",
+            "To replace verbal communication",
+            "To reduce patient identification"
+          ],
+          "answer": "To support accurate, timely clinical records",
+          "explanation": "Timely documentation supports continuity of care and accurate records.",
+          "incorrect": {
+            "To avoid speaking with patients": "This does not address the correct clinical or safety principle. Timely documentation supports continuity of care and accurate records.",
+            "To replace verbal communication": "This does not address the correct clinical or safety principle. Timely documentation supports continuity of care and accurate records.",
+            "To reduce patient identification": "This does not address the correct clinical or safety principle. Timely documentation supports continuity of care and accurate records."
+          }
         }
       ]
     },
@@ -1316,6 +1673,125 @@ export function Practice({ initialMode, plan }: { initialMode: "flashcards" | "p
             Yes: "Gloves can become contaminated and do not replace hand cleaning.",
             "Only in surgery": "Hand hygiene is still required in surgical workflows.",
             "Only during transport": "Transport does not remove hand hygiene requirements."
+          }
+        },
+        {
+          "topic": "Sterile Processing",
+          "question": "What should happen before instruments are packaged for sterilization?",
+          "choices": [
+            "Cleaning and inspection",
+            "Immediate storage",
+            "Only counting",
+            "Applying patient labels"
+          ],
+          "answer": "Cleaning and inspection",
+          "explanation": "Instruments should be cleaned, inspected, and prepared before packaging.",
+          "incorrect": {
+            "Immediate storage": "This does not address the correct clinical or safety principle. Instruments should be cleaned, inspected, and prepared before packaging.",
+            "Only counting": "This does not address the correct clinical or safety principle. Instruments should be cleaned, inspected, and prepared before packaging.",
+            "Applying patient labels": "This does not address the correct clinical or safety principle. Instruments should be cleaned, inspected, and prepared before packaging."
+          }
+        },
+        {
+          "topic": "Infection Control",
+          "question": "Why is appropriate PPE important during decontamination?",
+          "choices": [
+            "It replaces hand hygiene",
+            "It reduces exposure to contaminated materials",
+            "It guarantees sterility",
+            "It removes all hazards"
+          ],
+          "answer": "It reduces exposure to contaminated materials",
+          "explanation": "PPE helps protect personnel from splashes and contaminated instruments.",
+          "incorrect": {
+            "It replaces hand hygiene": "This does not address the correct clinical or safety principle. PPE helps protect personnel from splashes and contaminated instruments.",
+            "It guarantees sterility": "This does not address the correct clinical or safety principle. PPE helps protect personnel from splashes and contaminated instruments.",
+            "It removes all hazards": "This does not address the correct clinical or safety principle. PPE helps protect personnel from splashes and contaminated instruments."
+          }
+        },
+        {
+          "topic": "Surgical Instruments",
+          "question": "What should you do with a cracked or damaged instrument?",
+          "choices": [
+            "Return it to the tray",
+            "Remove it from service and follow reporting procedures",
+            "Hide the damage",
+            "Sterilize it twice"
+          ],
+          "answer": "Remove it from service and follow reporting procedures",
+          "explanation": "Damaged instruments should be removed from service for safety.",
+          "incorrect": {
+            "Return it to the tray": "This does not address the correct clinical or safety principle. Damaged instruments should be removed from service for safety.",
+            "Hide the damage": "This does not address the correct clinical or safety principle. Damaged instruments should be removed from service for safety.",
+            "Sterilize it twice": "This does not address the correct clinical or safety principle. Damaged instruments should be removed from service for safety."
+          }
+        },
+        {
+          "topic": "Sterile Processing",
+          "question": "Why must hinged instruments be positioned according to manufacturer instructions during processing?",
+          "choices": [
+            "For appearance only",
+            "To allow effective cleaning and sterilant contact",
+            "To save labels",
+            "To increase tray weight"
+          ],
+          "answer": "To allow effective cleaning and sterilant contact",
+          "explanation": "Correct positioning supports cleaning and sterilant contact with instrument surfaces.",
+          "incorrect": {
+            "For appearance only": "This does not address the correct clinical or safety principle. Correct positioning supports cleaning and sterilant contact with instrument surfaces.",
+            "To save labels": "This does not address the correct clinical or safety principle. Correct positioning supports cleaning and sterilant contact with instrument surfaces.",
+            "To increase tray weight": "This does not address the correct clinical or safety principle. Correct positioning supports cleaning and sterilant contact with instrument surfaces."
+          }
+        },
+        {
+          "topic": "Infection Control",
+          "question": "What does a biological indicator help evaluate?",
+          "choices": [
+            "Staff attendance",
+            "Sterilization process effectiveness",
+            "Tray appearance",
+            "Patient scheduling"
+          ],
+          "answer": "Sterilization process effectiveness",
+          "explanation": "Biological indicators challenge and monitor the effectiveness of a sterilization process.",
+          "incorrect": {
+            "Staff attendance": "This does not address the correct clinical or safety principle. Biological indicators challenge and monitor the effectiveness of a sterilization process.",
+            "Tray appearance": "This does not address the correct clinical or safety principle. Biological indicators challenge and monitor the effectiveness of a sterilization process.",
+            "Patient scheduling": "This does not address the correct clinical or safety principle. Biological indicators challenge and monitor the effectiveness of a sterilization process."
+          }
+        },
+        {
+          "topic": "Sterile Processing",
+          "question": "What information is important when selecting a sterilization cycle?",
+          "choices": [
+            "Instrument color",
+            "Manufacturer instructions for the device and sterilizer",
+            "Room temperature alone",
+            "Tray owner's preference"
+          ],
+          "answer": "Manufacturer instructions for the device and sterilizer",
+          "explanation": "Validated manufacturer instructions guide safe processing parameters.",
+          "incorrect": {
+            "Instrument color": "This does not address the correct clinical or safety principle. Validated manufacturer instructions guide safe processing parameters.",
+            "Room temperature alone": "This does not address the correct clinical or safety principle. Validated manufacturer instructions guide safe processing parameters.",
+            "Tray owner's preference": "This does not address the correct clinical or safety principle. Validated manufacturer instructions guide safe processing parameters."
+          }
+        },
+        {
+          "topic": "Surgical Instruments",
+          "question": "Why should a lumened instrument receive special cleaning attention?",
+          "choices": [
+            "It is always disposable",
+            "Internal channels can retain soil",
+            "It never needs inspection",
+            "It cannot be sterilized"
+          ],
+          "answer": "Internal channels can retain soil",
+          "explanation": "Internal channels may trap soil and require specified cleaning methods.",
+          "incorrect": {
+            "It is always disposable": "This does not address the correct clinical or safety principle. Internal channels may trap soil and require specified cleaning methods.",
+            "It never needs inspection": "This does not address the correct clinical or safety principle. Internal channels may trap soil and require specified cleaning methods.",
+            "It cannot be sterilized": "This does not address the correct clinical or safety principle. Internal channels may trap soil and require specified cleaning methods."
           }
         }
       ]
