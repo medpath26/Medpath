@@ -1055,7 +1055,7 @@ export function Atlas({
   );
 }
 
-export function Practice({ initialMode, plan }: { initialMode: "flashcards" | "practiceExams"; plan: PlanKey }) {
+export function Practice({ initialMode, plan, program }: { initialMode: "flashcards" | "practiceExams"; plan: PlanKey; program: string }) {
   const [studyMode, setStudyMode] = useState<"flashcards" | "practiceExams">(initialMode);
   const flashcards = [
     {
@@ -1798,6 +1798,15 @@ export function Practice({ initialMode, plan }: { initialMode: "flashcards" | "p
     }
   ];
   const isFree = plan === "explorer";
+  const normalizedProgram = program.trim().toLowerCase();
+  const isSurgicalPath = normalizedProgram.includes("surgical") || normalizedProgram.includes("surgery");
+  const isMedicalAssistantPath = normalizedProgram.includes("medical assistant") || normalizedProgram.includes("medical assisting");
+  const isSterileProcessingPath = normalizedProgram.includes("sterile processing");
+  const matchingExams = practiceExams.filter((exam) =>
+    isSurgicalPath ? ["ncct-tsc", "cst"].includes(exam.id) :
+    isMedicalAssistantPath ? exam.id === "medical-assistant" :
+    isSterileProcessingPath ? exam.id === "sterile-processing" : true
+  );
   const [selectedExamId, setSelectedExamId] = useState(practiceExams[0].id);
   const [examStatus, setExamStatus] = useState<"home" | "active" | "results" | "review">("home");
   const [examQuestionIndex, setExamQuestionIndex] = useState(0);
@@ -1805,7 +1814,7 @@ export function Practice({ initialMode, plan }: { initialMode: "flashcards" | "p
   const [flaggedQuestions, setFlaggedQuestions] = useState<number[]>([]);
   const [secondsRemaining, setSecondsRemaining] = useState(20 * 60);
   const [timeTakenSeconds, setTimeTakenSeconds] = useState(0);
-  const selectedExam = practiceExams.find((exam) => exam.id === selectedExamId) ?? practiceExams[0];
+  const selectedExam = matchingExams.find((exam) => exam.id === selectedExamId) ?? matchingExams[0];
   const availableExamQuestions = isFree ? selectedExam.items.slice(0, 10) : selectedExam.items;
   const activeExamQuestion = availableExamQuestions[examQuestionIndex];
   const answeredCount = Object.keys(examAnswers).length;
@@ -1850,6 +1859,14 @@ export function Practice({ initialMode, plan }: { initialMode: "flashcards" | "p
     "Medical Terminology",
     "Infection Control"
   ];
+  const relevantCategories = isSurgicalPath
+    ? ["Surgical Technology", "Anatomy", "Medical Terminology", "Infection Control"]
+    : isMedicalAssistantPath
+      ? ["Medical Assisting", "Anatomy", "Medical Terminology", "Infection Control"]
+      : isSterileProcessingPath
+        ? ["Sterile Processing", "Infection Control"]
+        : categories.filter((item) => item !== "All");
+  const visibleCategories = ["All", ...relevantCategories];
   const [category, setCategory] = useState("All");
   const [difficulty, setDifficulty] = useState("All");
   const [search, setSearch] = useState("");
@@ -1863,10 +1880,11 @@ export function Practice({ initialMode, plan }: { initialMode: "flashcards" | "p
   const filteredCards = useMemo(() => {
     const query = search.trim().toLowerCase();
     const cards = flashcards.filter((card) => {
+      const matchesPath = relevantCategories.includes(card.category);
       const matchesCategory = category === "All" || card.category === category;
       const matchesDifficulty = difficulty === "All" || card.difficulty === difficulty;
       const matchesSearch = !query || `${card.front} ${card.back} ${card.category}`.toLowerCase().includes(query);
-      return matchesCategory && matchesDifficulty && matchesSearch;
+      return matchesPath && matchesCategory && matchesDifficulty && matchesSearch;
     });
 
     if (shuffleSeed % 2 === 1) {
@@ -1874,8 +1892,9 @@ export function Practice({ initialMode, plan }: { initialMode: "flashcards" | "p
     }
 
     return cards;
-  }, [category, difficulty, search, shuffleSeed]);
-  const activeCards = filteredCards.length ? filteredCards : flashcards;
+  }, [category, difficulty, search, shuffleSeed, program]);
+  const pathCards = flashcards.filter((card) => relevantCategories.includes(card.category));
+  const activeCards = filteredCards.length ? filteredCards : pathCards;
   const activeIndex = Math.min(cardIndex, activeCards.length - 1);
   const currentCard = activeCards[activeIndex];
   const currentCardKey = `${currentCard.category}-${currentCard.front}`;
@@ -1910,6 +1929,7 @@ export function Practice({ initialMode, plan }: { initialMode: "flashcards" | "p
   }
 
   function startExam(examId: string) {
+    if (!matchingExams.some((exam) => exam.id === examId)) return;
     setSelectedExamId(examId);
     setExamStatus("active");
     setExamQuestionIndex(0);
@@ -1977,7 +1997,7 @@ export function Practice({ initialMode, plan }: { initialMode: "flashcards" | "p
         <div className="practice-exam-page">
           {examStatus === "home" && (
             <section className="exam-home-grid">
-              {practiceExams.map((exam) => (
+              {matchingExams.map((exam) => (
                 <article className="exam-card-premium" key={exam.id}>
                   <div className="card-head">
                     <h3>{exam.title}</h3>
@@ -2158,7 +2178,7 @@ export function Practice({ initialMode, plan }: { initialMode: "flashcards" | "p
               resetPosition();
             }}
           >
-            {categories.map((item) => (
+            {visibleCategories.map((item) => (
               <option key={item}>{item}</option>
             ))}
           </select>
