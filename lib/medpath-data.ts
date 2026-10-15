@@ -288,49 +288,7 @@ xp: 0,
   nextMilestone: "Certification",
   recommendedTopic: "Instrumentation and sterile field maintenance",
   upcomingGoals: [],
-    {
-      id: "goal-sterile-technique",
-      title: "Review sterile technique scenarios",
-      due: "Today",
-      minutes: 25,
-      status: "ready"
-    },
-    {
-      id: "goal-vitals",
-      title: "Complete vital signs flashcards",
-      due: "Tomorrow",
-      minutes: 15,
-      status: "scheduled"
-    },
-    {
-      id: "goal-practice-exam",
-      title: "Take a 30-question readiness check",
-      due: "Friday",
-      minutes: 45,
-      status: "in_progress"
-    }
-  ],
  recentActivity: [],
-    {
-      id: "activity-sterile-quiz",
-      title: "Sterile technique quiz",
-      detail: "Completed with focused improvement on contamination rules.",
-      time: "Today",
-      score: 88
-    },
-    {
-      id: "activity-atlas",
-      title: "Atlas study session",
-      detail: "Reviewed test anxiety plan and next-step study rhythm.",
-      time: "Yesterday"
-    },
-    {
-      id: "activity-badge",
-      title: "Clinical Ready badge",
-      detail: "Earned after finishing patient interaction checklist.",
-      time: "2 days ago"
-    }
-  ],
   learningModules: [
     {
       id: "module-quiz",
