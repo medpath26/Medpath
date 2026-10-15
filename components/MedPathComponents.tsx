@@ -504,63 +504,43 @@ export function Dashboard({
   const daysRemaining = examDateValue
     ? Math.max(0, Math.ceil((examDateValue.getTime() - Date.now()) / 86400000))
     : 0;
-  const todayGoal = progress.upcomingGoals[0] ?? {
-    id: "default-goal",
-    title: "Complete Sterile Technique Module",
-    due: "Today",
-    minutes: 35,
-    status: "in_progress"
-  };
-  const learningProgress = [
-    {
-      title: "Surgical Technology",
-      completion: Math.max(progress.pathProgress, 68),
-      modules: "12/18 modules",
-      view: "study" as ViewKey,
-      feature: "studyPlans" as FeatureKey
-    },
-    {
-      title: "Medical Assisting",
-      completion: Math.max(progress.weeklyProgress, 54),
-      modules: "9/16 modules",
-      view: "study" as ViewKey,
-      feature: "studyPlans" as FeatureKey
-    },
-    {
-      title: "Phlebotomy",
-      completion: 42,
-      modules: "5/12 modules",
-      view: "practice" as ViewKey,
-      feature: "practice" as FeatureKey
-    },
-    {
-      title: "Sterile Processing",
-      completion: 76,
-      modules: "10/13 modules",
-      view: "clinical" as ViewKey,
-      feature: "clinicalPrep" as FeatureKey
-    }
-  ];
+ const todayGoal = progress.upcomingGoals[0] ?? {
+  id: "default-goal",
+  title: "No study goal set yet",
+  due: "Not scheduled",
+  minutes: 0,
+  status: "ready"
+};
+  const learningProgress = programLabel.trim()
+  ? [
+      {
+        title: programLabel,
+        completion: progress.pathProgress,
+        modules: `${
+          progress.learningModules.filter(
+            (module) => module.status === "Complete"
+          ).length
+        }/${progress.learningModules.length} modules`,
+        view: "study" as ViewKey,
+        feature: "studyPlans" as FeatureKey
+      }
+    ]
+  : [];
   const studyStats = [
-    ["Hours Studied", "18.5", <CalendarClock key="hours" />],
-    ["Lessons Completed", `${progress.learningModules.filter((module) => module.status === "Complete").length + 12}`, <BookOpen key="lessons" />],
-    ["Quiz Average", "84%", <Brain key="quiz" />],
-    ["Practice Exams Completed", plan === "pro_student" || plan === "administrator" ? "3" : "1", <ClipboardCheck key="exams" />],
-    ["Current Streak", `${progress.streakDays} days`, <Sparkles key="streak" />]
+  ["Hours Studied", "0", <CalendarClock key="hours" />],
+  ["Lessons Completed", `${progress.learningModules.filter((module) => module.status === "Complete").length}`, <BookOpen key="lessons" />],
+  ["Quiz Average", "—", <Brain key="quiz" />],
+  ["Practice Exams Completed", "0", <ClipboardCheck key="exams" />],
+  ["Current Streak", `${progress.streakDays} days`, <Sparkles key="streak" />]
+] as const;
   ] as const;
-  const recentTimeline = [
-    { title: "Completed Lesson", detail: progress.learningModules[0]?.title ?? "Sterile Technique Module", time: "Newest", icon: <Check /> },
-    { title: "Passed Quiz", detail: `${progress.recommendedTopic} practice set`, time: "Today", icon: <Trophy /> },
-    { title: "Atlas Session", detail: "Reviewed certification study strategy", time: "Yesterday", icon: <MessageCircleHeart /> },
-    { title: "Flashcards Reviewed", detail: "High-yield clinical terms", time: "2 days ago", icon: <BookOpen /> }
-  ];
-  const achievements = [
-    ["🔥", "7 Day Streak"],
-    ["⭐", "Quiz Master"],
-    ["🏆", "Anatomy Expert"],
-    ["🎓", "First Module Complete"],
-    ["💯", "Perfect Score"]
-  ];
+const recentTimeline = progress.recentActivity.map((activity) => ({
+  title: activity.title,
+  detail: activity.detail,
+  time: activity.time,
+  icon: <BookOpen />
+}));
+const achievements: [string, string][] = [];
   const motivationMessages = [
     "Small progress every day creates big results.",
     "You're one study session closer to certification.",
@@ -843,12 +823,12 @@ export function Dashboard({
             <div className="card-head">
               <div>
                 <p className="eyebrow">Today's Goal</p>
-                <h3>{todayGoal.title || "Complete Sterile Technique Module"}</h3>
+               <h3>{todayGoal.title}</h3>
               </div>
               <Target />
             </div>
             <div className="progress-bar" aria-label={`${todayGoalComplete ? 100 : progress.weeklyProgress}% today's goal progress`}>
-              <span style={{ width: `${todayGoalComplete ? 100 : Math.max(progress.weeklyProgress, 35)}%` }} />
+              <span style={{ width: `${todayGoalComplete ? 100 : progress.weeklyProgress
             </div>
             <div className="goal-card-footer">
               <span>{todayGoalComplete ? "Completed" : `${todayGoal.minutes || 35} min remaining`}</span>
@@ -953,22 +933,21 @@ export function Dashboard({
             </button>
           </article>
           <article className="dashboard-card">
-            <small>Study Time This Week</small>
-            <strong>6h 40m</strong>
+            <strong>0h 0m</strong>
             <div className="progress-bar">
               <span style={{ width: `${progress.weeklyProgress}%` }} />
             </div>
           </article>
           <article className="dashboard-card">
             <small>Upcoming Goals</small>
-            <ul className="sidebar-goal-list">
-              {(progress.upcomingGoals.length ? progress.upcomingGoals : [todayGoal]).map((goal) => (
-                <li key={goal.id}>
-                  <strong>{goal.title}</strong>
-                  <span>{goal.due} · {goal.minutes} min</span>
-                </li>
-              ))}
-            </ul>
+           <ul className="sidebar-goal-list">
+  {progress.upcomingGoals.map((goal) => (
+    <li key={goal.id}>
+      <strong>{goal.title}</strong>
+      <span>{goal.due} · {goal.minutes} min</span>
+    </li>
+  ))}
+</ul>
           </article>
           <article className="dashboard-card announcement-card">
             <small>Latest Announcement</small>
