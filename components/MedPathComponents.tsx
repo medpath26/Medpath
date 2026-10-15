@@ -533,7 +533,6 @@ export function Dashboard({
   ["Practice Exams Completed", "0", <ClipboardCheck key="exams" />],
   ["Current Streak", `${progress.streakDays} days`, <Sparkles key="streak" />]
 ] as const;
-  ] as const;
 const recentTimeline = progress.recentActivity.map((activity) => ({
   title: activity.title,
   detail: activity.detail,
