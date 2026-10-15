@@ -48,7 +48,6 @@ import {
   plans,
   roleBadges,
   studentProgressSeed,
-  subscriptionEvents,
   users
 } from "@/lib/medpath-data";
 import { healthcarePathways } from "@/lib/healthcare-pathways";
@@ -4189,32 +4188,6 @@ export function Billing({
               </button>
             ))}
           </div>
-        </article>
-        <article className="panel wide">
-          <div className="card-head">
-            <h3>Billing history</h3>
-            <CircleDollarSign />
-          </div>
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Event</th>
-                <th>Status</th>
-                <th>Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {subscriptionEvents.map((event) => (
-                <tr key={`${event.date}-${event.event}`}>
-                  <td>{event.date}</td>
-                  <td>{event.event}</td>
-                  <td>{event.status}</td>
-                  <td>{event.amount}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </article>
       </section>
       )}
