@@ -1043,6 +1043,7 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
             {view === "study" && (
               <StudyPlan
                 plan={plan}
+                program={program}
                 examDate={examDate}
                 studyHours={studyHours}
                 schedule={generatedSchedule}
