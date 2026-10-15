@@ -859,7 +859,7 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
         ? { ...savedPath.progress_data, userId: authUser.id, program: nextPathway }
         : { ...studentProgressSeed, userId: authUser.id, program: nextPathway,
             certificationGoal: "", examDate: "", weeklyProgress: 0, pathProgress: 0,
-            streakDays: 0, xp: 0, level: 1, upcomingGoals: [], recentActivity: [],
+            streakDays: 0, xp: 0, level: "1", upcomingGoals: [], recentActivity: [],
             learningModules: [] };
       if (!savedPath) {
         const { error: createError } = await supabase.from("pathway_progress").insert({
