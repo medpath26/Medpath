@@ -706,7 +706,7 @@ const achievements: [string, string][] = [];
           disabled={pathwaySwitching}
           onChange={(event) => void onSwitchPathway(event.target.value)}
         >
-          {healthcarePathways.map((path) => (
+          {[...healthcarePathways].sort((a, b) => a.label.localeCompare(b.label)).map((path) => (
             <option key={path.id} value={path.label}>{path.label}</option>
           ))}
           {program && !healthcarePathways.some((path) => path.label === program) && (
@@ -3662,10 +3662,8 @@ export function CareerExplorer({ plan }: { plan: PlanKey }) {
       .filter((career): career is CareerPath => Boolean(career)),
     ...careers.filter((career) => !requiredCareerTitles.includes(career.title))
   ];
-  const salaryValue = (salary: string) => Number(salary.replace(/[^\d.]/g, "")) || 0;
-  const availableCareers = [...orderedCareers].sort(
-    (first, second) =>
-      salaryValue(second.salary) - salaryValue(first.salary) || first.title.localeCompare(second.title)
+  const availableCareers = [...orderedCareers].sort((first, second) =>
+    first.title.localeCompare(second.title)
   );
   const filteredCareers = availableCareers.filter((career) => {
     const query = careerSearch.trim().toLowerCase();
@@ -4351,7 +4349,7 @@ export function AuthModal({
               <option value="" disabled>
                 Select your program
               </option>
-              {healthcarePathways.map((path) => (
+              {[...healthcarePathways].sort((a, b) => a.label.localeCompare(b.label)).map((path) => (
                 <option key={path.id} value={path.label}>{path.label}</option>
               ))}
               <option>Exploring Healthcare Careers</option>
