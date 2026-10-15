@@ -2037,7 +2037,7 @@ export function Practice({ initialMode, plan, program }: { initialMode: "flashca
     <div className="flashcards-page">
       <div className="page-title">
         <p className="eyebrow">PathPrep</p>
-        {isFree && <p>Free preview: up to 10 practice questions per exam. Upgrade for full exam access.</p>}
+        {isFree && studyMode === "practiceExams" && <p>Free preview: up to 10 practice questions per exam. Upgrade for full exam access.</p>}
         <h2>{studyMode === "practiceExams" ? "Practice Exams" : "Flashcards"}</h2>
         <p>
           {studyMode === "practiceExams"
@@ -2274,7 +2274,7 @@ export function Practice({ initialMode, plan, program }: { initialMode: "flashca
       {filteredCards.length === 0 && (
         <section className="panel flashcard-empty">
           <strong>No exact matches found.</strong>
-          <p>Showing the full MedPath flashcard deck so your study session never goes blank.</p>
+          <p>Showing your pathway flashcards instead. Clear the filters to see all matching cards.</p>
         </section>
       )}
 
@@ -2282,7 +2282,7 @@ export function Practice({ initialMode, plan, program }: { initialMode: "flashca
         <Metric title="Cards Studied" value={`${studiedCount}`} icon={<BookOpen />} />
         <Metric title="Cards Remaining" value={`${cardsRemaining}`} icon={<Target />} />
         <Metric title="Accuracy" value={`${accuracy}%`} icon={<BarChart3 />} />
-        <Metric title="Study Streak" value="7 days" icon={<Sparkles />} />
+        <Metric title="Cards in Path" value={`${pathCards.length}`} icon={<Sparkles />} />
         <div className="flashcard-progress-wide">
           <span>{progressValue}% complete</span>
           <div className="progress-bar" aria-label={`${progressValue}% flashcard progress`}>
