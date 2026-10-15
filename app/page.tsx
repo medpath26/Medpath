@@ -1039,7 +1039,7 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
                 isChatDisabled={plan === "explorer" && memberAtlasQuestionCount >= 3}
               />
             )}
-            {view === "practice" && <Practice initialMode={practiceMode} plan={plan} />}
+            {view === "practice" && <Practice initialMode={practiceMode} plan={plan} program={program} />}
             {view === "study" && (
               <StudyPlan
                 plan={plan}

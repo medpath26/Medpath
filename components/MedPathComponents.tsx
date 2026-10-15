@@ -1055,7 +1055,7 @@ export function Atlas({
   );
 }
 
-export function Practice({ initialMode, plan }: { initialMode: "flashcards" | "practiceExams"; plan: PlanKey }) {
+export function Practice({ initialMode, plan, program }: { initialMode: "flashcards" | "practiceExams"; plan: PlanKey; program: string }) {
   const [studyMode, setStudyMode] = useState<"flashcards" | "practiceExams">(initialMode);
   const flashcards = [
     {
@@ -1130,6 +1130,78 @@ export function Practice({ initialMode, plan }: { initialMode: "flashcards" | "p
       front: "PPE",
       back: "Personal protective equipment used to reduce exposure to infectious material."
     }
+,
+    {"category":"Surgical Technology","difficulty":"Intermediate","front":"Aseptic technique","back":"Practices that prevent contamination by microorganisms."},
+    {"category":"Surgical Technology","difficulty":"Beginner","front":"Surgical time-out","back":"Team confirmation of patient identity, procedure, site, and key safety concerns before incision."},
+    {"category":"Surgical Technology","difficulty":"Beginner","front":"Circulating nurse","back":"Nonsterile team member who coordinates patient care and room activities."},
+    {"category":"Surgical Technology","difficulty":"Beginner","front":"Scrub role","back":"Maintains the sterile field and manages sterile instruments and supplies."},
+    {"category":"Surgical Technology","difficulty":"Beginner","front":"Hemostat","back":"Instrument used to clamp blood vessels or tissue."},
+    {"category":"Surgical Technology","difficulty":"Intermediate","front":"Retractor","back":"Instrument that holds tissue aside to improve surgical exposure."},
+    {"category":"Surgical Technology","difficulty":"Beginner","front":"Forceps","back":"Instrument used to grasp or manipulate tissue and materials."},
+    {"category":"Surgical Technology","difficulty":"Beginner","front":"Scalpel","back":"Sharp instrument used to make surgical incisions."},
+    {"category":"Surgical Technology","difficulty":"Beginner","front":"Needle holder","back":"Instrument used to hold and guide a suture needle."},
+    {"category":"Surgical Technology","difficulty":"Beginner","front":"Surgical count","back":"Accounting for sponges, sharps, and instruments to prevent retained items."},
+    {"category":"Surgical Technology","difficulty":"Intermediate","front":"Sterile gown","back":"Protective garment with defined sterile areas on the front and sleeves."},
+    {"category":"Surgical Technology","difficulty":"Beginner","front":"Closed-loop communication","back":"Repeating and confirming a message to verify it was received correctly."},
+    {"category":"Surgical Technology","difficulty":"Beginner","front":"Contaminated wrapper","back":"A torn or wet sterile package cannot be assumed sterile."},
+    {"category":"Surgical Technology","difficulty":"Beginner","front":"Surgical positioning","back":"Placing and padding the patient to allow access while reducing injury risk."},
+    {"category":"Surgical Technology","difficulty":"Beginner","front":"Sharps safety","back":"Handle and dispose of needles and blades using approved safety practices."},
+    {"category":"Surgical Technology","difficulty":"Intermediate","front":"Electrosurgery","back":"Use of electrical energy to cut or coagulate tissue."},
+    {"category":"Surgical Technology","difficulty":"Beginner","front":"Suction tip","back":"Device used to remove fluids from the operative field."},
+    {"category":"Surgical Technology","difficulty":"Beginner","front":"Specimen handling","back":"Label and transfer surgical specimens according to the facility's protocol."},
+    {"category":"Surgical Technology","difficulty":"Beginner","front":"Suture","back":"Material used to approximate tissue or secure structures."},
+    {"category":"Surgical Technology","difficulty":"Beginner","front":"Surgical draping","back":"Placing sterile barriers to establish and maintain the sterile field."},
+    {"category":"Surgical Technology","difficulty":"Intermediate","front":"Break in sterile technique","back":"Notify the team and correct contamination immediately."},
+    {"category":"Surgical Technology","difficulty":"Beginner","front":"Instrument passing","back":"Present the correct instrument safely and in the orientation needed."},
+    {"category":"Surgical Technology","difficulty":"Beginner","front":"Case preparation","back":"Verify equipment, instruments, supplies, and procedure requirements before surgery."}
+,
+    {"category":"Medical Assisting","difficulty":"Intermediate","front":"Two patient identifiers","back":"Verify identity using two approved identifiers, not a room number."},
+    {"category":"Medical Assisting","difficulty":"Beginner","front":"Pulse rate","back":"Number of heartbeats per minute."},
+    {"category":"Medical Assisting","difficulty":"Beginner","front":"Respiratory rate","back":"Number of breaths per minute."},
+    {"category":"Medical Assisting","difficulty":"Beginner","front":"Blood pressure","back":"Measurement of pressure in arteries during heart contraction and relaxation."},
+    {"category":"Medical Assisting","difficulty":"Beginner","front":"Temperature","back":"Vital sign indicating the body's thermal state."},
+    {"category":"Medical Assisting","difficulty":"Intermediate","front":"SpO2","back":"Estimated peripheral oxygen saturation measured by pulse oximetry."},
+    {"category":"Medical Assisting","difficulty":"Beginner","front":"Chief complaint","back":"The main reason a patient seeks care."},
+    {"category":"Medical Assisting","difficulty":"Beginner","front":"Medication reconciliation","back":"Comparing a patient's medication list with current orders and use."},
+    {"category":"Medical Assisting","difficulty":"Beginner","front":"Allergy verification","back":"Confirm documented allergies and reactions before relevant care."},
+    {"category":"Medical Assisting","difficulty":"Beginner","front":"Standard precautions","back":"Infection prevention practices applied to all patients."},
+    {"category":"Medical Assisting","difficulty":"Intermediate","front":"Hand hygiene","back":"Clean hands at appropriate moments before and after patient contact."},
+    {"category":"Medical Assisting","difficulty":"Beginner","front":"Specimen labeling","back":"Label specimens at collection using verified patient identifiers."},
+    {"category":"Medical Assisting","difficulty":"Beginner","front":"Venipuncture","back":"Collection of a blood specimen from a vein."},
+    {"category":"Medical Assisting","difficulty":"Beginner","front":"Sharps container","back":"Puncture-resistant container for approved disposal of used sharps."},
+    {"category":"Medical Assisting","difficulty":"Beginner","front":"Electrocardiogram (ECG)","back":"Recording of the heart's electrical activity."},
+    {"category":"Medical Assisting","difficulty":"Intermediate","front":"Patient consent","back":"Authorization for care after appropriate information is provided."},
+    {"category":"Medical Assisting","difficulty":"Beginner","front":"HIPAA","back":"US law that includes protections for certain health information."},
+    {"category":"Medical Assisting","difficulty":"Beginner","front":"EHR","back":"Electronic health record used to document and coordinate patient care."},
+    {"category":"Medical Assisting","difficulty":"Beginner","front":"Tachycardia","back":"An abnormally fast heart rate."},
+    {"category":"Medical Assisting","difficulty":"Beginner","front":"Bradycardia","back":"An abnormally slow heart rate."},
+    {"category":"Medical Assisting","difficulty":"Intermediate","front":"-itis","back":"Medical suffix meaning inflammation."},
+    {"category":"Medical Assisting","difficulty":"Beginner","front":"Cardi/o","back":"Combining form meaning heart."},
+    {"category":"Medical Assisting","difficulty":"Beginner","front":"Syncope","back":"Temporary loss of consciousness, commonly called fainting."}
+,
+    {"category":"Sterile Processing","difficulty":"Intermediate","front":"Decontamination","back":"Removing soil and reducing microbial contamination before further processing."},
+    {"category":"Sterile Processing","difficulty":"Beginner","front":"Point-of-use treatment","back":"Initial care of instruments after use to prevent soil from drying."},
+    {"category":"Sterile Processing","difficulty":"Beginner","front":"Bioburden","back":"Number of viable microorganisms on an item before processing."},
+    {"category":"Sterile Processing","difficulty":"Beginner","front":"Manual cleaning","back":"Cleaning performed by hand according to device instructions."},
+    {"category":"Sterile Processing","difficulty":"Beginner","front":"Ultrasonic cleaner","back":"Equipment that uses cavitation to assist removal of soil from instruments."},
+    {"category":"Sterile Processing","difficulty":"Intermediate","front":"Washer-disinfector","back":"Automated equipment that cleans and thermally or chemically disinfects compatible devices."},
+    {"category":"Sterile Processing","difficulty":"Beginner","front":"Instrument inspection","back":"Checking cleaned instruments for cleanliness, integrity, and function."},
+    {"category":"Sterile Processing","difficulty":"Beginner","front":"Hinged instruments","back":"Devices with joints that require proper positioning for cleaning and processing."},
+    {"category":"Sterile Processing","difficulty":"Beginner","front":"Lumened devices","back":"Devices with internal channels requiring special cleaning and inspection."},
+    {"category":"Sterile Processing","difficulty":"Beginner","front":"Instrument assembly","back":"Arranging inspected instruments into the correct tray or set."},
+    {"category":"Sterile Processing","difficulty":"Intermediate","front":"Packaging material","back":"Validated wrap, pouch, or container compatible with the sterilization method."},
+    {"category":"Sterile Processing","difficulty":"Beginner","front":"Chemical indicator","back":"Indicator that responds to specified sterilization process conditions."},
+    {"category":"Sterile Processing","difficulty":"Beginner","front":"Biological indicator","back":"Test system containing resistant microorganisms used to monitor sterilization efficacy."},
+    {"category":"Sterile Processing","difficulty":"Beginner","front":"Steam sterilization","back":"Sterilization process using saturated steam under controlled conditions."},
+    {"category":"Sterile Processing","difficulty":"Beginner","front":"Sterilization parameters","back":"Required exposure conditions such as time and temperature specified for a cycle."},
+    {"category":"Sterile Processing","difficulty":"Intermediate","front":"IFU","back":"Manufacturer's instructions for use, including validated reprocessing steps."},
+    {"category":"Sterile Processing","difficulty":"Beginner","front":"Load configuration","back":"Placement of items in sterilization equipment according to validated instructions."},
+    {"category":"Sterile Processing","difficulty":"Beginner","front":"Sterile storage","back":"Protecting processed items from damage, moisture, and contamination."},
+    {"category":"Sterile Processing","difficulty":"Beginner","front":"Event-related sterility","back":"Sterility is maintained until an event compromises package integrity."},
+    {"category":"Sterile Processing","difficulty":"Beginner","front":"Wet pack","back":"A package that remains wet after processing and must be handled as compromised."},
+    {"category":"Sterile Processing","difficulty":"Intermediate","front":"Traceability","back":"Records linking instruments, loads, and processing results as required."},
+    {"category":"Sterile Processing","difficulty":"Beginner","front":"PPE in decontamination","back":"Protective equipment selected to reduce exposure to contaminated items and splashes."},
+    {"category":"Sterile Processing","difficulty":"Beginner","front":"Quality assurance","back":"Documented monitoring and checks to support reliable reprocessing."}
   ];
   const practiceExams = [
     {
@@ -1798,6 +1870,15 @@ export function Practice({ initialMode, plan }: { initialMode: "flashcards" | "p
     }
   ];
   const isFree = plan === "explorer";
+  const normalizedProgram = program.trim().toLowerCase();
+  const isSurgicalPath = normalizedProgram.includes("surgical") || normalizedProgram.includes("surgery");
+  const isMedicalAssistantPath = normalizedProgram.includes("medical assistant") || normalizedProgram.includes("medical assisting");
+  const isSterileProcessingPath = normalizedProgram.includes("sterile processing");
+  const matchingExams = practiceExams.filter((exam) =>
+    isSurgicalPath ? ["ncct-tsc", "cst"].includes(exam.id) :
+    isMedicalAssistantPath ? exam.id === "medical-assistant" :
+    isSterileProcessingPath ? exam.id === "sterile-processing" : true
+  );
   const [selectedExamId, setSelectedExamId] = useState(practiceExams[0].id);
   const [examStatus, setExamStatus] = useState<"home" | "active" | "results" | "review">("home");
   const [examQuestionIndex, setExamQuestionIndex] = useState(0);
@@ -1805,7 +1886,7 @@ export function Practice({ initialMode, plan }: { initialMode: "flashcards" | "p
   const [flaggedQuestions, setFlaggedQuestions] = useState<number[]>([]);
   const [secondsRemaining, setSecondsRemaining] = useState(20 * 60);
   const [timeTakenSeconds, setTimeTakenSeconds] = useState(0);
-  const selectedExam = practiceExams.find((exam) => exam.id === selectedExamId) ?? practiceExams[0];
+  const selectedExam = matchingExams.find((exam) => exam.id === selectedExamId) ?? matchingExams[0];
   const availableExamQuestions = isFree ? selectedExam.items.slice(0, 10) : selectedExam.items;
   const activeExamQuestion = availableExamQuestions[examQuestionIndex];
   const answeredCount = Object.keys(examAnswers).length;
@@ -1850,6 +1931,14 @@ export function Practice({ initialMode, plan }: { initialMode: "flashcards" | "p
     "Medical Terminology",
     "Infection Control"
   ];
+  const relevantCategories = isSurgicalPath
+    ? ["Surgical Technology"]
+    : isMedicalAssistantPath
+      ? ["Medical Assisting"]
+      : isSterileProcessingPath
+        ? ["Sterile Processing"]
+        : categories.filter((item) => item !== "All");
+  const visibleCategories = ["All", ...relevantCategories];
   const [category, setCategory] = useState("All");
   const [difficulty, setDifficulty] = useState("All");
   const [search, setSearch] = useState("");
@@ -1863,10 +1952,11 @@ export function Practice({ initialMode, plan }: { initialMode: "flashcards" | "p
   const filteredCards = useMemo(() => {
     const query = search.trim().toLowerCase();
     const cards = flashcards.filter((card) => {
+      const matchesPath = relevantCategories.includes(card.category);
       const matchesCategory = category === "All" || card.category === category;
       const matchesDifficulty = difficulty === "All" || card.difficulty === difficulty;
       const matchesSearch = !query || `${card.front} ${card.back} ${card.category}`.toLowerCase().includes(query);
-      return matchesCategory && matchesDifficulty && matchesSearch;
+      return matchesPath && matchesCategory && matchesDifficulty && matchesSearch;
     });
 
     if (shuffleSeed % 2 === 1) {
@@ -1874,8 +1964,9 @@ export function Practice({ initialMode, plan }: { initialMode: "flashcards" | "p
     }
 
     return cards;
-  }, [category, difficulty, search, shuffleSeed]);
-  const activeCards = filteredCards.length ? filteredCards : flashcards;
+  }, [category, difficulty, search, shuffleSeed, program]);
+  const pathCards = flashcards.filter((card) => relevantCategories.includes(card.category));
+  const activeCards = filteredCards.length ? filteredCards : pathCards;
   const activeIndex = Math.min(cardIndex, activeCards.length - 1);
   const currentCard = activeCards[activeIndex];
   const currentCardKey = `${currentCard.category}-${currentCard.front}`;
@@ -1910,6 +2001,7 @@ export function Practice({ initialMode, plan }: { initialMode: "flashcards" | "p
   }
 
   function startExam(examId: string) {
+    if (!matchingExams.some((exam) => exam.id === examId)) return;
     setSelectedExamId(examId);
     setExamStatus("active");
     setExamQuestionIndex(0);
@@ -1945,7 +2037,7 @@ export function Practice({ initialMode, plan }: { initialMode: "flashcards" | "p
     <div className="flashcards-page">
       <div className="page-title">
         <p className="eyebrow">PathPrep</p>
-        {isFree && <p>Free preview: up to 10 practice questions per exam. Upgrade for full exam access.</p>}
+        {isFree && studyMode === "practiceExams" && <p>Free preview: up to 10 practice questions per exam. Upgrade for full exam access.</p>}
         <h2>{studyMode === "practiceExams" ? "Practice Exams" : "Flashcards"}</h2>
         <p>
           {studyMode === "practiceExams"
@@ -1977,7 +2069,7 @@ export function Practice({ initialMode, plan }: { initialMode: "flashcards" | "p
         <div className="practice-exam-page">
           {examStatus === "home" && (
             <section className="exam-home-grid">
-              {practiceExams.map((exam) => (
+              {matchingExams.map((exam) => (
                 <article className="exam-card-premium" key={exam.id}>
                   <div className="card-head">
                     <h3>{exam.title}</h3>
@@ -2158,7 +2250,7 @@ export function Practice({ initialMode, plan }: { initialMode: "flashcards" | "p
               resetPosition();
             }}
           >
-            {categories.map((item) => (
+            {visibleCategories.map((item) => (
               <option key={item}>{item}</option>
             ))}
           </select>
@@ -2182,7 +2274,7 @@ export function Practice({ initialMode, plan }: { initialMode: "flashcards" | "p
       {filteredCards.length === 0 && (
         <section className="panel flashcard-empty">
           <strong>No exact matches found.</strong>
-          <p>Showing the full MedPath flashcard deck so your study session never goes blank.</p>
+          <p>Showing your pathway flashcards instead. Clear the filters to see all matching cards.</p>
         </section>
       )}
 
@@ -2190,7 +2282,7 @@ export function Practice({ initialMode, plan }: { initialMode: "flashcards" | "p
         <Metric title="Cards Studied" value={`${studiedCount}`} icon={<BookOpen />} />
         <Metric title="Cards Remaining" value={`${cardsRemaining}`} icon={<Target />} />
         <Metric title="Accuracy" value={`${accuracy}%`} icon={<BarChart3 />} />
-        <Metric title="Study Streak" value="7 days" icon={<Sparkles />} />
+        <Metric title="Cards in Path" value={`${pathCards.length}`} icon={<Sparkles />} />
         <div className="flashcard-progress-wide">
           <span>{progressValue}% complete</span>
           <div className="progress-bar" aria-label={`${progressValue}% flashcard progress`}>
