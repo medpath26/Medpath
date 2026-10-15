@@ -541,15 +541,29 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
       logAuthDiagnostics("Atlas usage load error", atlasUsageError);
     }
     setMemberAtlasQuestionCount(atlasCount ?? 0);
-    setStudentProgress(
-      mapProgressRecord(
-        activeProgress,
-        activeProfile,
-        goals.data ?? [],
-        activity.data ?? [],
-        modules.data ?? []
-      )
+    const legacyProgress = mapProgressRecord(
+      activeProgress,
+      activeProfile,
+      goals.data ?? [],
+      activity.data ?? [],
+      modules.data ?? []
     );
+    // Existing accounts start with their legacy dashboard snapshot. Once a
+    // pathway snapshot exists, it takes precedence when the user signs back in.
+    const { data: pathwaySnapshot, error: pathwaySnapshotError } = await supabase
+      .from("pathway_progress")
+      .select("progress_data")
+      .eq("user_id", user.id)
+      .eq("pathway", activeProfile.healthcare_program)
+      .maybeSingle<{ progress_data: StudentProgress }>();
+    if (pathwaySnapshotError) {
+      logAuthDiagnostics("pathway snapshot read error", pathwaySnapshotError);
+      setAuthError("We couldn't load your saved pathway progress. Please try again.");
+      return false;
+    }
+    setStudentProgress(pathwaySnapshot?.progress_data
+      ? { ...pathwaySnapshot.progress_data, userId: user.id, program: activeProfile.healthcare_program }
+      : legacyProgress);
     setAuthError("");
     setWorkspaceReady(true);
     return true;
