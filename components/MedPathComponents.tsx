@@ -3603,6 +3603,7 @@ export function Clinical({ plan }: { plan: PlanKey }) {
 export function CareerExplorer({ plan }: { plan: PlanKey }) {
   const [careerSearch, setCareerSearch] = useState("");
   const [selectedCareerTitle, setSelectedCareerTitle] = useState("Surgical Technologist");
+  const [compareTitles, setCompareTitles] = useState<string[]>(["Medical Assistant", "Surgical Technologist"]);
   type CareerPath = (typeof careers)[number];
   const requiredCareerTitles = [
     "Surgical Technologist",
@@ -3689,6 +3690,13 @@ export function CareerExplorer({ plan }: { plan: PlanKey }) {
   const selectedCareer =
     availableCareers.find((career) => career.title === selectedCareerTitle) || visibleCareers[0] || fallbackCareers[0];
 
+  const comparedCareers = compareTitles.map((title) => availableCareers.find((career) => career.title === title)).filter((career): career is CareerPath => Boolean(career));
+  function toggleCompareCareer(title: string) {
+    setCompareTitles((current) => current.includes(title)
+      ? current.filter((item) => item !== title)
+      : current.length < 3 ? [...current, title] : current);
+  }
+
   return (
     <div className="stack">
       <div className="page-title">
@@ -3699,6 +3707,63 @@ export function CareerExplorer({ plan }: { plan: PlanKey }) {
           your strengths before, during, and after school.
         </p>
       </div>
+
+      <section className="panel" aria-label="Compare healthcare careers">
+        <div className="card-head">
+          <div>
+            <p className="eyebrow">Explorer</p>
+            <h3>Compare Careers</h3>
+            <p>Choose up to three careers to see their training, pay, responsibilities, and growth opportunities side by side.</p>
+          </div>
+        </div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1rem" }}>
+          {availableCareers.map((career) => {
+            const selected = compareTitles.includes(career.title);
+            return (
+              <button key={career.title} type="button"
+                className={selected ? "primary compact" : "secondary compact"}
+                aria-pressed={selected}
+                disabled={!selected && compareTitles.length >= 3}
+                onClick={() => toggleCompareCareer(career.title)}>
+                {selected ? "✓ " : "+ "}{career.title}
+              </button>
+            );
+          })}
+        </div>
+        {comparedCareers.length === 0 ? (
+          <p role="status">Select a career above to begin comparing.</p>
+        ) : (
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", minWidth: comparedCareers.length > 2 ? "700px" : "520px", borderCollapse: "separate", borderSpacing: "0.75rem" }}>
+              <thead><tr><th scope="col" style={{ textAlign: "left" }}>Compare</th>
+                {comparedCareers.map((career) => <th scope="col" key={career.title} style={{ textAlign: "left" }}>{career.title}</th>)}
+              </tr></thead>
+              <tbody>
+                {([
+                  ["Median pay", "salary"],
+                  ["Education", "education"],
+                  ["Training duration", "trainingLength"],
+                  ["Certification", "certification"],
+                  ["Responsibilities", "responsibilities"],
+                  ["Work setting", "workSetting"],
+                  ["Career outlook", "outlook"],
+                  ["Advancement", "advancement"]
+                ] as const).map(([label, field]) => (
+                  <tr key={field}>
+                    <th scope="row" style={{ textAlign: "left", verticalAlign: "top" }}>{label}</th>
+                    {comparedCareers.map((career) => (
+                      <td key={career.title} style={{ verticalAlign: "top" }}>
+                        {career[field] || (field === "trainingLength" ? "Varies by program" : "Information not yet available")}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        <p className="career-data-note">U.S. career information is illustrative; pay, credential requirements, and timelines vary by state and employer. Check official state licensing boards and the BLS before making decisions.</p>
+      </section>
 
       <section className="pathfinder-search panel" aria-label="Search healthcare career paths">
         <Search />
