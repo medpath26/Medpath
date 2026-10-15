@@ -51,6 +51,7 @@ import {
   subscriptionEvents,
   users
 } from "@/lib/medpath-data";
+import { healthcarePathways } from "@/lib/healthcare-pathways";
 import type { AtlasChatMessage, ViewKey } from "./Common/types";
 
 export function Header({
@@ -4280,19 +4281,9 @@ export function AuthModal({
               <option value="" disabled>
                 Select your program
               </option>
-              <option>Medical Assistant</option>
-              <option>Surgical Technologist</option>
-              <option>Sterile Processing Technician</option>
-              <option>Phlebotomy Technician</option>
-              <option>Patient Care Technician</option>
-              <option>EKG Technician</option>
-              <option>Certified Nursing Assistant</option>
-              <option>Pharmacy Technician</option>
-              <option>Medical Billing and Coding</option>
-              <option>Emergency Medical Technician</option>
-              <option>Dental Assistant</option>
-              <option>Radiologic Technologist</option>
-              <option>Diagnostic Medical Sonographer</option>
+              {healthcarePathways.map((path) => (
+                <option key={path.id} value={path.label}>{path.label}</option>
+              ))}
               <option>Exploring Healthcare Careers</option>
             </select>
             {fieldErrors.program && <small className="field-error" id="auth-program-error">{fieldErrors.program}</small>}
