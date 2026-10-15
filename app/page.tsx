@@ -242,12 +242,14 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
   const [studyHours, setStudyHours] = useState(8);
   const [examDate, setExamDate] = useState("2026-08-14");
   const [adminSearch, setAdminSearch] = useState("");
+  const [previewPlan, setPreviewPlan] = useState<PlanKey | null>(null);
 
   const signedIn = Boolean(authSession?.user);
   const name = profile?.full_name ?? "";
   const program = profile?.healthcare_program ?? "";
   const plan = (profile?.role as PlanKey | undefined) ?? "explorer";
   const isAdmin = plan === "administrator";
+  const displayPlan: PlanKey = isAdmin && previewPlan ? previewPlan : plan;
   const filteredUsers = users.filter((user) =>
     `${user.name} ${user.email} ${user.role}`.toLowerCase().includes(adminSearch.toLowerCase())
   );
@@ -622,7 +624,7 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
       setAuthNotice("");
       setLockedFeature(null);
     }
-    if (signedIn && feature && !canAccess(plan, feature)) {
+    if (signedIn && feature && !canAccess(displayPlan, feature)) {
       setLockedFeature(feature);
       return;
     }
@@ -1025,7 +1027,7 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
     <main className={darkMode ? "app dark" : "app"}>
       <Header
         signedIn={signedIn}
-        plan={plan}
+        plan={displayPlan}
         view={view}
         onNavigate={goTo}
         onAuth={openAuthMode}
@@ -1092,14 +1094,34 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
         </section>
       )}
 
+      {signedIn && isAdmin && workspaceReady && (
+        <section className="panel" aria-label="Administrator subscription preview" style={{ margin: "1rem auto", maxWidth: "75rem" }}>
+          <strong>Administrator · Subscription Preview</strong>
+          <p>Preview layouts and client-side feature visibility. This does not change billing, server permissions, or anyone's actual subscription.</p>
+          <label htmlFor="admin-preview-plan">View as subscription</label>
+          <select id="admin-preview-plan" value={previewPlan ?? "administrator"}
+            onChange={(event) => setPreviewPlan(event.target.value === "administrator" ? null : event.target.value as PlanKey)}
+            style={{ display: "block", maxWidth: "24rem", width: "100%", marginTop: "0.5rem" }}>
+            <option value="administrator">Administrator (actual account)</option>
+            <option value="explorer">Explorer / Free</option>
+            <option value="student_plus">Student Plus</option>
+            <option value="pro_student">Pro Student</option>
+            <option value="founding_member">Founding Member</option>
+            <option value="institution_student">Institution Student</option>
+            <option value="institution_admin">Institution Admin</option>
+          </select>
+          {previewPlan && <p role="status">Preview mode active. Server permissions and payments still use your real account.</p>}
+        </section>
+      )}
+
       {view !== "landing" && signedIn && workspaceReady && (
         <div className="shell">
-          <Sidebar view={view} plan={plan} name={name} isAdmin={isAdmin} onNavigate={goTo} />
+          <Sidebar view={view} plan={displayPlan} name={name} isAdmin={isAdmin} onNavigate={goTo} />
           <section className="workspace">
             {view === "dashboard" && (
               <Dashboard
                 name={name}
-                plan={plan}
+                plan={displayPlan}
                 program={program}
                 progress={studentProgress}
                 examTrackerHidden={examTrackerHidden}
@@ -1137,12 +1159,12 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
               />
             )}
             {view === "clinical" && <Clinical plan={plan} />}
-            {view === "career" && <CareerExplorer plan={plan} />}
+            {view === "career" && <CareerExplorer plan={displayPlan} />}
             {view === "roadmaps" && <CareerRoadmaps />}
             {view === "resume" && <ResumeBuilder name={name} program={program} />}
             {view === "interview" && <InterviewCoach />}
             {view === "billing" && (
-              <Billing plan={plan} setPlan={startCheckout} onLock={setLockedFeature} isSignedIn error={authError} onManageBilling={openBillingPortal} />
+              <Billing plan={displayPlan} setPlan={startCheckout} onLock={setLockedFeature} isSignedIn error={authError} onManageBilling={openBillingPortal} />
             )}
             {view === "admin" && isAdmin && (
               <Admin
