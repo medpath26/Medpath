@@ -2308,6 +2308,7 @@ export function Practice({ initialMode, plan }: { initialMode: "flashcards" | "p
 
 export function StudyPlan({
   plan,
+  program,
   examDate,
   studyHours,
   schedule,
@@ -2315,6 +2316,7 @@ export function StudyPlan({
   setStudyHours
 }: {
   plan: PlanKey;
+  program: string;
   examDate: string;
   studyHours: number;
   schedule: string[];
@@ -2613,8 +2615,510 @@ export function StudyPlan({
       ]
     }
   ];
+  const pathwayLessons = {
+  "surgical": [
+    {
+      "title": "Sterile Field Foundations",
+      "progress": 0,
+      "lessons": [
+        {
+          "title": "Maintaining Asepsis",
+          "time": "15 min",
+          "difficulty": "Beginner",
+          "image": "/medpath-hero.png",
+          "definition": "A sterile field is a controlled area used to prevent microorganisms from contaminating surgical supplies and tissues.",
+          "material": "A surgical technologist prepares the sterile field, checks package integrity and expiration, and monitors every item introduced. An item with a torn wrapper or uncertain sterility must be treated as contaminated. Sterile technique requires constant observation, not a one-time setup.",
+          "tip": "Watch the field during every handoff; stop and correct any contamination immediately.",
+          "warning": "Do not use a sterile item after its wrapper is compromised.",
+          "takeaways": [
+            "Check wrappers before opening.",
+            "Keep nonsterile objects away from the field.",
+            "Communicate contamination immediately."
+          ],
+          "quiz": {
+            "question": "What should you do if a sterile package has a tear?",
+            "options": [
+              "Use it if dry",
+              "Consider it contaminated",
+              "Cover the tear",
+              "Ignore the tear"
+            ],
+            "answer": "Consider it contaminated.",
+            "explanation": "A sterile field is a controlled area used to prevent microorganisms from contaminating surgical supplies and tissues."
+          },
+          "flashcards": [
+            [
+              "Asepsis",
+              "Prevention of contamination by microorganisms"
+            ],
+            [
+              "Sterile field",
+              "Controlled area for sterile supplies and instruments"
+            ],
+            [
+              "Contamination",
+              "Loss of assurance that an item remains sterile"
+            ],
+            [
+              "Package integrity",
+              "Condition of the barrier that protects sterility"
+            ],
+            [
+              "Sterile handoff",
+              "Transfer of an item without compromising sterility"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Surgical Instruments",
+      "progress": 0,
+      "lessons": [
+        {
+          "title": "Instrument Recognition and Passing",
+          "time": "15 min",
+          "difficulty": "Beginner",
+          "image": "/medpath-hero.png",
+          "definition": "Surgical instruments are selected according to their function: cutting, grasping, clamping, retracting, or suctioning.",
+          "material": "Scalpels cut tissue; forceps grasp; hemostats clamp vessels; retractors hold tissue aside; suction tips clear fluid. In the scrub role, organize instruments by use and pass them in a safe, functional orientation. Recognizing purpose is more useful than memorizing names without context.",
+          "tip": "Study one instrument family at a time and connect it to a task.",
+          "warning": "A similarly shaped instrument may have a different function.",
+          "takeaways": [
+            "Group instruments by function.",
+            "Inspect instruments for defects.",
+            "Pass sharps using approved safety practices."
+          ],
+          "quiz": {
+            "question": "Which instrument holds tissue aside?",
+            "options": [
+              "Hemostat",
+              "Retractor",
+              "Scalpel",
+              "Suction tip"
+            ],
+            "answer": "Retractor",
+            "explanation": "Surgical instruments are selected according to their function: cutting, grasping, clamping, retracting, or suctioning."
+          },
+          "flashcards": [
+            [
+              "Scalpel",
+              "Instrument for making an incision"
+            ],
+            [
+              "Forceps",
+              "Instrument for grasping tissue or material"
+            ],
+            [
+              "Hemostat",
+              "Instrument for clamping a vessel"
+            ],
+            [
+              "Retractor",
+              "Instrument that holds tissue aside"
+            ],
+            [
+              "Suction tip",
+              "Device that removes fluid from the field"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Operating Room Safety",
+      "progress": 0,
+      "lessons": [
+        {
+          "title": "Counts and Team Communication",
+          "time": "15 min",
+          "difficulty": "Beginner",
+          "image": "/medpath-hero.png",
+          "definition": "Surgical safety depends on coordinated checks, accurate counts, and clear communication.",
+          "material": "A surgical time-out verifies the correct patient, procedure, and site before incision. Sponge, sharp, and instrument counts are performed according to facility policy to help prevent retained items. Closed-loop communication repeats and confirms critical instructions. An unresolved count discrepancy must be reported and investigated.",
+          "tip": "Practice explaining each step of the time-out and count process.",
+          "warning": "Never dismiss a missing-item discrepancy as a documentation issue.",
+          "takeaways": [
+            "Confirm patient, procedure, and site.",
+            "Use closed-loop communication.",
+            "Escalate unresolved count discrepancies."
+          ],
+          "quiz": {
+            "question": "Why is a surgical time-out performed?",
+            "options": [
+              "To change shifts",
+              "To verify patient, procedure, and site",
+              "To clean instruments",
+              "To end the case"
+            ],
+            "answer": "To verify patient, procedure, and site",
+            "explanation": "Surgical safety depends on coordinated checks, accurate counts, and clear communication."
+          },
+          "flashcards": [
+            [
+              "Time-out",
+              "Safety pause to verify key procedure details"
+            ],
+            [
+              "Surgical count",
+              "Accounting for instruments, sponges, and sharps"
+            ],
+            [
+              "Closed-loop communication",
+              "Message repeated and confirmed"
+            ],
+            [
+              "Count discrepancy",
+              "Mismatch requiring investigation"
+            ],
+            [
+              "Circulator",
+              "Nonsterile team member coordinating OR care"
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "assistant": [
+    {
+      "title": "Patient Intake",
+      "progress": 0,
+      "lessons": [
+        {
+          "title": "Identity and Vital Signs",
+          "time": "15 min",
+          "difficulty": "Beginner",
+          "image": "/medpath-hero.png",
+          "definition": "Accurate patient intake starts with verifying identity, gathering relevant information, and measuring vital signs correctly.",
+          "material": "Use two approved identifiers before care. Record the chief complaint and relevant history without guessing. Vital signs include pulse, respiratory rate, blood pressure, temperature, and often oxygen saturation. If a reading is unexpected, recheck technique and communicate concerns to the supervising clinician.",
+          "tip": "Link each vital sign to what it measures and when it may need rechecking.",
+          "warning": "A room number is not an approved substitute for patient identification.",
+          "takeaways": [
+            "Use two patient identifiers.",
+            "Record measurements accurately.",
+            "Report unexpected findings promptly."
+          ],
+          "quiz": {
+            "question": "How many approved patient identifiers are commonly required?",
+            "options": [
+              "One",
+              "Two",
+              "None",
+              "Room number only"
+            ],
+            "answer": "Two",
+            "explanation": "Accurate patient intake starts with verifying identity, gathering relevant information, and measuring vital signs correctly."
+          },
+          "flashcards": [
+            [
+              "Pulse",
+              "Heartbeats per minute"
+            ],
+            [
+              "Respiratory rate",
+              "Breaths per minute"
+            ],
+            [
+              "Blood pressure",
+              "Pressure in arteries"
+            ],
+            [
+              "SpO2",
+              "Estimated peripheral oxygen saturation"
+            ],
+            [
+              "Chief complaint",
+              "Main reason for the visit"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Specimen Collection",
+      "progress": 0,
+      "lessons": [
+        {
+          "title": "Safe Collection and Labeling",
+          "time": "15 min",
+          "difficulty": "Beginner",
+          "image": "/medpath-hero.png",
+          "definition": "Specimen accuracy depends on patient identification, appropriate collection, and prompt labeling.",
+          "material": "Before collecting a specimen, confirm the order and patient identity. Follow infection prevention practices, choose the correct container, and label the specimen in the patient's presence at collection using required identifiers. Dispose of used sharps immediately in an approved sharps container. Follow facility instructions for transport and storage.",
+          "tip": "Practice the sequence: verify, collect, label, transport, document.",
+          "warning": "Never leave an unlabeled specimen to identify later from memory.",
+          "takeaways": [
+            "Confirm the order and identity.",
+            "Label at collection.",
+            "Use safe sharps disposal."
+          ],
+          "quiz": {
+            "question": "When should a collected specimen be labeled?",
+            "options": [
+              "Later at the desk",
+              "At collection using verified identifiers",
+              "After transport",
+              "Only if requested"
+            ],
+            "answer": "At collection using verified identifiers",
+            "explanation": "Specimen accuracy depends on patient identification, appropriate collection, and prompt labeling."
+          },
+          "flashcards": [
+            [
+              "Venipuncture",
+              "Drawing blood from a vein"
+            ],
+            [
+              "Specimen label",
+              "Identifiers attached to a collected sample"
+            ],
+            [
+              "Sharps container",
+              "Approved puncture-resistant disposal container"
+            ],
+            [
+              "Order verification",
+              "Confirming requested collection or test"
+            ],
+            [
+              "Standard precautions",
+              "Baseline infection prevention for all patients"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Medication Safety",
+      "progress": 0,
+      "lessons": [
+        {
+          "title": "Verification and Documentation",
+          "time": "15 min",
+          "difficulty": "Beginner",
+          "image": "/medpath-hero.png",
+          "definition": "Medication support requires accurate verification, awareness of allergies, and working within scope and supervision.",
+          "material": "Before assisting with medication administration, verify the authorized order, patient identity, medication, dose, route, timing, and documented allergies under applicable policy. Watch for discrepancies and seek clarification rather than guessing. Document care promptly and accurately in the health record. Permitted tasks vary by jurisdiction and employer.",
+          "tip": "Use a consistent checklist before any medication-related task.",
+          "warning": "Never administer a medication when an order or patient identity is uncertain.",
+          "takeaways": [
+            "Verify orders and allergies.",
+            "Stay within authorized scope.",
+            "Document accurately and promptly."
+          ],
+          "quiz": {
+            "question": "What should you do when a medication order is unclear?",
+            "options": [
+              "Guess the dose",
+              "Seek clarification",
+              "Skip documentation",
+              "Use another patient's order"
+            ],
+            "answer": "Seek clarification",
+            "explanation": "Medication support requires accurate verification, awareness of allergies, and working within scope and supervision."
+          },
+          "flashcards": [
+            [
+              "Medication order",
+              "Authorized instruction for a medication"
+            ],
+            [
+              "Route",
+              "How medication enters the body"
+            ],
+            [
+              "Allergy check",
+              "Review for known reactions"
+            ],
+            [
+              "EHR",
+              "Electronic health record"
+            ],
+            [
+              "Scope of practice",
+              "Tasks permitted by law and policy"
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "sterile": [
+    {
+      "title": "Decontamination",
+      "progress": 0,
+      "lessons": [
+        {
+          "title": "Cleaning Before Sterilization",
+          "time": "15 min",
+          "difficulty": "Beginner",
+          "image": "/medpath-hero.png",
+          "definition": "Cleaning removes soil and reduces contamination so subsequent disinfection or sterilization can be effective.",
+          "material": "Follow the device manufacturer's instructions for use (IFU) for point-of-use treatment, transport, disassembly, manual cleaning, and mechanical cleaning. Wear appropriate PPE in decontamination areas. Hinges and internal channels can retain soil and require special attention. A visibly dirty device is not ready for sterilization.",
+          "tip": "Learn each step in the order it is performed, from point of use to inspection.",
+          "warning": "Sterilization does not replace thorough cleaning.",
+          "takeaways": [
+            "Follow validated IFUs.",
+            "Protect staff during decontamination.",
+            "Inspect hard-to-clean surfaces and lumens."
+          ],
+          "quiz": {
+            "question": "What must happen before instrument sterilization?",
+            "options": [
+              "Cleaning",
+              "Storage",
+              "Packaging only",
+              "Label printing only"
+            ],
+            "answer": "Cleaning",
+            "explanation": "Cleaning removes soil and reduces contamination so subsequent disinfection or sterilization can be effective."
+          },
+          "flashcards": [
+            [
+              "Decontamination",
+              "Removal of soil and reduction of contamination"
+            ],
+            [
+              "Bioburden",
+              "Microorganisms present before processing"
+            ],
+            [
+              "IFU",
+              "Manufacturer's instructions for use"
+            ],
+            [
+              "Lumen",
+              "Internal channel in a device"
+            ],
+            [
+              "PPE",
+              "Equipment protecting staff from exposure"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Inspection and Assembly",
+      "progress": 0,
+      "lessons": [
+        {
+          "title": "Preparing Instrument Sets",
+          "time": "15 min",
+          "difficulty": "Beginner",
+          "image": "/medpath-hero.png",
+          "definition": "After cleaning, instruments must be inspected for cleanliness, integrity, and function before assembly and packaging.",
+          "material": "Inspect hinges, jaws, tips, and lumens according to validated instructions. Remove damaged instruments from service. Assemble trays according to the count sheet and facility procedures; position hinged items and protect delicate tips as required by their IFUs. Choose compatible packaging and avoid overloading sets.",
+          "tip": "Compare each instrument to the tray count sheet while inspecting function.",
+          "warning": "A damaged or soiled instrument should not be packaged for patient use.",
+          "takeaways": [
+            "Check cleanliness and function.",
+            "Remove defective instruments.",
+            "Use correct tray assembly and packaging."
+          ],
+          "quiz": {
+            "question": "What should happen to a cracked instrument?",
+            "options": [
+              "Return it to the set",
+              "Remove it from service",
+              "Cover the crack",
+              "Sterilize twice"
+            ],
+            "answer": "Remove it from service",
+            "explanation": "After cleaning, instruments must be inspected for cleanliness, integrity, and function before assembly and packaging."
+          },
+          "flashcards": [
+            [
+              "Inspection",
+              "Check for cleanliness and function"
+            ],
+            [
+              "Count sheet",
+              "List of instruments expected in a set"
+            ],
+            [
+              "Hinged instrument",
+              "Device with a joint requiring attention"
+            ],
+            [
+              "Tray assembly",
+              "Organizing instruments for processing"
+            ],
+            [
+              "Packaging",
+              "Validated barrier protecting processed items"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Sterilization Monitoring",
+      "progress": 0,
+      "lessons": [
+        {
+          "title": "Cycles and Quality Checks",
+          "time": "15 min",
+          "difficulty": "Beginner",
+          "image": "/medpath-hero.png",
+          "definition": "Sterilization uses validated processes and monitoring to achieve an appropriate level of microbial destruction.",
+          "material": "Select the cycle specified by the device, packaging, and sterilizer IFUs. Chemical indicators show exposure to certain process conditions; biological indicators test sterilization process effectiveness using resistant microorganisms. Review required physical, chemical, and biological monitoring results before release under facility policy. Wet or damaged packs must be handled as compromised.",
+          "tip": "Know what each monitoring method measures—and what it does not prove.",
+          "warning": "A color-changing chemical indicator alone does not guarantee sterility.",
+          "takeaways": [
+            "Use validated cycle parameters.",
+            "Review monitoring results.",
+            "Protect sterile packages during storage."
+          ],
+          "quiz": {
+            "question": "What does a biological indicator help assess?",
+            "options": [
+              "Staff scheduling",
+              "Sterilization process effectiveness",
+              "Tray appearance",
+              "Instrument ownership"
+            ],
+            "answer": "Sterilization process effectiveness",
+            "explanation": "Sterilization uses validated processes and monitoring to achieve an appropriate level of microbial destruction."
+          },
+          "flashcards": [
+            [
+              "Steam sterilization",
+              "Process using saturated steam under controlled conditions"
+            ],
+            [
+              "Chemical indicator",
+              "Shows exposure to specified process conditions"
+            ],
+            [
+              "Biological indicator",
+              "Monitors process efficacy using test microorganisms"
+            ],
+            [
+              "Wet pack",
+              "Moist package treated as compromised"
+            ],
+            [
+              "Traceability",
+              "Records linking loads and processed items"
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+};
+  const normalizedProgram = program.trim().toLowerCase();
+  const pathModules = normalizedProgram.includes("surgical") || normalizedProgram.includes("surgery")
+    ? pathwayLessons.surgical
+    : normalizedProgram.includes("medical assistant") || normalizedProgram.includes("medical assisting")
+      ? pathwayLessons.assistant
+      : normalizedProgram.includes("sterile processing")
+        ? pathwayLessons.sterile
+        : courseModules;
   const isFree = plan === "explorer";
-  const availableModules = isFree ? courseModules.slice(0, 1) : courseModules;
+  const availableModules = isFree ? pathModules.slice(0, 1) : pathModules;
   const [selectedModuleIndex, setSelectedModuleIndex] = useState(0);
   const [selectedLessonIndex, setSelectedLessonIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState("");
@@ -2689,8 +3193,8 @@ export function StudyPlan({
       <aside className="course-module-sidebar" aria-label="Course modules">
         <div>
           <p className="eyebrow">Course Viewer</p>
-          <h2>MedPath Foundations</h2>
-          {isFree && <p>Free study plan: Introduction module. Upgrade to unlock every module.</p>}
+          <h2>{program && program !== "Healthcare career" ? `${program} Learning` : "MedPath Foundations"}</h2>
+          {isFree && <p>Free study plan: one introductory pathway module. Upgrade to unlock the remaining modules.</p>}
         </div>
         <div className="course-module-list">
           {availableModules.map((module, index) => (
@@ -2699,10 +3203,10 @@ export function StudyPlan({
               key={module.title}
               onClick={() => selectModule(index)}
             >
-              <span>{module.progress === 100 || completedLessons.some((lesson) => lesson.startsWith(module.title)) ? <Check size={16} /> : index + 1}</span>
+              <span>{completedLessons.some((lesson) => lesson.startsWith(module.title)) ? <Check size={16} /> : index + 1}</span>
               <strong>{module.title}</strong>
               <small>{module.lessons.length} lesson{module.lessons.length === 1 ? "" : "s"}</small>
-              <i style={{ width: `${module.progress}%` }} />
+              <i style={{ width: `${Math.round((completedLessons.filter((key) => key.startsWith(module.title + "-")).length / module.lessons.length) * 100)}%` }} />
             </button>
           ))}
         </div>
@@ -2725,7 +3229,7 @@ export function StudyPlan({
             {isBookmarked ? "Bookmarked" : "Bookmark Lesson"}
           </button>
           <div className="progress-bar" aria-label={`${visualProgress}% course progress`}>
-            <span style={{ width: `${Math.max(visualProgress, selectedModule.progress / 2)}%` }} />
+            <span style={{ width: `${visualProgress}%` }} />
           </div>
           <div className="course-lesson-tabs" aria-label="Module lessons">
             {selectedModule.lessons.map((lesson, index) => (
@@ -2748,11 +3252,7 @@ export function StudyPlan({
             height={760}
           />
           <div className="lesson-rich-text">
-            <p>
-              In this lesson, you will connect classroom knowledge to real healthcare workflows.
-              Focus on the concept, the clinical purpose, and how you would explain it during a
-              skills check or certification review.
-            </p>
+            <p>{('material' in selectedLesson && typeof selectedLesson.material === 'string') ? selectedLesson.material : selectedLesson.definition}</p>
             <p>
               {selectedLesson.title} is part of the {selectedModule.title} module and supports your
               readiness for patient care, clinical rotations, and exam-style questions.
