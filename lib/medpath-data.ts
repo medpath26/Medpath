@@ -275,20 +275,19 @@ export type StudentProgress = {
 };
 
 export const studentProgressSeed: StudentProgress = {
-  weeklyProgress: 0,
-pathProgress: 0,  userId: "",
+  userId: "",
   program: "",
   certificationGoal: "Certification readiness",
-examDate: "",
-  weeklyProgress: 64,
-  pathProgress: 52,
- streakDays: 0,
-xp: 0,
+  examDate: "",
+  weeklyProgress: 0,
+  pathProgress: 0,
+  streakDays: 0,
+  xp: 0,
   level: "Clinician in Training",
   nextMilestone: "Certification",
   recommendedTopic: "Instrumentation and sterile field maintenance",
   upcomingGoals: [],
- recentActivity: [],
+  recentActivity: [],
   learningModules: [
     {
       id: "module-quiz",
@@ -320,7 +319,6 @@ xp: 0,
     }
   ]
 };
-
 export type CareerPath = {
   title: string;
   icon: string;
