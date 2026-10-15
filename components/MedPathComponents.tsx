@@ -1055,7 +1055,7 @@ export function Atlas({
   );
 }
 
-export function Practice({ initialMode }: { initialMode: "flashcards" | "practiceExams" }) {
+export function Practice({ initialMode, plan }: { initialMode: "flashcards" | "practiceExams"; plan: PlanKey }) {
   const [studyMode, setStudyMode] = useState<"flashcards" | "practiceExams">(initialMode);
   const flashcards = [
     {
@@ -1321,6 +1321,7 @@ export function Practice({ initialMode }: { initialMode: "flashcards" | "practic
       ]
     }
   ];
+  const isFree = plan === "explorer";
   const [selectedExamId, setSelectedExamId] = useState(practiceExams[0].id);
   const [examStatus, setExamStatus] = useState<"home" | "active" | "results" | "review">("home");
   const [examQuestionIndex, setExamQuestionIndex] = useState(0);
@@ -1329,12 +1330,13 @@ export function Practice({ initialMode }: { initialMode: "flashcards" | "practic
   const [secondsRemaining, setSecondsRemaining] = useState(20 * 60);
   const [timeTakenSeconds, setTimeTakenSeconds] = useState(0);
   const selectedExam = practiceExams.find((exam) => exam.id === selectedExamId) ?? practiceExams[0];
-  const activeExamQuestion = selectedExam.items[examQuestionIndex];
+  const availableExamQuestions = isFree ? selectedExam.items.slice(0, 10) : selectedExam.items;
+  const activeExamQuestion = availableExamQuestions[examQuestionIndex];
   const answeredCount = Object.keys(examAnswers).length;
-  const examProgress = Math.round((answeredCount / selectedExam.items.length) * 100);
-  const correctAnswers = selectedExam.items.filter((item, index) => examAnswers[index] === item.answer).length;
-  const incorrectAnswers = Math.max(0, selectedExam.items.length - correctAnswers);
-  const score = Math.round((correctAnswers / selectedExam.items.length) * 100);
+  const examProgress = Math.round((answeredCount / availableExamQuestions.length) * 100);
+  const correctAnswers = availableExamQuestions.filter((item, index) => examAnswers[index] === item.answer).length;
+  const incorrectAnswers = Math.max(0, availableExamQuestions.length - correctAnswers);
+  const score = Math.round((correctAnswers / availableExamQuestions.length) * 100);
   const passed = score >= selectedExam.passingScore;
 
   useEffect(() => {
@@ -1453,8 +1455,8 @@ export function Practice({ initialMode }: { initialMode: "flashcards" | "practic
   const timeLabel = `${Math.floor(secondsRemaining / 60)}:${String(secondsRemaining % 60).padStart(2, "0")}`;
   const timeTakenLabel = `${Math.floor(timeTakenSeconds / 60)}m ${timeTakenSeconds % 60}s`;
   const topicResults = selectedExam.topics.map((topic) => {
-    const topicItems = selectedExam.items.filter((item) => item.topic === topic);
-    const topicCorrect = selectedExam.items.filter((item, index) => item.topic === topic && examAnswers[index] === item.answer).length;
+    const topicItems = availableExamQuestions.filter((item) => item.topic === topic);
+    const topicCorrect = availableExamQuestions.filter((item, index) => item.topic === topic && examAnswers[index] === item.answer).length;
     return {
       topic,
       percent: topicItems.length ? Math.round((topicCorrect / topicItems.length) * 100) : 0
@@ -1467,6 +1469,7 @@ export function Practice({ initialMode }: { initialMode: "flashcards" | "practic
     <div className="flashcards-page">
       <div className="page-title">
         <p className="eyebrow">PathPrep</p>
+        {isFree && <p>Free preview: up to 10 practice questions per exam. Upgrade for full exam access.</p>}
         <h2>{studyMode === "practiceExams" ? "Practice Exams" : "Flashcards"}</h2>
         <p>
           {studyMode === "practiceExams"
@@ -1530,9 +1533,9 @@ export function Practice({ initialMode }: { initialMode: "flashcards" | "practic
             <section className="exam-mode-layout">
               <div className="exam-question-panel">
                 <div className="exam-status-bar">
-                  <span>Question {examQuestionIndex + 1} of {selectedExam.items.length}</span>
+                  <span>Question {examQuestionIndex + 1} of {availableExamQuestions.length}</span>
                   <strong>{timeLabel}</strong>
-                  <span>{answeredCount}/{selectedExam.items.length} answered</span>
+                  <span>{answeredCount}/{availableExamQuestions.length} answered</span>
                 </div>
                 <div className="progress-bar" aria-label={`${examProgress}% exam progress`}>
                   <span style={{ width: `${examProgress}%` }} />
@@ -1570,7 +1573,7 @@ export function Practice({ initialMode }: { initialMode: "flashcards" | "practic
                   </button>
                   <button
                     className="secondary"
-                    onClick={() => setExamQuestionIndex((index) => Math.min(selectedExam.items.length - 1, index + 1))}
+                    onClick={() => setExamQuestionIndex((index) => Math.min(availableExamQuestions.length - 1, index + 1))}
                   >
                     Next
                   </button>
@@ -1634,7 +1637,7 @@ export function Practice({ initialMode }: { initialMode: "flashcards" | "practic
                   Back to Exams
                 </button>
               </div>
-              {selectedExam.items.map((item, index) => (
+              {availableExamQuestions.map((item, index) => (
                 <article className="exam-review-card" key={item.question}>
                   <strong>Question {index + 1}: {item.question}</strong>
                   <p>Your answer: {examAnswers[index] ?? "Unanswered"}</p>
@@ -1828,12 +1831,14 @@ export function Practice({ initialMode }: { initialMode: "flashcards" | "practic
 }
 
 export function StudyPlan({
+  plan,
   examDate,
   studyHours,
   schedule,
   setExamDate,
   setStudyHours
 }: {
+  plan: PlanKey;
   examDate: string;
   studyHours: number;
   schedule: string[];
@@ -2132,6 +2137,8 @@ export function StudyPlan({
       ]
     }
   ];
+  const isFree = plan === "explorer";
+  const availableModules = isFree ? courseModules.slice(0, 1) : courseModules;
   const [selectedModuleIndex, setSelectedModuleIndex] = useState(0);
   const [selectedLessonIndex, setSelectedLessonIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState("");
@@ -2145,17 +2152,17 @@ export function StudyPlan({
   const [atlasOpen, setAtlasOpen] = useState(false);
   const [atlasQuestion, setAtlasQuestion] = useState("");
   const [completionVisible, setCompletionVisible] = useState(false);
-  const selectedModule = courseModules[selectedModuleIndex];
+  const selectedModule = availableModules[selectedModuleIndex];
   const selectedLesson = selectedModule.lessons[selectedLessonIndex];
   const lessonKey = `${selectedModule.title}-${selectedLesson.title}`;
-  const totalLessons = courseModules.reduce((total, module) => total + module.lessons.length, 0);
+  const totalLessons = availableModules.reduce((total, module) => total + module.lessons.length, 0);
   const visualProgress = Math.round((completedLessons.length / totalLessons) * 100);
   const currentFlashcard = selectedLesson.flashcards[flashcardIndex];
   const isBookmarked = bookmarks.includes(lessonKey);
   const isLessonComplete = completedLessons.includes(lessonKey);
   const recommendedNextLesson =
     selectedModule.lessons[selectedLessonIndex + 1]?.title ||
-    courseModules[selectedModuleIndex + 1]?.lessons[0]?.title ||
+    availableModules[selectedModuleIndex + 1]?.lessons[0]?.title ||
     "Certification practice quiz";
 
   function selectModule(index: number) {
@@ -2186,7 +2193,7 @@ export function StudyPlan({
       return;
     }
 
-    if (selectedModuleIndex < courseModules.length - 1) {
+    if (selectedModuleIndex < availableModules.length - 1) {
       setTimeout(() => {
         setSelectedModuleIndex(selectedModuleIndex + 1);
         setSelectedLessonIndex(0);
@@ -2207,9 +2214,10 @@ export function StudyPlan({
         <div>
           <p className="eyebrow">Course Viewer</p>
           <h2>MedPath Foundations</h2>
+          {isFree && <p>Free study plan: Introduction module. Upgrade to unlock every module.</p>}
         </div>
         <div className="course-module-list">
-          {courseModules.map((module, index) => (
+          {availableModules.map((module, index) => (
             <button
               className={index === selectedModuleIndex ? "course-module-item active" : "course-module-item"}
               key={module.title}
@@ -2463,12 +2471,13 @@ export function StudyPlan({
   );
 }
 
-export function Clinical() {
+export function Clinical({ plan }: { plan: PlanKey }) {
   return (
     <div className="stack">
       <div className="page-title">
         <p className="eyebrow">PathClinical</p>
         <h2>Feel ready before you step into clinicals.</h2>
+        {plan === "explorer" && <p>Free preview: 3 clinical preparation topics. Upgrade to explore all topics.</p>}
       </div>
       <section className="clinical-grid">
         {[
@@ -2478,7 +2487,7 @@ export function Clinical() {
           ["Common mistakes", "Rushing, unclear communication, and not asking for clarification."],
           ["Professional communication", "Use closed-loop language and document promptly."],
           ["Clinical simulations", "Pro scenario practice unlocks adaptive feedback."]
-        ].map(([title, copy]) => (
+        ].slice(0, plan === "explorer" ? 3 : undefined).map(([title, copy]) => (
           <article className="panel checklist" key={title}>
             <ClipboardCheck />
             <h3>{title}</h3>
