@@ -275,18 +275,19 @@ export type StudentProgress = {
 };
 
 export const studentProgressSeed: StudentProgress = {
-  userId: "",
+  weeklyProgress: 0,
+pathProgress: 0,  userId: "",
   program: "",
   certificationGoal: "Certification readiness",
-  examDate: "2026-08-14",
+examDate: "",
   weeklyProgress: 64,
   pathProgress: 52,
-  streakDays: 14,
-  xp: 2480,
+ streakDays: 0,
+xp: 0,
   level: "Clinician in Training",
   nextMilestone: "Certification",
   recommendedTopic: "Instrumentation and sterile field maintenance",
-  upcomingGoals: [
+  upcomingGoals: [],
     {
       id: "goal-sterile-technique",
       title: "Review sterile technique scenarios",
@@ -309,7 +310,7 @@ export const studentProgressSeed: StudentProgress = {
       status: "in_progress"
     }
   ],
-  recentActivity: [
+ recentActivity: [],
     {
       id: "activity-sterile-quiz",
       title: "Sterile technique quiz",
@@ -335,28 +336,28 @@ export const studentProgressSeed: StudentProgress = {
       id: "module-quiz",
       title: "Medical terminology quiz",
       category: "Quiz",
-      progress: 72,
+      progress: 0,
       status: "Continue"
     },
     {
       id: "module-flashcards",
       title: "Vital signs flashcards",
       category: "Flashcards",
-      progress: 46,
+      progress: 0,
       status: "Review"
     },
     {
       id: "module-practice-exam",
       title: "Certification practice exam",
       category: "Practice Exam",
-      progress: 18,
+      progress: 0,
       status: "Start"
     },
     {
       id: "module-atlas",
       title: "Ask Atlas about weak spots",
       category: "Atlas Tutor",
-      progress: 100,
+      progress: 0,
       status: "Open"
     }
   ]
