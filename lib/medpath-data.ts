@@ -54,7 +54,11 @@ export const planAccess: Record<PlanKey, FeatureKey[]> = {
   explorer: [
     "careerExplorer",
     "pathFinderQuiz",
-    "atlas"
+    "atlas",
+    "practice",
+    "flashcards",
+    "studyPlans",
+    "clinicalPrep"
   ],
   student_plus: [
     "careerExplorer",
