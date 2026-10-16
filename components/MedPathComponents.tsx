@@ -4057,6 +4057,37 @@ export function ResumeBuilder({ name, program }: { name: string; program: string
     summary: ""
   });
   const [generated, setGenerated] = useState(false);
+  const [importedText, setImportedText] = useState("");
+  const [importMessage, setImportMessage] = useState("");
+  const [sourceName, setSourceName] = useState("");
+  const importResume = async (file?: File) => {
+    if (!file) return;
+    setImportMessage("");
+    if (!/\\.(txt|md)$/i.test(file.name)) {
+      setImportMessage("This version supports .txt and .md uploads. For PDF or Word résumés, copy the text into the import box below.");
+      return;
+    }
+    if (file.size > 1024 * 1024) {
+      setImportMessage("Please choose a text file smaller than 1 MB.");
+      return;
+    }
+    try {
+      const text = await file.text();
+      setImportedText(text);
+      setSourceName(file.name);
+      setGenerated(false);
+      setImportMessage("Résumé imported. Review and edit the source text, then transfer details into the fields below.");
+    } catch {
+      setImportMessage("Couldn't read this file. Try pasting the résumé text instead.");
+    }
+  };
+  const startNew = () => {
+    setDetails({ fullName: name, email: "", phone: "", location: "", targetRole: program, education: "", certifications: "", skills: "", experience: "", projects: "", summary: "" });
+    setImportedText("");
+    setSourceName("");
+    setImportMessage("");
+    setGenerated(false);
+  };
   const update = (field: keyof typeof details, value: string) => {
     setDetails(previous => ({ ...previous, [field]: value }));
     setGenerated(false);
@@ -4074,6 +4105,24 @@ export function ResumeBuilder({ name, program }: { name: string; program: string
         <h2>Build your healthcare resume.</h2>
         <p>Use your real education, skills and experience to create a professional resume. No prior job experience required.</p>
       </div>
+      <section className="panel form-panel">
+        <h3>Start with an existing résumé or create a new one</h3>
+        <p>Upload a plain-text résumé, paste your existing résumé, or start fresh. Review all information before generating your updated résumé.</p>
+        <label htmlFor="resume-upload">Upload existing résumé (.txt or .md)
+          <input id="resume-upload" type="file" accept=".txt,.md,text/plain,text/markdown" onChange={(event) => { void importResume(event.target.files?.[0]); }} />
+        </label>
+        <button type="button" className="secondary" onClick={startNew}>Create a new résumé</button>
+        {importMessage && <p role="status">{importMessage}</p>}
+        <label htmlFor="resume-import-text">Existing résumé text {sourceName ? `(${sourceName})` : ""}
+          <textarea id="resume-import-text" value={importedText} onChange={event => setImportedText(event.target.value)} rows={7} placeholder="Paste your previous résumé here to review and edit its content..." />
+        </label>
+        <button type="button" className="secondary" disabled={!importedText.trim()} onClick={() => {
+          setDetails(previous => ({ ...previous, experience: importedText.trim() }));
+          setGenerated(false);
+          setImportMessage("Source text copied into Experience for editing. Move education, skills and certifications into their corresponding fields before generating.");
+        }}>Use imported text in editor</button>
+        <small>Files and pasted text are processed in this browser session; they are not uploaded to MedPath servers or saved to your account.</small>
+      </section>
       <section className="resume-layout">
         <form className="panel form-panel" onSubmit={(event) => { event.preventDefault(); setGenerated(true); }}>
           <label htmlFor="resume-type">Resume type
