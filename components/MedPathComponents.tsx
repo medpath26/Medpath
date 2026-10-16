@@ -364,7 +364,7 @@ export function Landing({ onStart, onCareers }: { onStart: () => void; onCareers
             ["Explorer", "Free", "Career exploration, daily motivation, limited Atlas, and starter practice."],
             ["Student Plus", "$14.99/mo", "Unlimited Atlas, practice questions, study plans, clinical prep, and hiring tools."],
             ["Pro Student", "$29.99/mo", "Adaptive lessons, mock exams, advanced analytics, and priority guidance."],
-            ["Founding Member", "$9.99/mo", "The first 20 members lock in Pro access and early-adopter pricing."]
+            ["Founding Member", "$9.99/mo", "The first 50 members lock in Elite access at the Founding Member price."]
           ].map(([name, price, copy]) => (
             <article className="price-card" key={name}>
               <h3>{name}</h3>
