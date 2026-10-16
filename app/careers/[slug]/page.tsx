@@ -41,7 +41,7 @@ export default async function CareerDetails({ params }: { params: Promise<{ slug
   ];
   return (
     <main style={{ maxWidth: 940, margin: "0 auto", padding: "48px 20px", fontFamily: "Arial, sans-serif", lineHeight: 1.6 }}>
-      <Link href="/?view=careers" style={{ color: "#1d4ed8" }}>← Back to Careers</Link>
+      <Link href="/?view=career" style={{ color: "#1d4ed8" }}>← Back to Careers</Link>
       <p style={{ marginTop: 32, color: "#315b8c", fontWeight: 700 }}>MEDPATH · CAREER PATHWAY GUIDE</p>
       <h1 style={{ fontSize: "clamp(2rem, 5vw, 3rem)", marginBottom: 8 }}>{title}</h1>
       <p>Explore the responsibilities, preparation, and opportunities associated with this healthcare pathway.</p>
@@ -54,7 +54,7 @@ export default async function CareerDetails({ params }: { params: Promise<{ slug
         ))}
       </div>
       <p style={{ marginTop: 28, color: "#475569" }}>Career details are introductory and illustrative. Salary, credential requirements, and job settings vary by state and employer. Verify details with the relevant licensing board, training program, and <a href="https://www.bls.gov/ooh/healthcare/">U.S. Bureau of Labor Statistics</a>.</p>
-      <Link href="/?view=careers" style={{ color: "#1d4ed8" }}>← Explore more careers</Link>
+      <Link href="/?view=career" style={{ color: "#1d4ed8" }}>← Explore more careers</Link>
     </main>
   );
 }
