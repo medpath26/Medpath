@@ -2457,6 +2457,7 @@ export function StudyPlan({
   examDate,
   studyHours,
   schedule,
+  userId,
   setExamDate,
   setStudyHours
 }: {
@@ -2465,6 +2466,7 @@ export function StudyPlan({
   examDate: string;
   studyHours: number;
   schedule: string[];
+  userId: string;
   setExamDate: (value: string) => void;
   setStudyHours: (value: number) => void;
 }) {
@@ -3274,6 +3276,50 @@ export function StudyPlan({
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [bookmarks, setBookmarks] = useState<string[]>([]);
   const [completedLessons, setCompletedLessons] = useState<string[]>([]);
+  const [studySeconds, setStudySeconds] = useState(0);
+  const [trackingReady, setTrackingReady] = useState(false);
+  const storageKey = `medpath-study-hub:${userId || "guest"}:${program}`;
+  const weekStart = (() => {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() - ((date.getDay() + 6) % 7));
+    return date.toLocaleDateString("en-CA");
+  })();
+  useEffect(() => {
+    setTrackingReady(false);
+    try {
+      const saved = JSON.parse(window.localStorage.getItem(storageKey) || "{}");
+      setCompletedLessons(Array.isArray(saved.completed) ? saved.completed.filter((item: unknown): item is string => typeof item === "string") : []);
+      setStudySeconds(saved.week === weekStart && Number.isFinite(saved.seconds) ? Math.max(0, saved.seconds) : 0);
+    } catch {
+      setCompletedLessons([]);
+      setStudySeconds(0);
+    }
+    setTrackingReady(true);
+  }, [storageKey, weekStart]);
+  useEffect(() => {
+    if (!trackingReady) return;
+    try { window.localStorage.setItem(storageKey, JSON.stringify({ completed: completedLessons, week: weekStart, seconds: studySeconds })); } catch {}
+  }, [trackingReady, storageKey, completedLessons, weekStart, studySeconds]);
+  useEffect(() => {
+    if (!trackingReady) return;
+    // Count only active study sessions; an idle or background tab earns no time.
+    let lastActivity = Date.now();
+    const recordActivity = () => { lastActivity = Date.now(); };
+    const events = ["pointerdown", "keydown", "scroll", "touchstart"];
+    events.forEach(event => window.addEventListener(event, recordActivity, { passive: true }));
+    const tick = () => {
+      if (document.visibilityState === "visible" && document.hasFocus() && Date.now() - lastActivity < 120000) {
+        setStudySeconds(seconds => seconds + 1);
+      }
+    };
+    const interval = window.setInterval(tick, 1000);
+    return () => {
+      window.clearInterval(interval);
+      events.forEach(event => window.removeEventListener(event, recordActivity));
+    };
+  }, [trackingReady]);
+
   const [atlasOpen, setAtlasOpen] = useState(false);
   const [atlasQuestion, setAtlasQuestion] = useState("");
   const [completionVisible, setCompletionVisible] = useState(false);
@@ -3281,7 +3327,7 @@ export function StudyPlan({
   const selectedLesson = selectedModule.lessons[selectedLessonIndex];
   const lessonKey = `${selectedModule.title}-${selectedLesson.title}`;
   const totalLessons = availableModules.reduce((total, module) => total + module.lessons.length, 0);
-  const visualProgress = Math.round((completedLessons.length / totalLessons) * 100);
+  const visualProgress = Math.round((availableModules.reduce((count, module) => count + module.lessons.filter(lesson => completedLessons.includes(`${module.title}-${lesson.title}`)).length, 0) / Math.max(1, totalLessons)) * 100);
   const lessonFlashcards: string[][] = [
     ...selectedLesson.flashcards,
     ["What is the main concept of this lesson?", selectedLesson.definition],
@@ -3529,22 +3575,15 @@ export function StudyPlan({
       <aside className="course-right-sidebar">
         <article className="course-side-card">
           <small>Course Progress</small>
-          <strong>{Math.max(visualProgress, Math.round(selectedModule.progress / 2))}%</strong>
+          <strong>{visualProgress}%</strong>
           <div className="progress-bar">
-            <span style={{ width: `${Math.max(visualProgress, Math.round(selectedModule.progress / 2))}%` }} />
+            <span style={{ width: `${visualProgress}%` }} />
           </div>
         </article>
         <article className="course-side-card">
           <small>Time Studied</small>
-          <strong>{studyHours}h this week</strong>
-          <input
-            type="range"
-            min="3"
-            max="18"
-            value={studyHours}
-            onChange={(event) => setStudyHours(Number(event.target.value))}
-            aria-label="Study hours this week"
-          />
+          <strong>{Math.floor(studySeconds / 3600)}h {Math.floor((studySeconds % 3600) / 60)}m this week</strong>
+          <p><small>Automatically tracked during active Study Hub lessons (pauses after 2 minutes of inactivity). Weekly goal: {studyHours}h.</small></p>
         </article>
         <article className="course-side-card">
           <small>Current Streak</small>
