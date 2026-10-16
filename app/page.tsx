@@ -1109,8 +1109,6 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
             <option value="student_plus">Student Plus</option>
             <option value="pro_student">Pro Student</option>
             <option value="founding_member">Founding Member</option>
-            <option value="institution_student">Institution Student</option>
-            <option value="institution_admin">Institution Admin</option>
           </select>
           {previewPlan && <p role="status">Preview mode active. Server permissions and payments still use your real account.</p>}
         </section>
