@@ -1168,14 +1168,7 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
             {view === "billing" && (
               <Billing plan={displayPlan} setPlan={startCheckout} onLock={setLockedFeature} isSignedIn error={authError} onManageBilling={openBillingPortal} />
             )}
-            {view === "admin" && isAdmin && (
-              <Admin
-                users={filteredUsers}
-                search={adminSearch}
-                setSearch={setAdminSearch}
-                setPlan={() => undefined}
-              />
-            )}
+            {view === "admin" && isAdmin && <Admin />}
           </section>
         </div>
       )}
