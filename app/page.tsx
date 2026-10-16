@@ -1158,7 +1158,7 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
                 setStudyHours={setStudyHours}
               />
             )}
-            {view === "clinical" && <Clinical plan={plan} />}
+            {view === "clinical" && <Clinical plan={plan} program={program} />}
             {view === "career" && <CareerExplorer plan={displayPlan} />}
             {view === "roadmaps" && <CareerRoadmaps />}
             {view === "resume" && <ResumeBuilder name={name} program={program} />}
