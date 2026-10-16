@@ -3608,12 +3608,90 @@ const clinicalTopicsByProgram: Record<string, ClinicalTopic> = {
   "Nurse Practitioner (NP)": { title: "Advanced nursing clinicals", description: "Prepare for supervised advanced practice training.", checklist: ["Review focused assessments and clinical reasoning.","Practice concise differential and plan presentations.","Confirm decisions and prescribing activities with your preceptor."] },
   "Registered Nurse (RN)": { title: "Nursing clinical readiness", description: "Prepare for supervised nursing clinical rotations.", checklist: ["Review head-to-toe assessment and vital signs.","Practice SBAR communication and patient safety checks.","Perform medications and procedures only under authorized supervision."] }
 };
+const additionalClinicalTopicsByProgram: Record<string, ClinicalTopic[]> = {
+  "Medical Assistant": [
+    { title: "Rooming and vital signs", description: "Review pathway-specific readiness and supervised responsibilities.", checklist: ["Prepare room and calibrated equipment","Document readings accurately under supervision","Report abnormal measurements promptly"] },
+    { title: "Specimen and procedure support", description: "Practice safe communication, workflow, and escalation.", checklist: ["Verify orders and patient identity","Prepare labeled supplies using clinic policy","Follow permitted specimen-handling procedures"] }
+  ],
+  "Surgical Technologist": [
+    { title: "Instrument and count readiness", description: "Review pathway-specific readiness and supervised responsibilities.", checklist: ["Review procedure-specific instruments","Participate in counts according to team policy","Report discrepancies without delay"] },
+    { title: "Surgical time-out and handoff", description: "Practice safe communication, workflow, and escalation.", checklist: ["Know the time-out purpose and your role","Communicate sterility concerns immediately","Follow supervised specimen handoff protocols"] }
+  ],
+  "Sterile Processing Technician": [
+    { title: "Assembly and inspection", description: "Review pathway-specific readiness and supervised responsibilities.", checklist: ["Inspect instruments for cleanliness and damage","Check tray assembly against approved count sheets","Escalate missing or defective items"] },
+    { title: "Sterilization quality checks", description: "Practice safe communication, workflow, and escalation.", checklist: ["Review approved cycle and load requirements","Verify monitoring records per facility policy","Quarantine failed or questionable loads"] }
+  ],
+  "Phlebotomy Technician": [
+    { title: "Collection workflow", description: "Review pathway-specific readiness and supervised responsibilities.", checklist: ["Verify two identifiers and test orders","Review collection site and tube order requirements","Use approved sharps disposal immediately"] },
+    { title: "Specimen transport", description: "Practice safe communication, workflow, and escalation.", checklist: ["Label tubes at bedside per policy","Review handling and temperature requirements","Escalate mismatched or compromised specimens"] }
+  ],
+  "Patient Care Technician": [
+    { title: "Mobility and comfort", description: "Review pathway-specific readiness and supervised responsibilities.", checklist: ["Review assistance level and fall-risk precautions","Use approved transfer equipment with supervision","Protect privacy during personal care"] },
+    { title: "Monitoring and escalation", description: "Practice safe communication, workflow, and escalation.", checklist: ["Practice intake and output documentation as assigned","Report unusual vital signs promptly","Communicate patient changes to the nurse"] }
+  ],
+  "EKG Technician": [
+    { title: "Lead placement and tracing", description: "Review pathway-specific readiness and supervised responsibilities.", checklist: ["Review 12-lead placement landmarks","Check skin preparation and lead contact","Identify and correct motion artifact"] },
+    { title: "Safety and reporting", description: "Practice safe communication, workflow, and escalation.", checklist: ["Verify order and patient identity","Follow facility escalation protocols for concerning symptoms","Document technical limitations accurately"] }
+  ],
+  "Certified Nursing Assistant": [
+    { title: "Personal care and dignity", description: "Review pathway-specific readiness and supervised responsibilities.", checklist: ["Confirm individualized care plan","Use safe hygiene and positioning practices","Maintain patient privacy and preferences"] },
+    { title: "Observations and handoff", description: "Practice safe communication, workflow, and escalation.", checklist: ["Record assigned intake and output accurately","Report skin changes and fall concerns","Give clear handoff to supervising nurse"] }
+  ],
+  "Pharmacy Technician": [
+    { title: "Prescription processing", description: "Review pathway-specific readiness and supervised responsibilities.", checklist: ["Check required prescription details","Use approved workflows for data entry","Refer clinical questions to pharmacist"] },
+    { title: "Inventory and safety", description: "Practice safe communication, workflow, and escalation.", checklist: ["Review expiration and storage requirements","Follow controlled-substance handling policy","Escalate discrepancies to pharmacist"] }
+  ],
+  "Medical Billing and Coding": [
+    { title: "Documentation integrity", description: "Review pathway-specific readiness and supervised responsibilities.", checklist: ["Identify missing provider documentation","Avoid assigning unsupported diagnoses","Use approved clarification workflows"] },
+    { title: "Claims and privacy", description: "Practice safe communication, workflow, and escalation.", checklist: ["Review coding updates and payer rules","Protect access to patient information","Escalate denials and inconsistencies appropriately"] }
+  ],
+  "Emergency Medical Technician": [
+    { title: "Scene and equipment readiness", description: "Review pathway-specific readiness and supervised responsibilities.", checklist: ["Review scene safety and hazard recognition","Check oxygen and assigned equipment per policy","Confirm PPE and communication readiness"] },
+    { title: "Patient handoff", description: "Practice safe communication, workflow, and escalation.", checklist: ["Practice structured assessment reporting","Document care within your training level","Follow local protocols and medical direction"] }
+  ],
+  "Dental Assistant": [
+    { title: "Chairside preparation", description: "Review pathway-specific readiness and supervised responsibilities.", checklist: ["Set up procedure-specific supplies","Review four-handed dentistry workflows","Confirm sterilized instruments and barriers"] },
+    { title: "Dental safety", description: "Practice safe communication, workflow, and escalation.", checklist: ["Follow radiography authorization and protection rules","Review instrument transfer and sharps handling","Escalate contamination concerns"] }
+  ],
+  "Radiologic Technologist": [
+    { title: "Exam preparation", description: "Review pathway-specific readiness and supervised responsibilities.", checklist: ["Confirm correct examination and patient identifiers","Review positioning and patient mobility needs","Check pregnancy screening policy where applicable"] },
+    { title: "Radiation protection", description: "Practice safe communication, workflow, and escalation.", checklist: ["Review exposure optimization principles","Follow shielding and facility procedures as applicable","Report equipment or image-quality concerns"] }
+  ],
+  "Diagnostic Medical Sonographer": [
+    { title: "Scan preparation", description: "Review pathway-specific readiness and supervised responsibilities.", checklist: ["Confirm indication and exam protocol","Prepare appropriate transducer and supplies","Review patient comfort and positioning"] },
+    { title: "Image quality and reporting", description: "Practice safe communication, workflow, and escalation.", checklist: ["Practice standard image labeling","Review infection-control requirements for probes","Escalate urgent observations to supervising clinician"] }
+  ],
+  "Doctor of Medicine (MD)": [
+    { title: "History and examination", description: "Review pathway-specific readiness and supervised responsibilities.", checklist: ["Prepare focused history questions","Practice supervised physical examination","Present pertinent positive and negative findings"] },
+    { title: "Clinical reasoning and follow-up", description: "Practice safe communication, workflow, and escalation.", checklist: ["Develop a supervised differential diagnosis","Review documentation and handoff expectations","Confirm management decisions with attending"] }
+  ],
+  "Doctor of Osteopathic Medicine (DO)": [
+    { title: "History and osteopathic assessment", description: "Review pathway-specific readiness and supervised responsibilities.", checklist: ["Prepare focused history and examination","Review indications and contraindications before hands-on skills","Obtain appropriate supervision and consent"] },
+    { title: "Clinical reasoning and follow-up", description: "Practice safe communication, workflow, and escalation.", checklist: ["Practice clear assessment presentations","Review follow-up and documentation","Confirm all plans with preceptor"] }
+  ],
+  "Surgeon (MD/DO Specialty)": [
+    { title: "Preoperative planning", description: "Review pathway-specific readiness and supervised responsibilities.", checklist: ["Review patient identity and procedure verification","Understand consent and safety checklist roles","Review anticipated risks with supervising team"] },
+    { title: "Operative and postoperative communication", description: "Practice safe communication, workflow, and escalation.", checklist: ["Maintain sterile technique within assigned role","Communicate concerns and count discrepancies","Practice supervised postoperative handoffs"] }
+  ],
+  "Physician Assistant / Associate (PA)": [
+    { title: "Clinical encounter workflow", description: "Review pathway-specific readiness and supervised responsibilities.", checklist: ["Prepare focused history and examination","Practice concise oral presentations","Document findings for preceptor review"] },
+    { title: "Assessment and management", description: "Practice safe communication, workflow, and escalation.", checklist: ["Form a supervised differential diagnosis","Review testing and follow-up considerations","Confirm orders and plans with preceptor"] }
+  ],
+  "Nurse Practitioner (NP)": [
+    { title: "Advanced assessment", description: "Review pathway-specific readiness and supervised responsibilities.", checklist: ["Prepare focused assessment and history","Practice differential diagnosis presentations","Review red flags requiring escalation"] },
+    { title: "Plan and follow-up", description: "Practice safe communication, workflow, and escalation.", checklist: ["Review evidence-based care planning with preceptor","Confirm medication and prescribing authority limits","Document supervised follow-up plans"] }
+  ],
+  "Registered Nurse (RN)": [
+    { title: "Head-to-toe assessment", description: "Review pathway-specific readiness and supervised responsibilities.", checklist: ["Review systematic assessment steps","Practice vital signs and pain assessment","Report unexpected findings to instructor"] },
+    { title: "Medication and documentation safety", description: "Practice safe communication, workflow, and escalation.", checklist: ["Review medication rights and allergy verification","Perform medication tasks only when authorized and supervised","Practice SBAR handoff and timely charting"] }
+  ]
+};
 export function Clinical({ plan, program }: { plan: PlanKey; program: string }) {
   const specializedTopic = clinicalTopicsByProgram[program];
   const topics = [...commonClinicalTopics, specializedTopic ?? {
     title: "Program clinical readiness", description: "Prepare for the clinical expectations of your chosen program.",
     checklist: ["Review your program's required competencies.", "Confirm your supervisor and authorized student scope.", "Ask for guidance before unfamiliar procedures."]
-  }];
+  }, ...(additionalClinicalTopicsByProgram[program] ?? [])];
   const visibleTopics = plan === "explorer" ? topics.slice(0, 3) : topics;
   const [checked, setChecked] = useState<string[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -3639,9 +3717,9 @@ export function Clinical({ plan, program }: { plan: PlanKey; program: string }) 
             {expanded === topic.title && <div>
               {topic.checklist.map((item, index) => {
                 const key = `${program}:${topic.title}:${index}`;
-                return <label key={key} style={{ display: "flex", gap: "0.5rem", alignItems: "flex-start", marginTop: "0.75rem" }}>
-                  <input type="checkbox" checked={checked.includes(key)} onChange={event => setChecked(previous => event.target.checked ? [...previous, key] : previous.filter(value => value !== key))} />
-                  <span>{item}</span>
+                return <label key={key} style={{ display: "grid", gridTemplateColumns: "18px minmax(0, 1fr)", columnGap: "0.75rem", alignItems: "start", width: "100%", minWidth: 0, marginTop: "0.75rem", cursor: "pointer" }}>
+                  <input type="checkbox" style={{ width: 18, minWidth: 18, height: 18, margin: 0, padding: 0 }} checked={checked.includes(key)} onChange={event => setChecked(previous => event.target.checked ? [...previous, key] : previous.filter(value => value !== key))} />
+                  <span style={{ minWidth: 0, overflowWrap: "anywhere", whiteSpace: "normal", lineHeight: 1.5 }}>{item}</span>
                 </label>;
               })}
             </div>}
