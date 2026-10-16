@@ -240,7 +240,12 @@ export const plans: Record<
 };
 
 export function canAccess(plan: PlanKey, feature: FeatureKey) {
-  return planAccess[plan].includes(feature);
+  // Roles read from persisted profiles are runtime strings, even when typed as PlanKey.
+  // Fail closed for unknown roles instead of crashing the entire workspace.
+  const permissions = Object.prototype.hasOwnProperty.call(planAccess, plan)
+    ? planAccess[plan]
+    : undefined;
+  return Array.isArray(permissions) && permissions.includes(feature);
 }
 
 export type StudentProgress = {
