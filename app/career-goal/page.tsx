@@ -140,14 +140,14 @@ export default async function CareerGoalPage({ searchParams }: { searchParams: P
     ["Maintain your credential", "Check renewal dates, continuing education, employer competency assessments, and any state registration requirements."]
   ] : [];
   return <main style={{maxWidth:900,margin:"0 auto",padding:"42px 22px",fontFamily:"Arial,sans-serif",lineHeight:1.65,color:"#102d52"}}>
-    <Link href="/?view=career">← Back to Careers</Link>
+    <Link href="/?view=practice" style={{color:"#127c93",fontWeight:700}}>← Back to PathPrep</Link>
     <p style={{marginTop:28,fontWeight:700,color:"#159fa7"}}>MEDPATH · CAREER GOAL PATHWAY</p>
     <h1 style={{fontSize:"clamp(2rem,5vw,3rem)",marginBottom:8}}>{title || "Choose a career goal"}</h1>
     {title ? <>
       <p>Your informational roadmap from exploring this profession to preparing for employment.</p>
-      <h2>Steps toward your career goal</h2>
+      <h2 style={{marginTop:30,color:"#102d52"}}>Steps toward your career goal</h2>
       <ol style={{paddingLeft:26}}>
-        {steps.map(([heading,body]) => <li key={heading} style={{padding:"12px 10px",marginBottom:12,background:"#f3f8fb",borderRadius:10}}>
+        {steps.map(([heading,body]) => <li key={heading} style={{padding:"12px 10px",marginBottom:12,background:"linear-gradient(100deg,#effafb,#f4f8fc)",border:"1px solid #c7e7ea",borderLeft:"5px solid #159fa7",borderRadius:12}}>
           <strong>{heading}</strong><p style={{margin:"5px 0"}}>{body}</p>
         </li>)}
       </ol>
