@@ -3361,26 +3361,11 @@ export function StudyPlan({
     setCompletionVisible(false);
   }
 
-  function advanceLesson() {
+  function completeLesson() {
     if (!completedLessons.includes(lessonKey)) {
       setCompletedLessons((items) => [...items, lessonKey]);
     }
     setCompletionVisible(true);
-
-    if (selectedLessonIndex < selectedModule.lessons.length - 1) {
-      setTimeout(() => selectLesson(selectedLessonIndex + 1), 450);
-      return;
-    }
-
-    if (selectedModuleIndex < availableModules.length - 1) {
-      setTimeout(() => {
-        setSelectedModuleIndex(selectedModuleIndex + 1);
-        setSelectedLessonIndex(0);
-        setSelectedAnswer("");
-        setFlashcardIndex(0);
-        setFlippedCard(false);
-      }, 450);
-    }
   }
 
   function toggleBookmark() {
@@ -3430,6 +3415,7 @@ export function StudyPlan({
           <div className="progress-bar" aria-label={`${visualProgress}% course progress`}>
             <span style={{ width: `${visualProgress}%` }} />
           </div>
+          <p><small>Choose any available lesson in any order. Completed lessons remain available to review.</small></p>
           <div className="course-lesson-tabs" aria-label="Module lessons">
             {selectedModule.lessons.map((lesson, index) => (
               <button
@@ -3437,7 +3423,7 @@ export function StudyPlan({
                 key={lesson.title}
                 onClick={() => selectLesson(index)}
               >
-                {lesson.title}
+                {completedLessons.includes(`${selectedModule.title}-${lesson.title}`) ? "✓ " : ""}{lesson.title}
               </button>
             ))}
           </div>
@@ -3567,9 +3553,23 @@ export function StudyPlan({
           </section>
         )}
 
-        <button className="primary continue-lesson-button" onClick={advanceLesson}>
-          Next Lesson <ChevronRight size={18} />
-        </button>
+        <div className="stack">
+          <button className="primary continue-lesson-button" onClick={completeLesson} disabled={isLessonComplete}>
+            {isLessonComplete ? "✓ Lesson Completed" : "Mark Lesson Complete"} <Check size={18} />
+          </button>
+          <label htmlFor="study-hub-choose-lesson"><strong>Choose your next lesson</strong></label>
+          <select id="study-hub-choose-lesson" value={`${selectedModuleIndex}:${selectedLessonIndex}`} onChange={(event) => {
+            const [moduleIndex, lessonIndex] = event.target.value.split(":").map(Number);
+            selectModule(moduleIndex);
+            selectLesson(lessonIndex);
+          }}>
+            {availableModules.flatMap((module, moduleIndex) => module.lessons.map((lesson, lessonIndex) => (
+              <option key={`${moduleIndex}:${lessonIndex}`} value={`${moduleIndex}:${lessonIndex}`}>
+                {completedLessons.includes(`${module.title}-${lesson.title}`) ? "✓ " : ""}{module.title} — {lesson.title}
+              </option>
+            )))}
+          </select>
+        </div>
       </main>
 
       <aside className="course-right-sidebar">
