@@ -12,7 +12,7 @@ const fallback: CareerPath[] = [
 const slugify = (title: string) => title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const allCareers = [...careers, ...fallback.filter(item => !careers.some(c => c.title === item.title))];
 const careerBySlug = new Map(allCareers.map(c => [slugify(c.title), c]));
-const pathwayBySlug = new Map(healthcarePathways.map(p => [p.id, p]));
+const pathwayBySlug = new Map<string, (typeof healthcarePathways)[number]>(healthcarePathways.map(p => [p.id, p]));
 
 export function generateStaticParams() {
   return [...new Set([...careerBySlug.keys(), ...pathwayBySlug.keys()])].map(slug => ({ slug }));
