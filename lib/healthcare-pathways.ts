@@ -17,6 +17,7 @@ export const healthcarePathways = [
   { id: "doctor-of-osteopathic-medicine", label: "Doctor of Osteopathic Medicine (DO)", flashcardCategory: "Doctor of Osteopathic Medicine" },
   { id: "surgeon", label: "Surgeon (MD/DO Specialty)", flashcardCategory: "Surgery" },
   { id: "physician-assistant", label: "Physician Assistant / Associate (PA)", flashcardCategory: "Physician Assistant" },
+  { id: "registered-nurse", label: "Registered Nurse (RN)", flashcardCategory: "Registered Nursing" },
   { id: "nurse-practitioner", label: "Nurse Practitioner (NP)", flashcardCategory: "Nurse Practitioner" }
 ] as const;
 
