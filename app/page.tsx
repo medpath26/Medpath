@@ -1153,7 +1153,6 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
                 program={program}
                 examDate={examDate}
                 studyHours={studyHours}
-                userId={authUser?.id ?? ""}
                 schedule={generatedSchedule}
                 userId={authUser?.id ?? ""}
                 setExamDate={setExamDate}
