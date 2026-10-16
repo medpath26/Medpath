@@ -4003,7 +4003,7 @@ export function CareerExplorer({ plan }: { plan: PlanKey }) {
             <button
               className="secondary compact career-learn-more"
               type="button"
-              onClick={() => setSelectedCareerTitle(career.title)}
+              onClick={() => { window.location.href = `/careers/${encodeURIComponent(career.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""))}`; }}
             >
               Learn More
               <ChevronRight size={16} />
