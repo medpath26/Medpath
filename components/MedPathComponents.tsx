@@ -2171,6 +2171,26 @@ export function Practice({ initialMode, plan, program }: { initialMode: "flashca
         </p>
       </div>
 
+      {program.trim() && (
+        <a
+          href={`/career-goal?goal=${encodeURIComponent(program)}`}
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            gap: 16, flexWrap: "wrap", padding: "24px 26px", marginBottom: 22,
+            borderRadius: 18, border: "2px solid #20b9c1",
+            background: "linear-gradient(110deg, #102d52 0%, #155b82 62%, #159fa7 100%)",
+            color: "#fff", textDecoration: "none", boxShadow: "0 12px 28px rgba(16,45,82,.18)"
+          }}
+        >
+          <span>
+            <span style={{display:"block",fontSize:13,fontWeight:800,letterSpacing:1,color:"#c6f6f4"}}>YOUR CAREER GOAL PATHWAY</span>
+            <strong style={{display:"block",fontSize:"clamp(1.25rem,2.6vw,1.8rem)",marginTop:7}}>{program}</strong>
+            <span style={{display:"block",marginTop:6,color:"#e5f6f9"}}>Explore your step-by-step career roadmap</span>
+          </span>
+          <span style={{background:"#fff",color:"#102d52",padding:"12px 18px",borderRadius:999,fontWeight:800}}>View My Pathway →</span>
+        </a>
+      )}
+
       <div className="practice-mode-tabs" role="tablist" aria-label="PathPrep study mode">
         <button
           className={studyMode === "flashcards" ? "active" : ""}
