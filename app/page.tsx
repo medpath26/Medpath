@@ -32,6 +32,7 @@ import {
 } from "@/components/MedPathComponents";
 import type { AtlasChatMessage, ViewKey } from "@/components/Common/types";
 import { CareerRoadmaps } from "@/components/CareerRoadmaps";
+import { WorkspaceErrorBoundary } from "@/components/WorkspaceErrorBoundary";
 import { getAuthCallbackUrl } from "@/lib/auth-redirects";
 import { healthcarePathways } from "@/lib/healthcare-pathways";
 import {
@@ -1094,6 +1095,7 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
         </section>
       )}
 
+      <WorkspaceErrorBoundary onReset={() => { setPreviewPlan(null); goTo("dashboard"); }}>
       {signedIn && isAdmin && workspaceReady && (
         <section className="panel" aria-label="Administrator subscription preview" style={{ margin: "1rem auto", maxWidth: "75rem" }}>
           <strong>Administrator · Subscription Preview</strong>
@@ -1177,6 +1179,7 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
           </section>
         </div>
       )}
+      </WorkspaceErrorBoundary>
 
       {view !== "landing" && signedIn && !workspaceReady && (
         <div className="shell">
