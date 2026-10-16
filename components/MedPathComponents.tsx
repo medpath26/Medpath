@@ -4197,61 +4197,24 @@ export function Billing({
   );
 }
 
-export function Admin({
-  users,
-  search,
-  setSearch,
-  setPlan
-}: {
-  users: typeof import("@/lib/medpath-data").users;
-  search: string;
-  setSearch: (value: string) => void;
-  setPlan: (plan: PlanKey) => void;
-}) {
+export function Admin() {
   return (
     <div className="stack">
       <div className="page-title">
         <p className="eyebrow">Administrator</p>
-        <h2>Revenue, users, subscriptions, and account controls.</h2>
+        <h2>MedPath business overview</h2>
+        <p>Business metrics and customer management will appear here after secure data connections are configured.</p>
       </div>
-      <section className="metric-grid">
-        <Metric title="Monthly Revenue" value="$18,420" icon={<CircleDollarSign />} />
-        <Metric title="Active Subscriptions" value="1,284" icon={<BadgeCheck />} />
-        <Metric title="Cancellations" value="32" icon={<X />} />
-        <Metric title="Trial Conversion" value="41%" icon={<BarChart3 />} />
+      <section className="metric-grid" aria-label="Business metrics">
+        <Metric title="Monthly Revenue" value="—" icon={<CircleDollarSign />} />
+        <Metric title="Active Subscriptions" value="—" icon={<BadgeCheck />} />
+        <Metric title="Cancellations" value="—" icon={<X />} />
+        <Metric title="Trial Conversion" value="—" icon={<BarChart3 />} />
       </section>
       <section className="panel">
-        <div className="admin-search">
-          <Search size={18} />
-          <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search users" />
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>User</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Controls</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr key={user.email}>
-                <td>
-                  <strong>{user.name}</strong>
-                  <small>{user.email}</small>
-                </td>
-                <td>{roleBadges[user.role]}</td>
-                <td>{user.status}</td>
-                <td>
-                  <button onClick={() => setPlan(user.role)}>Impersonate</button>
-                  <button>Suspend</button>
-                  <button>Grant free membership</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <h3>Customer accounts</h3>
+        <p>No customer records are connected to this dashboard yet.</p>
+        <p>Real users and subscription statuses will be displayed after a secure administrator-only Supabase integration. No sample users or account controls are shown.</p>
       </section>
     </div>
   );
