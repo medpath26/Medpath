@@ -1,4 +1,5 @@
 "use client";
+import { buildPathwayLessons } from "@/lib/pathway-lessons";
 
 import Image from "next/image";
 import {
@@ -3378,8 +3379,9 @@ export function StudyPlan({
       : normalizedProgram.includes("sterile processing")
         ? pathwayLessons.sterile
         : studyHubPathwayModules[program as keyof typeof studyHubPathwayModules] ?? courseModules;
+  const expandedPathModules = buildPathwayLessons(program) ?? pathModules;
   const isFree = plan === "explorer";
-  const availableModules = isFree ? pathModules.slice(0, 1) : pathModules;
+  const availableModules = isFree ? expandedPathModules.slice(0, 1) : expandedPathModules;
   const [selectedModuleIndex, setSelectedModuleIndex] = useState(0);
   const [selectedLessonIndex, setSelectedLessonIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState("");
