@@ -3587,35 +3587,33 @@ const commonClinicalTopics: ClinicalTopic[] = [
   { title: "Patient communication", description: "Practice respectful, clear communication.", checklist: ["Introduce yourself as a student and explain your role.", "Follow facility policy for verifying patient identity.", "Protect privacy and ask your supervisor when unsure."] },
   { title: "Infection prevention", description: "Use approved infection-control practices.", checklist: ["Perform hand hygiene at appropriate moments.", "Select PPE according to facility policy and precautions.", "Report breaks in technique to your supervising professional."] }
 ];
-const clinicalTopicsByPath: Record<string, ClinicalTopic[]> = {
-  nursing: [
-    { title: "Nursing assessment preparation", description: "Prepare for supervised patient assessments.", checklist: ["Review expected assessment steps with your clinical instructor.", "Practice accurate vital-sign measurement and reporting.", "Escalate abnormal findings promptly to your instructor or assigned nurse."] },
-    { title: "SBAR handoff", description: "Organize clinical communication.", checklist: ["State the situation and relevant background.", "Summarize your assessment without guessing.", "Clearly communicate the requested recommendation or next step."] },
-    { title: "Medication safety", description: "Follow supervised medication-administration procedures.", checklist: ["Review medication rights and institutional policies.", "Verify orders and allergies with your supervising nurse.", "Never administer medication beyond your authorized student scope."] }
-  ],
-  surgical: [
-    { title: "Operating room etiquette", description: "Prepare for the surgical team environment.", checklist: ["Review surgical attire and restricted-area rules.", "Respect sterile boundaries and identify contamination.", "Communicate clearly and follow the preceptor's direction."] },
-    { title: "Sterile field readiness", description: "Review foundational aseptic practices.", checklist: ["Review sterile field setup expectations.", "Identify breaks in sterility and report them immediately.", "Follow team counting and documentation protocols."] },
-    { title: "Surgical teamwork", description: "Practice safe team communication.", checklist: ["Understand the purpose of the surgical time-out.", "Anticipate needs only within your supervised role.", "Ask for clarification rather than guessing."] }
-  ],
-  assistant: [
-    { title: "Patient intake", description: "Prepare for supervised ambulatory care.", checklist: ["Practice respectful introductions and identification.", "Review vital signs and documentation workflows.", "Report concerns to the licensed supervising clinician."] },
-    { title: "Room preparation", description: "Prepare a safe patient-care space.", checklist: ["Check approved supplies and equipment.", "Follow cleaning and infection-control policies.", "Confirm tasks within your training and permitted scope."] }
-  ],
-  sterile: [
-    { title: "Instrument workflow", description: "Prepare for sterile processing rotations.", checklist: ["Review separation of dirty and clean workflows.", "Follow manufacturer instructions and facility procedures.", "Report damaged or improperly processed instruments."] },
-    { title: "Decontamination safety", description: "Practice safe handling principles.", checklist: ["Wear task-appropriate PPE.", "Follow approved cleaning and handling procedures.", "Ask your preceptor before handling unfamiliar equipment."] }
-  ]
+const clinicalTopicsByProgram: Record<string, ClinicalTopic> = {
+  "Medical Assistant": { title: "Patient intake", description: "Practice supervised ambulatory patient intake.", checklist: ["Confirm patient identity and explain your student role.","Review accurate vital-sign collection and documentation.","Escalate unexpected findings to your supervisor."] },
+  "Surgical Technologist": { title: "Surgical field readiness", description: "Prepare for the supervised operating-room environment.", checklist: ["Review scrub attire and sterile boundaries.","Identify contamination and report it immediately.","Follow instrument and sponge count protocols with the team."] },
+  "Sterile Processing Technician": { title: "Instrument reprocessing", description: "Prepare for safe sterile-processing workflow.", checklist: ["Separate dirty and clean work areas.","Review manufacturer instructions for instrument processing.","Report damage or failed processing checks."] },
+  "Phlebotomy Technician": { title: "Specimen collection readiness", description: "Prepare for supervised blood collection.", checklist: ["Confirm two patient identifiers and the order.","Review hand hygiene, sharps safety, and tube labeling.","Ask your supervisor before unfamiliar collections."] },
+  "Patient Care Technician": { title: "Bedside support", description: "Prepare for supervised bedside patient care.", checklist: ["Review mobility and fall-prevention precautions.","Practice vital-sign reporting and respectful assistance.","Escalate changes in patient condition promptly."] },
+  "EKG Technician": { title: "ECG acquisition", description: "Prepare for accurate supervised ECG recording.", checklist: ["Confirm patient identity and explain the procedure.","Review electrode placement and artifact reduction.","Report urgent concerns according to facility protocol."] },
+  "Certified Nursing Assistant": { title: "Daily living assistance", description: "Prepare for safe supervised personal care.", checklist: ["Review safe transfers and fall precautions.","Practice privacy, dignity, and infection prevention.","Report observations to the supervising nurse."] },
+  "Pharmacy Technician": { title: "Medication workflow support", description: "Prepare for supervised pharmacy operations.", checklist: ["Review medication labeling and storage requirements.","Practice accurate inventory and prescription workflow checks.","Refer clinical questions to the pharmacist."] },
+  "Medical Billing and Coding": { title: "Clinical documentation review", description: "Prepare for accurate health-information workflows.", checklist: ["Review privacy and authorized record access.","Practice identifying documentation gaps without guessing.","Escalate unclear codes or records to your supervisor."] },
+  "Emergency Medical Technician": { title: "Prehospital readiness", description: "Prepare for supervised emergency response.", checklist: ["Check assigned equipment and PPE.","Review scene safety and communication procedures.","Practice escalation and handoff within your training level."] },
+  "Dental Assistant": { title: "Dental operatory readiness", description: "Prepare for supervised dental procedures.", checklist: ["Review instrument setup and surface disinfection.","Practice patient identification and communication.","Follow sharps and radiography safety protocols."] },
+  "Radiologic Technologist": { title: "Imaging safety", description: "Prepare for supervised diagnostic imaging.", checklist: ["Review patient identification and exam verification.","Follow radiation protection and positioning guidance.","Ask your clinical instructor before unfamiliar exposures."] },
+  "Diagnostic Medical Sonographer": { title: "Ultrasound examination preparation", description: "Prepare for supervised ultrasound practice.", checklist: ["Confirm exam indication and patient identity.","Review transducer cleaning and patient positioning.","Document observations within your student scope."] },
+  "Doctor of Medicine (MD)": { title: "Medical clinical rotations", description: "Prepare for supervised physician training.", checklist: ["Review focused history and examination expectations.","Practice concise case presentations and handoffs.","Discuss decisions with the supervising physician."] },
+  "Doctor of Osteopathic Medicine (DO)": { title: "Osteopathic clinical rotations", description: "Prepare for supervised physician training.", checklist: ["Review history-taking and examination expectations.","Practice respectful patient-centered presentations.","Confirm any hands-on technique with your preceptor."] },
+  "Surgeon (MD/DO Specialty)": { title: "Surgical training readiness", description: "Prepare for supervised surgical training.", checklist: ["Review operating-room safety and the surgical time-out.","Know your assigned role and sterile technique expectations.","Escalate uncertainty to the attending or supervisor."] },
+  "Physician Assistant / Associate (PA)": { title: "PA clinical rotations", description: "Prepare for supervised clinical encounters.", checklist: ["Review history and physical examination workflows.","Practice assessment presentations and documentation.","Confirm management plans with your preceptor."] },
+  "Nurse Practitioner (NP)": { title: "Advanced nursing clinicals", description: "Prepare for supervised advanced practice training.", checklist: ["Review focused assessments and clinical reasoning.","Practice concise differential and plan presentations.","Confirm decisions and prescribing activities with your preceptor."] },
+  "Registered Nurse (RN)": { title: "Nursing clinical readiness", description: "Prepare for supervised nursing clinical rotations.", checklist: ["Review head-to-toe assessment and vital signs.","Practice SBAR communication and patient safety checks.","Perform medications and procedures only under authorized supervision."] }
 };
 export function Clinical({ plan, program }: { plan: PlanKey; program: string }) {
-  const normalized = program.toLowerCase();
-  const pathway = normalized.includes("registered nurse") || normalized.includes("nurse practitioner") || normalized.includes("nursing") ? "nursing"
-    : normalized.includes("surgical") || normalized.includes("surgeon") ? "surgical"
-    : normalized.includes("medical assistant") || normalized.includes("patient care") || normalized.includes("nursing assistant") ? "assistant"
-    : normalized.includes("sterile processing") ? "sterile" : "";
-  const topics = [...commonClinicalTopics, ...(clinicalTopicsByPath[pathway] ?? [
-    { title: "Pathway-specific supervision", description: "Prepare for the clinical requirements of your selected program.", checklist: ["Review your program's clinical competencies.", "Confirm your student scope and supervisor.", "Ask for guidance before performing unfamiliar procedures."] }
-  ])];
+  const specializedTopic = clinicalTopicsByProgram[program];
+  const topics = [...commonClinicalTopics, specializedTopic ?? {
+    title: "Program clinical readiness", description: "Prepare for the clinical expectations of your chosen program.",
+    checklist: ["Review your program's required competencies.", "Confirm your supervisor and authorized student scope.", "Ask for guidance before unfamiliar procedures."]
+  }];
   const visibleTopics = plan === "explorer" ? topics.slice(0, 3) : topics;
   const [checked, setChecked] = useState<string[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
