@@ -3912,9 +3912,9 @@ export function Clinical({ plan, program }: { plan: PlanKey; program: string }) 
   );
 }
 
-export function CareerExplorer({ plan }: { plan: PlanKey }) {
+export function CareerExplorer({ plan, program = "" }: { plan: PlanKey; program?: string }) {
   const [careerSearch, setCareerSearch] = useState("");
-  const [selectedCareerTitle, setSelectedCareerTitle] = useState("Surgical Technologist");
+  const [selectedCareerTitle, setSelectedCareerTitle] = useState(program || "Surgical Technologist");
   const [compareTitles, setCompareTitles] = useState<string[]>(["Medical Assistant", "Surgical Technologist"]);
   type CareerPath = (typeof careers)[number];
   const requiredCareerTitles = [
@@ -4014,7 +4014,7 @@ export function CareerExplorer({ plan }: { plan: PlanKey }) {
   });
   const visibleCareers = filteredCareers.length > 0 ? filteredCareers : availableCareers.slice(0, 4);
   const selectedCareer =
-    availableCareers.find((career) => career.title === selectedCareerTitle) || visibleCareers[0] || fallbackCareers[0];
+    availableCareers.find((career) => career.title === program) || availableCareers.find((career) => career.title === selectedCareerTitle) || visibleCareers[0] || fallbackCareers[0];
 
   const comparedCareers = compareTitles.map((title) => availableCareers.find((career) => career.title === title)).filter((career): career is CareerPath => Boolean(career));
   function toggleCompareCareer(title: string) {
@@ -4153,6 +4153,14 @@ export function CareerExplorer({ plan }: { plan: PlanKey }) {
         ))}
       </section>
 
+      {program.trim() && (
+        <section className="panel">
+          <p className="eyebrow">Your Career Goal</p>
+          <h3>{program}</h3>
+          <p>View the education, credentialing, and career preparation steps for your selected healthcare pathway.</p>
+          <a className="secondary compact" href={`/career-goal?goal=${encodeURIComponent(program)}`}>View My Career Goal Pathway <ChevronRight size={16} /></a>
+        </section>
+      )}
       <section className="panel pathfinder-detail" aria-live="polite">
         <div>
           <p className="eyebrow">Career Snapshot</p>
