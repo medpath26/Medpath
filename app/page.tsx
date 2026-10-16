@@ -1155,6 +1155,7 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
                 studyHours={studyHours}
                 userId={authUser?.id ?? ""}
                 schedule={generatedSchedule}
+                userId={authUser?.id ?? ""}
                 setExamDate={setExamDate}
                 setStudyHours={setStudyHours}
               />
