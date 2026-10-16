@@ -3344,6 +3344,10 @@ export function StudyPlan({
     availableModules[selectedModuleIndex + 1]?.lessons[0]?.title ||
     "Certification practice quiz";
 
+  function startLessonQuiz() {
+    document.getElementById("study-hub-lesson-quiz")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   function selectModule(index: number) {
     setSelectedModuleIndex(index);
     setSelectedLessonIndex(0);
@@ -3416,6 +3420,9 @@ export function StudyPlan({
             <span style={{ width: `${visualProgress}%` }} />
           </div>
           <p><small>Choose any available lesson in any order. Completed lessons remain available to review.</small></p>
+          <button type="button" className="primary compact" onClick={startLessonQuiz}>
+            Start Quiz <ChevronRight size={16} />
+          </button>
           <div className="course-lesson-tabs" aria-label="Module lessons">
             {selectedModule.lessons.map((lesson, index) => (
               <button
@@ -3468,7 +3475,7 @@ export function StudyPlan({
           </div>
         </section>
 
-        <section className="knowledge-card">
+        <section id="study-hub-lesson-quiz" className="knowledge-card" tabIndex={-1}>
           <div className="card-head">
             <div>
               <p className="eyebrow">Knowledge Check</p>
@@ -3547,7 +3554,7 @@ export function StudyPlan({
           <section className="lesson-complete-card" aria-live="polite">
             <h3>🎉 Lesson Complete</h3>
             <p>+120 XP earned. Progress updated for {selectedLesson.title}.</p>
-            <button className="primary compact" onClick={() => setCompletionVisible(false)}>
+            <button className="primary compact" onClick={() => { setCompletionVisible(false); startLessonQuiz(); }}>
               Continue to Quiz
             </button>
           </section>
