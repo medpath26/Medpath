@@ -3263,7 +3263,15 @@ export function StudyPlan({
   const lessonKey = `${selectedModule.title}-${selectedLesson.title}`;
   const totalLessons = availableModules.reduce((total, module) => total + module.lessons.length, 0);
   const visualProgress = Math.round((completedLessons.length / totalLessons) * 100);
-  const currentFlashcard = selectedLesson.flashcards[flashcardIndex];
+  const lessonFlashcards: string[][] = [
+    ...selectedLesson.flashcards,
+    ["What is the main concept of this lesson?", selectedLesson.definition],
+    ["What study or practice tip should you remember?", selectedLesson.tip],
+    ["What important safety or learning mistake should you avoid?", selectedLesson.warning],
+    ...selectedLesson.takeaways.map((takeaway, index) => [`Key takeaway ${index + 1}: what should you remember?`, takeaway]),
+    ["Why is the correct answer to the knowledge check important?", selectedLesson.quiz.explanation]
+  ];
+  const currentFlashcard = lessonFlashcards[flashcardIndex];
   const isBookmarked = bookmarks.includes(lessonKey);
   const isLessonComplete = completedLessons.includes(lessonKey);
   const recommendedNextLesson =
@@ -3440,7 +3448,7 @@ export function StudyPlan({
           <div className="card-head">
             <div>
               <p className="eyebrow">Flashcards</p>
-              <h3>{flashcardIndex + 1} of {selectedLesson.flashcards.length}</h3>
+              <h3>{flashcardIndex + 1} of {lessonFlashcards.length}</h3>
             </div>
             <BookOpen />
           </div>
@@ -3451,7 +3459,7 @@ export function StudyPlan({
             <button className="secondary compact" onClick={() => setFlashcardIndex(Math.max(0, flashcardIndex - 1))}>
               Previous
             </button>
-            <button className="secondary compact" onClick={() => setFlashcardIndex(Math.min(selectedLesson.flashcards.length - 1, flashcardIndex + 1))}>
+            <button className="secondary compact" onClick={() => setFlashcardIndex(Math.min(lessonFlashcards.length - 1, flashcardIndex + 1))}>
               Next
             </button>
             <button className="primary compact" onClick={() => setFlippedCard((value) => !value)}>
@@ -3573,30 +3581,76 @@ export function StudyPlan({
   );
 }
 
-export function Clinical({ plan }: { plan: PlanKey }) {
+type ClinicalTopic = { title: string; description: string; checklist: string[] };
+const commonClinicalTopics: ClinicalTopic[] = [
+  { title: "Daily readiness", description: "Prepare for a safe, organized clinical day.", checklist: ["Check your school's clinical requirements and assigned location.", "Bring required ID, approved uniform, and necessary materials.", "Review the day's learning objectives and arrive on time."] },
+  { title: "Patient communication", description: "Practice respectful, clear communication.", checklist: ["Introduce yourself as a student and explain your role.", "Follow facility policy for verifying patient identity.", "Protect privacy and ask your supervisor when unsure."] },
+  { title: "Infection prevention", description: "Use approved infection-control practices.", checklist: ["Perform hand hygiene at appropriate moments.", "Select PPE according to facility policy and precautions.", "Report breaks in technique to your supervising professional."] }
+];
+const clinicalTopicsByPath: Record<string, ClinicalTopic[]> = {
+  nursing: [
+    { title: "Nursing assessment preparation", description: "Prepare for supervised patient assessments.", checklist: ["Review expected assessment steps with your clinical instructor.", "Practice accurate vital-sign measurement and reporting.", "Escalate abnormal findings promptly to your instructor or assigned nurse."] },
+    { title: "SBAR handoff", description: "Organize clinical communication.", checklist: ["State the situation and relevant background.", "Summarize your assessment without guessing.", "Clearly communicate the requested recommendation or next step."] },
+    { title: "Medication safety", description: "Follow supervised medication-administration procedures.", checklist: ["Review medication rights and institutional policies.", "Verify orders and allergies with your supervising nurse.", "Never administer medication beyond your authorized student scope."] }
+  ],
+  surgical: [
+    { title: "Operating room etiquette", description: "Prepare for the surgical team environment.", checklist: ["Review surgical attire and restricted-area rules.", "Respect sterile boundaries and identify contamination.", "Communicate clearly and follow the preceptor's direction."] },
+    { title: "Sterile field readiness", description: "Review foundational aseptic practices.", checklist: ["Review sterile field setup expectations.", "Identify breaks in sterility and report them immediately.", "Follow team counting and documentation protocols."] },
+    { title: "Surgical teamwork", description: "Practice safe team communication.", checklist: ["Understand the purpose of the surgical time-out.", "Anticipate needs only within your supervised role.", "Ask for clarification rather than guessing."] }
+  ],
+  assistant: [
+    { title: "Patient intake", description: "Prepare for supervised ambulatory care.", checklist: ["Practice respectful introductions and identification.", "Review vital signs and documentation workflows.", "Report concerns to the licensed supervising clinician."] },
+    { title: "Room preparation", description: "Prepare a safe patient-care space.", checklist: ["Check approved supplies and equipment.", "Follow cleaning and infection-control policies.", "Confirm tasks within your training and permitted scope."] }
+  ],
+  sterile: [
+    { title: "Instrument workflow", description: "Prepare for sterile processing rotations.", checklist: ["Review separation of dirty and clean workflows.", "Follow manufacturer instructions and facility procedures.", "Report damaged or improperly processed instruments."] },
+    { title: "Decontamination safety", description: "Practice safe handling principles.", checklist: ["Wear task-appropriate PPE.", "Follow approved cleaning and handling procedures.", "Ask your preceptor before handling unfamiliar equipment."] }
+  ]
+};
+export function Clinical({ plan, program }: { plan: PlanKey; program: string }) {
+  const normalized = program.toLowerCase();
+  const pathway = normalized.includes("registered nurse") || normalized.includes("nurse practitioner") || normalized.includes("nursing") ? "nursing"
+    : normalized.includes("surgical") || normalized.includes("surgeon") ? "surgical"
+    : normalized.includes("medical assistant") || normalized.includes("patient care") || normalized.includes("nursing assistant") ? "assistant"
+    : normalized.includes("sterile processing") ? "sterile" : "";
+  const topics = [...commonClinicalTopics, ...(clinicalTopicsByPath[pathway] ?? [
+    { title: "Pathway-specific supervision", description: "Prepare for the clinical requirements of your selected program.", checklist: ["Review your program's clinical competencies.", "Confirm your student scope and supervisor.", "Ask for guidance before performing unfamiliar procedures."] }
+  ])];
+  const visibleTopics = plan === "explorer" ? topics.slice(0, 3) : topics;
+  const [checked, setChecked] = useState<string[]>([]);
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const completed = visibleTopics.filter(topic => topic.checklist.every((_, index) => checked.includes(`${program}:${topic.title}:${index}`))).length;
   return (
     <div className="stack">
       <div className="page-title">
         <p className="eyebrow">PathClinical</p>
-        <h2>Feel ready before you step into clinicals.</h2>
-        {plan === "explorer" && <p>Free preview: 3 clinical preparation topics. Upgrade to explore all topics.</p>}
+        <h2>Get ready for your clinical experience.</h2>
+        <p>Preparation for <strong>{program || "your healthcare pathway"}</strong>. Review each topic and mark steps complete as you prepare.</p>
+        <p role="status">{completed} of {visibleTopics.length} topics completed in this session.</p>
+        {plan === "explorer" && <p>Free preview: 3 topics. Upgrade to explore pathway-specific preparation.</p>}
       </div>
       <section className="clinical-grid">
-        {[
-          ["Daily readiness", "Uniform, ID, documents, watch, notebook, and calm arrival buffer."],
-          ["OR etiquette", "Protect the sterile field, speak clearly, anticipate team needs."],
-          ["Patient interaction", "Introduce yourself, verify identity, explain what you are doing."],
-          ["Common mistakes", "Rushing, unclear communication, and not asking for clarification."],
-          ["Professional communication", "Use closed-loop language and document promptly."],
-          ["Clinical simulations", "Pro scenario practice unlocks adaptive feedback."]
-        ].slice(0, plan === "explorer" ? 3 : undefined).map(([title, copy]) => (
-          <article className="panel checklist" key={title}>
+        {visibleTopics.map(topic => (
+          <article className="panel checklist" key={topic.title}>
             <ClipboardCheck />
-            <h3>{title}</h3>
-            <p>{copy}</p>
+            <h3>{topic.title}</h3>
+            <p>{topic.description}</p>
+            <button type="button" className="secondary compact" aria-expanded={expanded === topic.title} onClick={() => setExpanded(expanded === topic.title ? null : topic.title)}>
+              {expanded === topic.title ? "Hide checklist" : "Open checklist"}
+            </button>
+            {expanded === topic.title && <div>
+              {topic.checklist.map((item, index) => {
+                const key = `${program}:${topic.title}:${index}`;
+                return <label key={key} style={{ display: "flex", gap: "0.5rem", alignItems: "flex-start", marginTop: "0.75rem" }}>
+                  <input type="checkbox" checked={checked.includes(key)} onChange={event => setChecked(previous => event.target.checked ? [...previous, key] : previous.filter(value => value !== key))} />
+                  <span>{item}</span>
+                </label>;
+              })}
+            </div>}
           </article>
         ))}
       </section>
+      <p><small>Preparation guidance only. Follow your clinical program, supervisor, and facility policies. Checklist completion is not a clinical competency sign-off. Progress here resets when the page reloads.</small></p>
     </div>
   );
 }
