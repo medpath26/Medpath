@@ -9,7 +9,7 @@ export const healthcarePathways = [
   { id: "emergency-medical-technician", label: "Emergency Medical Technician", flashcardCategory: "Emergency Medical Technician" },
   { id: "medical-assistant", label: "Medical Assistant", flashcardCategory: "Medical Assisting" },
   { id: "medical-billing-coding", label: "Medical Billing and Coding", flashcardCategory: "Medical Billing and Coding" },
-  { id: "nurse-practitioner", label: "Nurse Practitioner (NP)", flashcardCategory: "Nurse Practitioner" }
+  { id: "nurse-practitioner", label: "Nurse Practitioner (NP)", flashcardCategory: "Nurse Practitioner" },
   { id: "patient-care-technician", label: "Patient Care Technician", flashcardCategory: "Patient Care Technician" },
   { id: "pharmacy-technician", label: "Pharmacy Technician", flashcardCategory: "Pharmacy Technician" },
   { id: "phlebotomy-technician", label: "Phlebotomy Technician", flashcardCategory: "Phlebotomy Technician" },
