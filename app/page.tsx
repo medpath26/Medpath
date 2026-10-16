@@ -45,17 +45,6 @@ import {
   supabase
 } from "@/lib/supabase-client";
 
-const mentorReplies: Record<string, string> = {
-  overwhelmed:
-    "I hear you. Feeling overwhelmed does not mean you are behind. Let us choose one small win: 20 minutes on sterile technique, then 5 questions with explanations. I will keep the next step simple.",
-  failed:
-    "This result shows where we will focus next. We will review the missed topics, rebuild confidence with easier questions first, and then retest. One exam result is feedback, not your future.",
-  nervous:
-    "Clinical nerves are normal because you care. Tonight, review the readiness checklist, practice one patient introduction out loud, and prepare your uniform and documents. Tomorrow, focus on professionalism first.",
-  default:
-    "Let us turn that into a clear path. I will explain the concept simply, give you one example, and suggest a focused practice set. Atlas guidance should be verified with your instructor and trusted course materials."
-};
-
 type AuthFieldErrors = Partial<Record<"name" | "program" | "email" | "password", string>>;
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -181,19 +170,6 @@ function fallbackProgress(userId: string, profile: ProfileRecord): StudentProgre
   };
 }
 
-function getAtlasReply(message: string) {
-  const normalized = message.toLowerCase();
-  const key = normalized.includes("overwhelmed")
-    ? "overwhelmed"
-    : normalized.includes("failed") || normalized.includes("exam")
-      ? "failed"
-      : normalized.includes("nervous") || normalized.includes("clinicals")
-        ? "nervous"
-        : "default";
-
-  return mentorReplies[key];
-}
-
 function getBrowserView(): ViewKey | null {
   if (typeof window === "undefined") return null;
   const pathViews: Record<string, ViewKey> = {
@@ -227,8 +203,10 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
   const [isAuthLoading, setIsAuthLoading] = useState(false);
   const [lockedFeature, setLockedFeature] = useState<FeatureKey | null>(null);
   const [chatInput, setChatInput] = useState("");
-  const [mentorAnswer, setMentorAnswer] = useState(mentorReplies.default);
+  const [mentorAnswer, setMentorAnswer] = useState("");
   const [guestAtlasInput, setGuestAtlasInput] = useState("");
+  const [atlasBusy, setAtlasBusy] = useState(false);
+  const [memberAtlasHistory, setMemberAtlasHistory] = useState<AtlasChatMessage[]>([{ id: "member-welcome", role: "atlas", text: "Hi! Ask me any healthcare study question, and we can work through it together." }]);
   const [guestAtlasQuestionCount, setGuestAtlasQuestionCount] = useState(0);
   const [memberAtlasQuestionCount, setMemberAtlasQuestionCount] = useState(0);
   const [showGuestAtlasModal, setShowGuestAtlasModal] = useState(false);
@@ -967,61 +945,52 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
     return true;
   }
 
+  async function requestAtlas(question: string, history: AtlasChatMessage[], guest: boolean) {
+    const token = guest ? undefined : authSession?.access_token;
+    const response = await fetch("/api/atlas", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body: JSON.stringify({ question, program: guest ? "Healthcare career explorer" : program, history: history.slice(-10).map(({ role, text }) => ({ role, text })) })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(typeof data.error === "string" ? data.error : "Atlas is temporarily unavailable.");
+    return String(data.answer);
+  }
+
   async function askAtlas(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const question = chatInput.trim();
-    if (!question) return;
-    if (plan === "explorer" && memberAtlasQuestionCount >= 3) {
-      setLockedFeature("atlas");
-      return;
-    }
-    if (plan === "explorer" && supabase && authUser) {
-      const { error } = await supabase.from("atlas_questions").insert({
-        user_id: authUser.id,
-        question
-      });
-      if (error) {
-        logAuthDiagnostics("Atlas usage save error", error);
-        setAuthError("We couldn't save this Atlas question. Please try again.");
-        return;
-      }
-      setMemberAtlasQuestionCount((count) => count + 1);
-    }
-    setMentorAnswer(getAtlasReply(question));
+    if (!question || atlasBusy) return;
+    if (plan === "explorer" && memberAtlasQuestionCount >= 3) { setLockedFeature("atlas"); return; }
+    setAtlasBusy(true);
+    const id = Date.now().toString();
+    setMemberAtlasHistory(previous => [...previous, { id: `member-q-${id}`, role: "user", text: question }]);
     setChatInput("");
+    try {
+      const reply = await requestAtlas(question, memberAtlasHistory, false);
+      setMemberAtlasHistory(previous => [...previous, { id: `member-a-${id}`, role: "atlas", text: reply }]);
+      if (plan === "explorer") setMemberAtlasQuestionCount(count => count + 1);
+    } catch (error) {
+      setMemberAtlasHistory(previous => [...previous, { id: `member-error-${id}`, role: "atlas", text: error instanceof Error ? error.message : "Atlas is temporarily unavailable." }]);
+    } finally { setAtlasBusy(false); }
   }
 
-  function askGuestAtlas(event: FormEvent<HTMLFormElement>) {
+  async function askGuestAtlas(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const question = guestAtlasInput.trim();
-
-    if (!question || guestAtlasQuestionCount >= 3) {
-      if (guestAtlasQuestionCount >= 3) {
-        setShowGuestAtlasModal(true);
-      }
-      return;
-    }
-
-    const nextCount = guestAtlasQuestionCount + 1;
-    setGuestAtlasHistory((history) => [
-      ...history,
-      {
-        id: `guest-question-${nextCount}`,
-        role: "user",
-        text: question
-      },
-      {
-        id: `guest-answer-${nextCount}`,
-        role: "atlas",
-        text: getAtlasReply(question)
-      }
-    ]);
-    setGuestAtlasQuestionCount(nextCount);
+    if (!question || atlasBusy) return;
+    if (guestAtlasQuestionCount >= 3) { setShowGuestAtlasModal(true); return; }
+    setAtlasBusy(true);
+    const id = Date.now().toString();
+    setGuestAtlasHistory(previous => [...previous, { id: `guest-q-${id}`, role: "user", text: question }]);
     setGuestAtlasInput("");
-
-    if (nextCount === 3) {
-      setShowGuestAtlasModal(true);
-    }
+    try {
+      const reply = await requestAtlas(question, guestAtlasHistory, true);
+      setGuestAtlasHistory(previous => [...previous, { id: `guest-a-${id}`, role: "atlas", text: reply }]);
+      setGuestAtlasQuestionCount(count => count + 1);
+    } catch (error) {
+      setGuestAtlasHistory(previous => [...previous, { id: `guest-error-${id}`, role: "atlas", text: error instanceof Error ? error.message : "Atlas is temporarily unavailable." }]);
+    } finally { setAtlasBusy(false); }
   }
 
   return (
@@ -1068,7 +1037,7 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
             onSubmit={askGuestAtlas}
             messages={guestAtlasHistory}
             freeQuestionsRemaining={Math.max(0, 3 - guestAtlasQuestionCount)}
-            isChatDisabled={guestAtlasQuestionCount >= 3}
+            isChatDisabled={atlasBusy || guestAtlasQuestionCount >= 3}
           />
         </section>
       )}
@@ -1140,10 +1109,11 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
                 program={program}
                 answer={mentorAnswer}
                 input={chatInput}
+                messages={memberAtlasHistory}
                 setInput={setChatInput}
                 onSubmit={askAtlas}
                 freeQuestionsRemaining={plan === "explorer" ? Math.max(0, 3 - memberAtlasQuestionCount) : undefined}
-                isChatDisabled={plan === "explorer" && memberAtlasQuestionCount >= 3}
+                isChatDisabled={atlasBusy || (plan === "explorer" && memberAtlasQuestionCount >= 3)}
               />
             )}
             {view === "practice" && <Practice initialMode={practiceMode} plan={plan} program={program} />}
