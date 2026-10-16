@@ -1903,6 +1903,96 @@ export function Practice({ initialMode, plan, program }: { initialMode: "flashca
       ]
     }
   ];
+  const certificationCatalog: Record<string, string[]> = {
+  "Surgical Technologist": [
+    "NCCT TS-C",
+    "NBSTSA CST"
+  ],
+  "Medical Assistant": [
+    "NHA CCMA",
+    "AAMA CMA (AAMA)",
+    "AMT RMA",
+    "NCCT NCMA"
+  ],
+  "Sterile Processing Technician": [
+    "HSPA CRCST",
+    "CBSPD CSPDT"
+  ],
+  "Phlebotomy Technician": [
+    "NHA CPT",
+    "ASCP PBT",
+    "AMT RPT",
+    "NCCT NCPT"
+  ],
+  "Patient Care Technician": [
+    "NHA CPCT/A",
+    "NCCT NCPCT"
+  ],
+  "EKG Technician": [
+    "NHA CET",
+    "NCCT NCET"
+  ],
+  "Certified Nursing Assistant": [
+    "State CNA competency exam"
+  ],
+  "Pharmacy Technician": [
+    "PTCB PTCE (CPhT)",
+    "NHA ExCPT (CPhT)"
+  ],
+  "Medical Billing and Coding": [
+    "AAPC CPC",
+    "AHIMA CCA",
+    "AHIMA CCS",
+    "NHA CBCS"
+  ],
+  "Emergency Medical Technician": [
+    "NREMT EMT cognitive exam",
+    "State EMT licensing assessment"
+  ],
+  "Dental Assistant": [
+    "DANB CDA",
+    "NHA CCDA"
+  ],
+  "Radiologic Technologist": [
+    "ARRT Radiography"
+  ],
+  "Diagnostic Medical Sonographer": [
+    "ARDMS SPI",
+    "ARDMS RDMS specialty exams",
+    "ARRT Sonography"
+  ],
+  "Registered Nurse (RN)": [
+    "NCLEX-RN"
+  ],
+  "Nurse Practitioner (NP)": [
+    "AANPCB FNP-C",
+    "ANCC FNP-BC",
+    "ANCC AGPCNP-BC"
+  ],
+  "Physician Assistant / Associate (PA)": [
+    "NCCPA PANCE"
+  ],
+  "Doctor of Medicine (MD)": [
+    "USMLE Step 1",
+    "USMLE Step 2 CK",
+    "USMLE Step 3"
+  ],
+  "Doctor of Osteopathic Medicine (DO)": [
+    "COMLEX-USA Level 1",
+    "COMLEX-USA Level 2-CE",
+    "COMLEX-USA Level 3"
+  ],
+  "Surgeon (MD/DO Specialty)": [
+    "Relevant specialty board certification (varies by specialty)"
+  ]
+};
+  const certificationOptions = certificationCatalog[program] ?? certificationCatalog[Object.keys(certificationCatalog).find(key => key.toLowerCase() === program.trim().toLowerCase()) ?? ""] ?? [];
+  const availableCertificationTitles: Record<string, string> = {
+    "NCCT TS-C": "ncct-tsc",
+    "NBSTSA CST": "cst",
+    "NHA CCMA": "medical-assistant",
+    "HSPA CRCST": "sterile-processing"
+  };
   const isFree = plan === "explorer";
   const normalizedProgram = program.trim().toLowerCase();
   const isSurgicalPath = normalizedProgram.includes("surgical") || normalizedProgram.includes("surgery");
@@ -2102,6 +2192,29 @@ export function Practice({ initialMode, plan, program }: { initialMode: "flashca
       {studyMode === "practiceExams" && (
         <div className="practice-exam-page">
           {examStatus === "home" && (
+            <>
+            <section aria-label="Certification exam pathways">
+              <h3>Certification exams for {program}</h3>
+              <p>Explore credentials associated with this pathway. Requirements and eligibility vary by credentialing body and state. A listed credential does not guarantee eligibility.</p>
+              {certificationOptions.length > 0 ? (
+                <div className="exam-home-grid">
+                  {certificationOptions.map((title) => {
+                    const examId = availableCertificationTitles[title];
+                    const hasPractice = Boolean(examId && matchingExams.some(exam => exam.id === examId));
+                    return (
+                      <article className="exam-card-premium" key={title}>
+                        <h4>{title}</h4>
+                        <p>{hasPractice ? "Practice question bank available" : "Certification pathway information — practice exam in development"}</p>
+                        {hasPractice ? (
+                          <button className="primary" onClick={() => startExam(examId)}>Start Practice Exam</button>
+                        ) : <span>Practice exam coming soon</span>}
+                      </article>
+                    );
+                  })}
+                </div>
+              ) : <p>Select a supported healthcare pathway to view its certification options.</p>}
+            </section>
+            <h3>Available PathPrep practice exams</h3>
             <section className="exam-home-grid">
               {matchingExams.map((exam) => (
                 <article className="exam-card-premium" key={exam.id}>
@@ -2129,6 +2242,7 @@ export function Practice({ initialMode, plan, program }: { initialMode: "flashca
                 </article>
               ))}
             </section>
+            </>
           )}
 
           {examStatus === "active" && (
