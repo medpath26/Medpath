@@ -3866,43 +3866,93 @@ export function CareerExplorer({ plan }: { plan: PlanKey }) {
 }
 
 export function ResumeBuilder({ name, program }: { name: string; program: string }) {
+  const [mode, setMode] = useState<"starter" | "experienced">("starter");
+  const [details, setDetails] = useState({
+    fullName: name, email: "", phone: "", location: "", targetRole: program,
+    education: "", certifications: "", skills: "", experience: "", projects: "",
+    summary: ""
+  });
+  const [generated, setGenerated] = useState(false);
+  const update = (field: keyof typeof details, value: string) => {
+    setDetails(previous => ({ ...previous, [field]: value }));
+    setGenerated(false);
+  };
+  const splitLines = (value: string) => value.split(/\n+/).map(line => line.trim()).filter(Boolean);
+  const summary = details.summary.trim() || (
+    mode === "starter"
+      ? `Motivated ${details.targetRole.trim() || "healthcare"} candidate building a foundation through education and practical learning. Eager to contribute strong communication, dependability, and a commitment to patient-centered care.`
+      : `Healthcare professional pursuing a ${details.targetRole.trim() || "healthcare"} role, bringing relevant experience and a commitment to quality service, teamwork, and continued professional development.`
+  );
   return (
     <div className="stack">
       <div className="page-title">
         <p className="eyebrow">PathHire</p>
-        <h2>Healthcare resume builder with PDF export.</h2>
+        <h2>Build your healthcare resume.</h2>
+        <p>Use your real education, skills and experience to create a professional resume. No prior job experience required.</p>
       </div>
       <section className="resume-layout">
-        <form className="panel form-panel">
-          <label>
-            Target role
-            <input defaultValue={program} />
+        <form className="panel form-panel" onSubmit={(event) => { event.preventDefault(); setGenerated(true); }}>
+          <label htmlFor="resume-type">Resume type
+            <select id="resume-type" value={mode} onChange={(event) => { setMode(event.target.value as "starter" | "experienced"); setGenerated(false); }}>
+              <option value="starter">Starter / Student — little or no job experience</option>
+              <option value="experienced">Experienced — include work history</option>
+            </select>
           </label>
-          <label>
-            Clinical strengths
-            <textarea defaultValue="Patient care, sterile technique, vital signs, professionalism" />
-          </label>
-          <button className="primary" type="button">
-            <WandSparkles size={18} />
-            Generate Resume
+          {([
+            ["fullName", "Full name", "Your full name"],
+            ["email", "Email", "you@example.com"],
+            ["phone", "Phone", "(555) 555-5555"],
+            ["location", "City and state", "Baltimore, MD"],
+            ["targetRole", "Target job title", "Medical Assistant"],
+          ] as const).map(([key, label, placeholder]) => (
+            <label key={key}>{label}
+              <input value={details[key]} placeholder={placeholder} onChange={event => update(key, event.target.value)} required={key === "fullName" || key === "targetRole"} />
+            </label>
+          ))}
+          {([
+            ["education", "Education / training", "School, program, graduation date (one entry per line)"],
+            ["certifications", "Certifications / licenses", "Only credentials you have earned (one per line)"],
+            ["skills", "Relevant skills", "Enter real skills, separated by commas"],
+            ["experience", mode === "starter" ? "Optional work, volunteer, or clinical experience" : "Work experience", "Job or activity, dates, and what you actually did (one entry per line)"],
+            ["projects", "Projects, coursework, or extracurricular activities", "Describe relevant activities or achievements (one per line)"],
+            ["summary", "Optional personal summary", "Write your own summary, or leave blank for a starter template"],
+          ] as const).map(([key, label, placeholder]) => (
+            <label key={key}>{label}
+              <textarea value={details[key]} placeholder={placeholder} onChange={event => update(key, event.target.value)} rows={3} />
+            </label>
+          ))}
+          <button className="primary" type="submit"><WandSparkles size={18} />Generate Resume</button>
+          <button className="secondary" type="button" disabled={!generated} onClick={() => window.print()}>
+            <Download size={18} />Print / Save as PDF
           </button>
-          <button className="secondary" type="button">
-            <Download size={18} />
-            Export PDF
-          </button>
+          <small>Review every detail before applying. The builder does not invent jobs, credentials, or clinical experience. Your entries remain in this browser session and are not saved to an account.</small>
         </form>
-        <article className="resume-preview">
-          <h3>{name}</h3>
-          <p>{program} candidate</p>
-          <h4>Professional Summary</h4>
-          <p>
-            Supportive healthcare student with hands-on clinical preparation, strong communication,
-            and a commitment to safe, compassionate care.
-          </p>
-          <h4>Core Skills</h4>
-          <p>Vital signs · Patient intake · Sterile technique · EHR documentation · Teamwork</p>
+        <article className="resume-preview" aria-label="Resume preview">
+          {!generated ? (
+            <><h3>Your resume preview</h3><p>Enter your information and select Generate Resume to see your personalized document.</p></>
+          ) : (
+            <div id="pathhire-resume-print">
+              <h3>{details.fullName.trim()}</h3>
+              <p>{[details.location.trim(), details.phone.trim(), details.email.trim()].filter(Boolean).join(" · ")}</p>
+              <p><strong>{details.targetRole.trim()} Candidate</strong></p>
+              <h4>Professional Summary</h4><p>{summary}</p>
+              {details.skills.trim() && <><h4>Skills</h4><p>{details.skills.split(",").map(x => x.trim()).filter(Boolean).join(" · ")}</p></>}
+              {splitLines(details.education).length > 0 && <><h4>Education & Training</h4><ul>{splitLines(details.education).map((item, index) => <li key={index}>{item}</li>)}</ul></>}
+              {splitLines(details.certifications).length > 0 && <><h4>Certifications</h4><ul>{splitLines(details.certifications).map((item, index) => <li key={index}>{item}</li>)}</ul></>}
+              {splitLines(details.experience).length > 0 && <><h4>{mode === "starter" ? "Relevant Experience & Activities" : "Professional Experience"}</h4><ul>{splitLines(details.experience).map((item, index) => <li key={index}>{item}</li>)}</ul></>}
+              {splitLines(details.projects).length > 0 && <><h4>Projects & Coursework</h4><ul>{splitLines(details.projects).map((item, index) => <li key={index}>{item}</li>)}</ul></>}
+            </div>
+          )}
         </article>
       </section>
+      <style>{`@media print {
+        body * { visibility: hidden !important; }
+        #pathhire-resume-print, #pathhire-resume-print * { visibility: visible !important; }
+        #pathhire-resume-print { position: absolute !important; top: 0; left: 0; width: 100%; padding: 24px; background: white !important; color: black !important; font: 11pt/1.4 Arial, sans-serif !important; }
+        #pathhire-resume-print h3 { font-size: 20pt !important; margin-bottom: 6px; }
+        #pathhire-resume-print h4 { font-size: 12pt !important; margin-top: 18px; margin-bottom: 5px; border-bottom: 1px solid #777; }
+        @page { margin: 0.6in; }
+      }`}</style>
     </div>
   );
 }
