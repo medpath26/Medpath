@@ -4180,11 +4180,22 @@ export function InterviewCoach() {
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState<InterviewFeedback | null>(null);
   const [submittedAnswer, setSubmittedAnswer] = useState("");
+  const [history, setHistory] = useState<Record<number, { answer: string; feedback: InterviewFeedback }>>({});
+  const selectQuestion = (index: number) => {
+    setQuestionIndex(index);
+    const previous = history[index];
+    setAnswer(previous?.answer ?? "");
+    setSubmittedAnswer(previous?.answer ?? "");
+    setFeedback(previous?.feedback ?? null);
+  };
   const submitAnswer = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (answer.trim().length < 20) return;
-    setSubmittedAnswer(answer.trim());
-    setFeedback(reviewInterviewAnswer(answer));
+    const response = answer.trim();
+    if (response.length < 20 || response.length > 200) return;
+    const review = reviewInterviewAnswer(response);
+    setSubmittedAnswer(response);
+    setFeedback(review);
+    setHistory(previous => ({ ...previous, [questionIndex]: { answer: response, feedback: review } }));
   };
   return (
     <div className="stack">
@@ -4195,39 +4206,40 @@ export function InterviewCoach() {
       </div>
       <section className="panel interview">
         <label htmlFor="interview-question"><strong>Practice question</strong></label>
-        <select id="interview-question" value={questionIndex} onChange={(event) => {
-          setQuestionIndex(Number(event.target.value));
-          setAnswer("");
-          setFeedback(null);
-          setSubmittedAnswer("");
-        }}>
-          {interviewQuestions.map((question, index) => <option key={question} value={index}>{index + 1}. {question}</option>)}
+        <select id="interview-question" value={questionIndex} onChange={(event) => selectQuestion(Number(event.target.value))}>
+          {interviewQuestions.map((question, index) => <option key={question} value={index}>{index + 1}. {question}{history[index] ? " ✓" : ""}</option>)}
         </select>
         <p>{interviewQuestions[questionIndex]}</p>
         <form onSubmit={submitAnswer}>
           <label htmlFor="interview-answer">Your answer</label>
-          <textarea id="interview-answer" value={answer} onChange={(event) => {
-            setAnswer(event.target.value);
+          <textarea id="interview-answer" value={answer} maxLength={200} onChange={(event) => {
+            setAnswer(event.target.value.slice(0, 200));
             setFeedback(null);
-          }} placeholder="Describe what happened, what you did, and the outcome..." rows={7} />
-          <p><small>{answer.trim().split(/\s+/).filter(Boolean).length} words · Minimum 20 characters to submit</small></p>
-          <button className="primary" type="submit" disabled={answer.trim().length < 20}>Get feedback</button>
+          }} placeholder="Describe what happened, what you did, and the outcome..." rows={5} />
+          <p><small>{answer.length}/200 characters · Minimum 20 characters to submit</small></p>
+          <button className="primary" type="submit" disabled={answer.trim().length < 20 || answer.length > 200}>Get feedback</button>
         </form>
         {feedback && (
           <section aria-live="polite" className="panel">
             <h3>Feedback on your answer</h3>
-            <p><small>Based on your submitted response ({submittedAnswer.split(/\s+/).length} words)</small></p>
+            <p><small>Based on your submitted response ({submittedAnswer.length} characters)</small></p>
             {feedback.strengths.length > 0 && <><h4>What works</h4><ul>{feedback.strengths.map(item => <li key={item}>{item}</li>)}</ul></>}
             {feedback.improvements.length > 0 && <><h4>What to improve</h4><ul>{feedback.improvements.map(item => <li key={item}>{item}</li>)}</ul></>}
             <p>{feedback.tip}</p>
-            <button type="button" className="secondary" onClick={() => {
-              setQuestionIndex((questionIndex + 1) % interviewQuestions.length);
-              setAnswer("");
-              setFeedback(null);
-              setSubmittedAnswer("");
-            }}>Try another question</button>
+            <button type="button" className="secondary" onClick={() => selectQuestion((questionIndex + 1) % interviewQuestions.length)}>Try another question</button>
           </section>
         )}
+        <div className="interview-history">
+          <h3>Previous questions</h3>
+          <p><small>Return to an earlier question or review an answer from this session.</small></p>
+          <div className="stack">
+            {interviewQuestions.map((question, index) => (
+              <button key={question} type="button" className={index === questionIndex ? "secondary active" : "secondary"} onClick={() => selectQuestion(index)} aria-current={index === questionIndex ? "step" : undefined}>
+                {index + 1}. {question}{history[index] ? " · Answered" : ""}
+              </button>
+            ))}
+          </div>
+        </div>
       </section>
     </div>
   );
