@@ -3846,6 +3846,24 @@ export function CareerExplorer({ plan }: { plan: PlanKey }) {
       advancement: "Lab assistant, MA, nursing pathway"
     }
   ];
+  const workSettingsByCareer: Record<string, string> = {
+    "Surgical Technologist": "Hospital operating rooms, outpatient surgery centers, specialty surgical centers, labor and delivery operating rooms",
+    "Medical Assistant": "Primary care offices, specialty physician practices, urgent care centers, outpatient clinics, community health centers",
+    "Sterile Processing Technician": "Hospitals, ambulatory surgery centers, instrument reprocessing facilities, dental surgery centers",
+    "Phlebotomist": "Hospital laboratories, diagnostic laboratories, blood donation centers, outpatient clinics, mobile specimen collection",
+    "Certified Nursing Assistant": "Nursing homes, assisted living facilities, hospitals, home health agencies, rehabilitation centers",
+    "Patient Care Technician": "Hospitals, dialysis clinics, rehabilitation centers, long-term care facilities, outpatient specialty centers",
+    "Pharmacy Technician": "Retail pharmacies, hospital pharmacies, mail-order pharmacies, long-term care pharmacies, specialty pharmacies",
+    "Diagnostic Medical Sonographer": "Hospitals, outpatient imaging centers, obstetrics and gynecology offices, cardiology clinics, mobile imaging services",
+    "Medical Laboratory Technician": "Hospital laboratories, independent diagnostic laboratories, public health laboratories, physician office laboratories, research laboratories",
+    "Health Information Technician": "Hospitals, physician practices, health insurance organizations, health information companies, remote health records teams",
+    "Cardiovascular Technologist": "Hospital cardiac catheterization labs, cardiology practices, diagnostic imaging centers, vascular laboratories",
+    "Dialysis Technician": "Outpatient dialysis centers, hospital dialysis units, home dialysis training programs",
+    "Medical Coder": "Hospitals, physician practices, outpatient surgery centers, insurance companies, remote coding teams",
+    "Community Health Worker": "Community health centers, public health departments, nonprofit organizations, hospitals, outreach programs",
+    "Registered Nurse": "Hospitals, primary care clinics, schools, home health agencies, long-term care facilities, public health departments"
+  };
+  const careerWorkSettings = (career: CareerPath) => workSettingsByCareer[career.title] ?? career.workSetting ?? "Work settings vary by specialty and employer";
   const orderedCareers: CareerPath[] = [
     ...requiredCareerTitles
       .map((title) => careers.find((career) => career.title === title) || fallbackCareers.find((career) => career.title === title))
@@ -3864,7 +3882,7 @@ export function CareerExplorer({ plan }: { plan: PlanKey }) {
       career.education,
       career.certification,
       career.skills,
-      career.workSetting,
+      careerWorkSettings(career),
       career.bestFor
     ]
       .join(" ")
@@ -3938,7 +3956,7 @@ export function CareerExplorer({ plan }: { plan: PlanKey }) {
                     <th scope="row" style={{ textAlign: "left", verticalAlign: "top" }}>{label}</th>
                     {comparedCareers.map((career) => (
                       <td key={career.title} style={{ verticalAlign: "top" }}>
-                        {career[field] || (field === "trainingLength" ? "Varies by program" : "Information not yet available")}
+                        {field === "workSetting" ? careerWorkSettings(career) : (career[field] || (field === "trainingLength" ? "Varies by program" : "Information not yet available"))}
                       </td>
                     ))}
                   </tr>
@@ -4036,7 +4054,7 @@ export function CareerExplorer({ plan }: { plan: PlanKey }) {
             Typical training
           </span>
           <span>
-            <strong>{selectedCareer.workSetting ?? "Hospitals, clinics, and specialty care settings"}</strong>
+            <strong>{careerWorkSettings(selectedCareer)}</strong>
             Where you may work
           </span>
           <span>
