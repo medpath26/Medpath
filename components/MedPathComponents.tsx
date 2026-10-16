@@ -3639,9 +3639,9 @@ export function Clinical({ plan, program }: { plan: PlanKey; program: string }) 
             {expanded === topic.title && <div>
               {topic.checklist.map((item, index) => {
                 const key = `${program}:${topic.title}:${index}`;
-                return <label key={key} style={{ display: "flex", gap: "0.5rem", alignItems: "flex-start", marginTop: "0.75rem" }}>
-                  <input type="checkbox" checked={checked.includes(key)} onChange={event => setChecked(previous => event.target.checked ? [...previous, key] : previous.filter(value => value !== key))} />
-                  <span>{item}</span>
+                return <label key={key} style={{ display: "grid", gridTemplateColumns: "18px minmax(0, 1fr)", columnGap: "0.75rem", alignItems: "start", width: "100%", minWidth: 0, marginTop: "0.75rem", cursor: "pointer" }}>
+                  <input type="checkbox" style={{ width: "18px", minWidth: "18px", height: "18px", margin: 0, padding: 0, alignSelf: "start" }} checked={checked.includes(key)} onChange={event => setChecked(previous => event.target.checked ? [...previous, key] : previous.filter(value => value !== key))} />
+                  <span style={{ display: "block", minWidth: 0, overflowWrap: "anywhere", whiteSpace: "normal", lineHeight: 1.5 }}>{item}</span>
                 </label>;
               })}
             </div>}
