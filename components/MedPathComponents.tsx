@@ -3303,11 +3303,21 @@ export function StudyPlan({
   }, [trackingReady, storageKey, completedLessons, weekStart, studySeconds]);
   useEffect(() => {
     if (!trackingReady) return;
+    // Count only active study sessions; an idle or background tab earns no time.
+    let lastActivity = Date.now();
+    const recordActivity = () => { lastActivity = Date.now(); };
+    const events = ["pointerdown", "keydown", "scroll", "touchstart"];
+    events.forEach(event => window.addEventListener(event, recordActivity, { passive: true }));
     const tick = () => {
-      if (document.visibilityState === "visible" && document.hasFocus()) setStudySeconds(seconds => seconds + 1);
+      if (document.visibilityState === "visible" && document.hasFocus() && Date.now() - lastActivity < 120000) {
+        setStudySeconds(seconds => seconds + 1);
+      }
     };
     const interval = window.setInterval(tick, 1000);
-    return () => window.clearInterval(interval);
+    return () => {
+      window.clearInterval(interval);
+      events.forEach(event => window.removeEventListener(event, recordActivity));
+    };
   }, [trackingReady]);
 
   const [atlasOpen, setAtlasOpen] = useState(false);
@@ -3573,7 +3583,7 @@ export function StudyPlan({
         <article className="course-side-card">
           <small>Time Studied</small>
           <strong>{Math.floor(studySeconds / 3600)}h {Math.floor((studySeconds % 3600) / 60)}m this week</strong>
-          <p><small>Tracked while Study Hub is open and this tab is active. Weekly goal: {studyHours}h.</small></p>
+          <p><small>Automatically tracked during active Study Hub lessons (pauses after 2 minutes of inactivity). Weekly goal: {studyHours}h.</small></p>
         </article>
         <article className="course-side-card">
           <small>Current Streak</small>
