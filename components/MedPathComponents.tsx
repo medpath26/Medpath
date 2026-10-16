@@ -1045,9 +1045,9 @@ export function Atlas({
           <ul>
             <li>Student: {name || "Not set yet"}</li>
             <li>Program: {program || "Not set yet"}</li>
-            <li>Certification: NCCT / NHA track</li>
-            <li>Focus: instrumentation and test anxiety</li>
-            <li>Confidence level: building</li>
+            <li>Certification: Set your certification goal in your profile</li>
+            <li>Focus: Your questions and study goals</li>
+            <li>Study support: Personalized to your questions</li>
           </ul>
         </div>
         <div className="chat-panel">
