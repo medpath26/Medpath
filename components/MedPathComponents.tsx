@@ -4139,14 +4139,14 @@ export function CareerExplorer({ plan }: { plan: PlanKey }) {
                 <dd>{career.skills}</dd>
               </div>
             </dl>
-            <button
+            <a
               className="secondary compact career-learn-more"
-              type="button"
-              onClick={() => { window.location.href = `/careers/${encodeURIComponent(career.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""))}`; }}
+              href={`/careers/${encodeURIComponent(career.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""))}`}
+              aria-label={`Learn more about ${career.title}`}
             >
               Learn More
               <ChevronRight size={16} />
-            </button>
+            </a>
           </article>
         ))}
       </section>
