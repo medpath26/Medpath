@@ -268,10 +268,10 @@ export function Landing({ onStart, onCareers }: { onStart: () => void; onCareers
 
       <section className="proof-strip" aria-label="MedPath outcomes">
         {[
-          ["24/7", "mentor-style support"],
-          ["10+", "healthcare career paths"],
-          ["7 days", "Student Plus trial"],
-          ["1 path", "from class to career"]
+          ["24/7", "Mentor-Style Support"],
+          ["10+", "Healthcare Career Paths"],
+          ["7 days", "Student Plus Trial"],
+          ["1 path", "From Class to Career"]
         ].map(([value, label]) => (
           <div key={value}>
             <strong>{value}</strong>
