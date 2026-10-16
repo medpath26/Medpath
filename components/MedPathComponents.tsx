@@ -3907,22 +3907,93 @@ export function ResumeBuilder({ name, program }: { name: string; program: string
   );
 }
 
+const interviewQuestions = [
+  "Tell me about a time you stayed calm in a stressful clinical or classroom situation.",
+  "How would you handle a disagreement with a coworker in a healthcare setting?",
+  "Describe a time you made a mistake and what you learned from it.",
+  "How do you prioritize tasks when several patients or team members need help?",
+  "Why do you want to work in healthcare, and what strengths would you bring to this role?"
+];
+
+type InterviewFeedback = { strengths: string[]; improvements: string[]; tip: string };
+
+function reviewInterviewAnswer(answer: string): InterviewFeedback {
+  const words = answer.trim().split(/\s+/).filter(Boolean);
+  const text = answer.toLowerCase();
+  const strengths: string[] = [];
+  const improvements: string[] = [];
+  const hasSituation = /when|during|while|situation|time|once|patient|class|clinic|shift/.test(text);
+  const hasAction = /i (helped|asked|spoke|checked|organized|prioritized|communicated|explained|reported|listened|stayed|made|worked|took|decided|used|responded)/.test(text);
+  const hasResult = /result|outcome|improved|resolved|successful|finished|completed|safe|learned|feedback|afterward|ultimately/.test(text);
+  if (hasSituation) strengths.push("You included context that helps an interviewer understand the situation.");
+  else improvements.push("Briefly explain the situation or challenge you faced.");
+  if (hasAction) strengths.push("You describe an action you personally took.");
+  else improvements.push("Explain exactly what you did, using an \"I\" statement.");
+  if (hasResult) strengths.push("You mention an outcome or lesson.");
+  else improvements.push("Add the outcome and what you learned from the experience.");
+  if (words.length >= 45) strengths.push("Your answer has enough detail to start telling a complete story.");
+  else improvements.push("Develop your example with a few more specific details.");
+  if (words.length > 220) improvements.push("Consider shortening your answer to keep it focused for an interview.");
+  return {
+    strengths,
+    improvements,
+    tip: "Try the STAR approach: Situation, Task, Action, Result. This is an automated structure check, not an AI assessment of your clinical judgment or interview performance."
+  };
+}
+
 export function InterviewCoach() {
+  const [questionIndex, setQuestionIndex] = useState(0);
+  const [answer, setAnswer] = useState("");
+  const [feedback, setFeedback] = useState<InterviewFeedback | null>(null);
+  const [submittedAnswer, setSubmittedAnswer] = useState("");
+  const submitAnswer = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (answer.trim().length < 20) return;
+    setSubmittedAnswer(answer.trim());
+    setFeedback(reviewInterviewAnswer(answer));
+  };
   return (
     <div className="stack">
       <div className="page-title">
         <p className="eyebrow">Interview Coach</p>
         <h2>Practice answers with supportive feedback.</h2>
+        <p>Choose a question, write your own response, and receive actionable feedback on its structure.</p>
       </div>
       <section className="panel interview">
-        <h3>Mock question</h3>
-        <p>Tell me about a time you stayed calm in a stressful clinical or classroom situation.</p>
-        <textarea defaultValue="I stayed calm by pausing, confirming the priority, and communicating clearly with my instructor..." />
-        <div className="score-ring">84</div>
-        <p>
-          Strong structure. Add a measurable outcome and one sentence about what you learned for
-          an even more confident answer.
-        </p>
+        <label htmlFor="interview-question"><strong>Practice question</strong></label>
+        <select id="interview-question" value={questionIndex} onChange={(event) => {
+          setQuestionIndex(Number(event.target.value));
+          setAnswer("");
+          setFeedback(null);
+          setSubmittedAnswer("");
+        }}>
+          {interviewQuestions.map((question, index) => <option key={question} value={index}>{index + 1}. {question}</option>)}
+        </select>
+        <p>{interviewQuestions[questionIndex]}</p>
+        <form onSubmit={submitAnswer}>
+          <label htmlFor="interview-answer">Your answer</label>
+          <textarea id="interview-answer" value={answer} onChange={(event) => {
+            setAnswer(event.target.value);
+            setFeedback(null);
+          }} placeholder="Describe what happened, what you did, and the outcome..." rows={7} />
+          <p><small>{answer.trim().split(/\s+/).filter(Boolean).length} words · Minimum 20 characters to submit</small></p>
+          <button className="primary" type="submit" disabled={answer.trim().length < 20}>Get feedback</button>
+        </form>
+        {feedback && (
+          <section aria-live="polite" className="panel">
+            <h3>Feedback on your answer</h3>
+            <p><small>Based on your submitted response ({submittedAnswer.split(/\s+/).length} words)</small></p>
+            {feedback.strengths.length > 0 && <><h4>What works</h4><ul>{feedback.strengths.map(item => <li key={item}>{item}</li>)}</ul></>}
+            {feedback.improvements.length > 0 && <><h4>What to improve</h4><ul>{feedback.improvements.map(item => <li key={item}>{item}</li>)}</ul></>}
+            <p>{feedback.tip}</p>
+            <button type="button" className="secondary" onClick={() => {
+              setQuestionIndex((questionIndex + 1) % interviewQuestions.length);
+              setAnswer("");
+              setFeedback(null);
+              setSubmittedAnswer("");
+            }}>Try another question</button>
+          </section>
+        )}
       </section>
     </div>
   );
