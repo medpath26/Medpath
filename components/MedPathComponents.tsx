@@ -4209,6 +4209,49 @@ export function ResumeBuilder({ name, program }: { name: string; program: string
   const [importedText, setImportedText] = useState("");
   const [importMessage, setImportMessage] = useState("");
   const [sourceName, setSourceName] = useState("");
+  const [importAction, setImportAction] = useState<"rebuild" | "edit">("rebuild");
+  const [sourceEditing, setSourceEditing] = useState(false);
+  const applyImportedResume = () => {
+    const raw = importedText.trim();
+    if (!raw) return;
+    const lines = raw.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+    const sections: Record<string, string[]> = { education: [], certifications: [], skills: [], experience: [], projects: [], summary: [] };
+    const headings: Record<string, keyof typeof sections> = {
+      "education": "education", "education and training": "education", "training": "education",
+      "certifications": "certifications", "certifications and licenses": "certifications", "licenses": "certifications",
+      "skills": "skills", "technical skills": "skills", "core competencies": "skills",
+      "experience": "experience", "work experience": "experience", "professional experience": "experience", "employment history": "experience", "clinical experience": "experience",
+      "projects": "projects", "projects and coursework": "projects", "volunteer experience": "projects",
+      "summary": "summary", "professional summary": "summary", "profile": "summary", "objective": "summary"
+    };
+    let current: keyof typeof sections = "experience";
+    const first = lines[0] || "";
+    const email = raw.match(/[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/)?.[0] || "";
+    const phone = raw.match(/(?:\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}/)?.[0] || "";
+    for (const [index, line] of lines.entries()) {
+      const heading = headings[line.toLowerCase().replace(/[:\s]+$/, "")];
+      if (heading) { current = heading; continue; }
+      if (index === 0 && first.length < 80 && !first.includes("@") && !/\d/.test(first)) continue;
+      if (line === email || line === phone || (line.includes(email) && !!email && index < 4)) continue;
+      sections[current].push(line);
+    }
+    setDetails(previous => ({
+      ...previous,
+      fullName: first.length < 80 && !first.includes("@") && !/\d/.test(first) ? first : previous.fullName,
+      email: email || previous.email, phone: phone || previous.phone,
+      education: sections.education.join("\n"),
+      certifications: sections.certifications.join("\n"),
+      skills: sections.skills.join(", "),
+      experience: sections.experience.join("\n"),
+      projects: sections.projects.join("\n"),
+      summary: sections.summary.join(" ")
+    }));
+    setGenerated(importAction === "edit");
+    setSourceEditing(importAction === "edit");
+    setImportMessage(importAction === "edit"
+      ? "Original résumé text is ready to edit. Recognized sections were also added to the fields below. Review the preview before exporting."
+      : "Imported details placed into editable sections. Review and correct them, then select Generate Resume.");
+  };
   const importResume = async (file?: File) => {
     if (!file) return;
     setImportMessage("");
@@ -4233,6 +4276,7 @@ export function ResumeBuilder({ name, program }: { name: string; program: string
   const startNew = () => {
     setDetails({ fullName: name, email: "", phone: "", location: "", targetRole: program, education: "", certifications: "", skills: "", experience: "", projects: "", summary: "" });
     setImportedText("");
+    setSourceEditing(false);
     setSourceName("");
     setImportMessage("");
     setGenerated(false);
@@ -4265,11 +4309,15 @@ export function ResumeBuilder({ name, program }: { name: string; program: string
         <label htmlFor="resume-import-text">Existing résumé text {sourceName ? `(${sourceName})` : ""}
           <textarea id="resume-import-text" value={importedText} onChange={event => setImportedText(event.target.value)} rows={7} placeholder="Paste your previous résumé here to review and edit its content..." />
         </label>
-        <button type="button" className="secondary" disabled={!importedText.trim()} onClick={() => {
-          setDetails(previous => ({ ...previous, experience: importedText.trim() }));
-          setGenerated(false);
-          setImportMessage("Source text copied into Experience for editing. Move education, skills and certifications into their corresponding fields before generating.");
-        }}>Use imported text in editor</button>
+        <fieldset>
+          <legend>What would you like to do with your existing résumé?</legend>
+          <label><input type="radio" name="resume-import-action" checked={importAction === "rebuild"} onChange={() => setImportAction("rebuild")} /> Create a newly formatted résumé from my information</label>
+          <label><input type="radio" name="resume-import-action" checked={importAction === "edit"} onChange={() => setImportAction("edit")} /> Edit my existing résumé</label>
+        </fieldset>
+        <button type="button" className="primary" disabled={!importedText.trim()} onClick={applyImportedResume}>
+          {importAction === "edit" ? "Edit Existing Resume" : "Create Resume from Upload"}
+        </button>
+        <small>Automatic extraction works best when sections have headings such as Education, Skills, Certifications and Experience. Please check every imported field; unusual layouts may need manual adjustments.</small>
         <small>Files and pasted text are processed in this browser session; they are not uploaded to MedPath servers or saved to your account.</small>
       </section>
       <section className="resume-layout">
@@ -4309,8 +4357,8 @@ export function ResumeBuilder({ name, program }: { name: string; program: string
           </button>
           <small>Review every detail before applying. The builder does not invent jobs, credentials, or clinical experience. Your entries remain in this browser session and are not saved to an account.</small>
         </form>
-        <article className="resume-preview" aria-label="Resume preview">
-          {!generated ? (
+        <article className="resume-preview" aria-label="Resume preview">\n          {sourceEditing && <div><h3>Edit original résumé text</h3><textarea aria-label="Edit original résumé" value={importedText} onChange={event => setImportedText(event.target.value)} rows={14} style={{ width: "100%" }} /><button className="secondary" type="button" onClick={() => { setSourceEditing(false); setGenerated(true); }}>View Rebuilt Resume</button><button className="secondary" type="button" onClick={() => window.print()}>Print / Save Edited Text</button></div>}
+          {sourceEditing ? <div id="pathhire-resume-print" style={{ whiteSpace: "pre-wrap" }}>{importedText}</div> : !generated ? (
             <><h3>Your resume preview</h3><p>Enter your information and select Generate Resume to see your personalized document.</p></>
           ) : (
             <div id="pathhire-resume-print">
