@@ -91,6 +91,7 @@ export function Header({
     ["Course Viewer", <BookOpen key="icon" />, () => navigateMobile("study", "studyPlans")],
     ["Terminology Decoder", <BookOpen key="term-icon" />, () => { window.location.assign("/terminology"); }],
     ["Adaptive Learning", <Brain key="adaptive-icon" />, () => { window.location.assign("/adaptive-learning"); }],
+    ["Smart Notes Studio", <BookOpen key="notes-icon" />, () => { window.location.assign("/notes"); }],
     ["PathPrep", <Brain key="icon" />, () => navigateMobile("practice", "practice")],
     ["Flashcards", <BookOpen key="icon" />, () => navigateMobile("practice", "flashcards")],
     ["Practice Exams", <ClipboardCheck key="icon" />, () => navigateMobile("practice", "mockExams")],
@@ -458,6 +459,7 @@ export function Sidebar({
           </button>
         ))}
         <a href="/terminology" className="sidebar-tool-link"><BookOpen size={18} /> Terminology Decoder</a>
+        <a href="/notes" className="sidebar-tool-link"><BookOpen size={18} /> Smart Notes Studio</a>
         {canAccess(plan, "adaptiveLearning") && <a href="/adaptive-learning" className="sidebar-tool-link"><Brain size={18} /> Adaptive Learning</a>}
         {isAdmin && (
           <button className={view === "admin" ? "active" : ""} onClick={() => onNavigate("admin")}>
