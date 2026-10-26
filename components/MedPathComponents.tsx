@@ -89,6 +89,7 @@ export function Header({
   const authenticatedMobileItems = [
     ["Dashboard", <Activity key="icon" />, () => navigateMobile("dashboard")],
     ["Course Viewer", <BookOpen key="icon" />, () => navigateMobile("study", "studyPlans")],
+    ["Terminology Decoder", <BookOpen key="term-icon" />, () => { window.location.assign("/terminology"); }],
     ["PathPrep", <Brain key="icon" />, () => navigateMobile("practice", "practice")],
     ["Flashcards", <BookOpen key="icon" />, () => navigateMobile("practice", "flashcards")],
     ["Practice Exams", <ClipboardCheck key="icon" />, () => navigateMobile("practice", "mockExams")],
@@ -455,6 +456,7 @@ export function Sidebar({
             {feature && !canAccess(plan, feature as FeatureKey) && <Lock size={14} />}
           </button>
         ))}
+        <a href="/terminology" className="sidebar-tool-link"><BookOpen size={18} /> Terminology Decoder</a>
         {isAdmin && (
           <button className={view === "admin" ? "active" : ""} onClick={() => onNavigate("admin")}>
             <ShieldCheck />
