@@ -27,7 +27,7 @@ export function recommendTopics(attempts: QuizAttempt[]): TopicRecommendation[] 
     const ordered = [...records].sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
     const averageScore = Math.round(records.reduce((sum, a) => sum + a.score, 0) / records.length);
     const latestScore = ordered[0].score;
-    const priority = latestScore < 70 || averageScore < 70 ? "review" : latestScore < 85 || averageScore < 85 ? "practice" : "maintain";
+    const priority: TopicRecommendation["priority"] = latestScore < 70 || averageScore < 70 ? "review" : latestScore < 85 || averageScore < 85 ? "practice" : "maintain";
     return {
       topic,
       attempts: records.length,
