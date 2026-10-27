@@ -345,6 +345,66 @@ export type CareerPath = {
 
 export const careers: CareerPath[] = [
   {
+    title: "Doctor of Medicine (MD)", icon: "MD", salary: "Varies by specialty",
+    education: "Bachelor's degree, four years of medical school, and residency",
+    certification: "USMLE examinations, state medical license; board certification by specialty",
+    outlook: "Demand varies by specialty and region",
+    responsibilities: "Diagnose illness, coordinate treatment, and provide medical and surgical care within specialty training.",
+    skills: "Clinical reasoning, communication, anatomy, patient safety",
+    advancement: "Surgical residency and optional fellowship, or another medical specialty",
+    trainingLength: "Typically 4 years medical school plus 3–7+ years residency after undergraduate education",
+    workSetting: "Hospitals, outpatient clinics, academic medicine",
+    bestFor: "Students pursuing physician training, including surgery"
+  },
+  {
+    title: "Doctor of Osteopathic Medicine (DO)", icon: "DO", salary: "Varies by specialty",
+    education: "Bachelor's degree, four years of osteopathic medical school, and residency",
+    certification: "COMLEX-USA examinations, state medical license; board certification by specialty",
+    outlook: "Demand varies by specialty and region",
+    responsibilities: "Diagnose and treat illness as a fully licensed physician, with additional osteopathic training.",
+    skills: "Clinical reasoning, whole-person care, osteopathic principles, patient safety",
+    advancement: "Surgical residency and optional fellowship, or another medical specialty",
+    trainingLength: "Typically 4 years medical school plus 3–7+ years residency after undergraduate education",
+    workSetting: "Hospitals, outpatient clinics, academic medicine",
+    bestFor: "Students pursuing physician training with osteopathic medical education"
+  },
+  {
+    title: "Surgeon (MD/DO Specialty)", icon: "SUR", salary: "Varies by surgical specialty",
+    education: "MD or DO degree followed by surgical residency; fellowship for some subspecialties",
+    certification: "Physician license and relevant surgical board certification",
+    outlook: "Demand varies by surgical specialty and region",
+    responsibilities: "Evaluate surgical conditions, perform operations, manage perioperative care, and coordinate recovery.",
+    skills: "Surgical anatomy, technical precision, decision-making, teamwork",
+    advancement: "General surgery or specialty surgical residency, optional subspecialty fellowship",
+    trainingLength: "Typically 4 years medical school plus 5–7+ years surgical residency after undergraduate education",
+    workSetting: "Operating rooms, hospitals, surgical clinics",
+    bestFor: "Future MD or DO physicians interested in surgical specialties"
+  },
+  {
+    title: "Physician Assistant / Associate (PA)", icon: "PA", salary: "See current BLS data",
+    education: "Bachelor's degree with prerequisites and accredited PA master's program",
+    certification: "PANCE, NCCPA certification, and state licensure",
+    outlook: "Demand varies by setting and region",
+    responsibilities: "Evaluate patients, diagnose and treat conditions, and collaborate with healthcare teams within state practice rules.",
+    skills: "Clinical assessment, teamwork, pharmacology, communication",
+    advancement: "Specialty practice, postgraduate PA training, leadership",
+    trainingLength: "Typically 2–3 years of PA education after undergraduate preparation",
+    workSetting: "Clinics, hospitals, emergency departments, surgical services",
+    bestFor: "Students seeking graduate-level medical practice as a PA"
+  },
+  {
+    title: "Nurse Practitioner (NP)", icon: "NP", salary: "See current BLS data",
+    education: "Registered nurse preparation plus graduate NP education (MSN or DNP)",
+    certification: "RN license, population-focus NP national certification, and state APRN authorization",
+    outlook: "Demand varies by specialty and region",
+    responsibilities: "Assess, diagnose, and manage patient care within population focus and state scope-of-practice laws.",
+    skills: "Advanced nursing assessment, clinical reasoning, patient education",
+    advancement: "Population-focus specialty practice, clinical leadership, research, education",
+    trainingLength: "Varies; graduate NP programs commonly require 2–4 years after nursing preparation",
+    workSetting: "Primary care, specialty clinics, hospitals",
+    bestFor: "Registered nurses pursuing advanced practice"
+  },
+  {
     title: "Medical Assistant",
     icon: "MA",
     salary: "$46k median",
