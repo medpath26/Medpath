@@ -8,7 +8,8 @@
     "start": "next start",
     "supabase:check": "node scripts/check-supabase.mjs",
     "lint": "next lint",
-    "test": "node --experimental-strip-types --test tests/*.test.mjs"
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
+    "test:atlas-integration": "node scripts/test-atlas-integration.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",

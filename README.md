@@ -167,3 +167,9 @@ Automatic Vercel deployments are disabled for the Group 1 feature branch while
 its migrations and provider configuration await review. This preserves the
 existing preview. Remove the branch-specific setting in `vercel.json` when an
 isolated preview is ready to be deployed and tested; it does not disable main.
+
+Run `pnpm test` for the local unit and database-isolation checks. For the
+synthetic Atlas server flow, run `pnpm test:atlas-integration`; it uses test-only
+credentials and simulated providers, blocks unexpected outbound requests, binds
+127.0.0.1:43191, and replaces the local `.next` build. It is not a substitute for
+hosted Supabase or real provider testing.
