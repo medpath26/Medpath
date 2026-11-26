@@ -78,9 +78,9 @@ export default function ExamCoachPage() {
     if (!supabase || !plan || saving) return;
     const next = checked ? [...new Set([...plan.completed_weeks, index])] : plan.completed_weeks.filter(i => i !== index);
     setSaving(true); setMessage("");
-    const { error } = await supabase.from("exam_coach_plans").update({completed_weeks: next, updated_at: new Date().toISOString()}).eq("user_id", userId).eq("pathway", pathway);
+    const { data, error } = await supabase.from("exam_coach_plans").update({completed_weeks: next, updated_at: new Date().toISOString()}).eq("user_id", userId).eq("pathway", pathway).select("completed_weeks").maybeSingle();
     setSaving(false);
-    if (error) { setMessage("Could not save progress. Please try again."); return; }
+    if (error || !data) { setMessage("Could not save progress. Your plan may have changed; reload and try again."); return; }
     setPlan({ ...plan, completed_weeks: next }); setMessage("Progress saved.");
   }
   return <main className="mx-auto max-w-5xl px-5 py-10">

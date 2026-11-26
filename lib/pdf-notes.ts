@@ -9,7 +9,7 @@ export async function extractPdfNotes(data: Uint8Array, workerSrc?: string): Pro
   if (header !== "%PDF-") throw new Error("INVALID_PDF");
   const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
   pdfjs.GlobalWorkerOptions.workerSrc = workerSrc ?? new URL("pdfjs-dist/legacy/build/pdf.worker.min.mjs", import.meta.url).toString();
-  const task = pdfjs.getDocument({ data, isEvalSupported: false, enableXfa: false, stopAtErrors: true, useWorkerFetch: false });
+  const task = pdfjs.getDocument({ data, enableXfa: false, stopAtErrors: true, useWorkerFetch: false });
   try {
     const pdf = await task.promise;
     if (pdf.numPages > MAX_PDF_PAGES) throw new Error("TOO_MANY_PAGES");
