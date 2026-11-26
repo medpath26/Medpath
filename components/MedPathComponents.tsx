@@ -2,6 +2,7 @@
 import { buildPathwayLessons } from "@/lib/pathway-lessons";
 import { supabase } from "@/lib/supabase-client";
 import { calculateTopicResults } from "@/lib/exam-results";
+import { practiceExamIds } from "@/lib/practice-exam-access";
 
 import Image from "next/image";
 import {
@@ -2009,11 +2010,8 @@ export function Practice({ initialMode, plan, program }: { initialMode: "flashca
   const isSurgicalPath = normalizedProgram.includes("surgical") || normalizedProgram.includes("surgery");
   const isMedicalAssistantPath = normalizedProgram.includes("medical assistant") || normalizedProgram.includes("medical assisting");
   const isSterileProcessingPath = normalizedProgram.includes("sterile processing");
-  const matchingExams = practiceExams.filter((exam) =>
-    isSurgicalPath ? ["ncct-tsc", "cst"].includes(exam.id) :
-    isMedicalAssistantPath ? exam.id === "medical-assistant" :
-    isSterileProcessingPath ? exam.id === "sterile-processing" : true
-  );
+  const allowedExamIds = practiceExamIds(program);
+  const matchingExams = practiceExams.filter(exam => allowedExamIds.includes(exam.id));
   const [selectedExamId, setSelectedExamId] = useState(practiceExams[0].id);
   const [examStatus, setExamStatus] = useState<"home" | "active" | "results" | "review">("home");
   const [examSessionId, setExamSessionId] = useState("");
@@ -2023,7 +2021,7 @@ export function Practice({ initialMode, plan, program }: { initialMode: "flashca
   const [flaggedQuestions, setFlaggedQuestions] = useState<number[]>([]);
   const [secondsRemaining, setSecondsRemaining] = useState(20 * 60);
   const [timeTakenSeconds, setTimeTakenSeconds] = useState(0);
-  const selectedExam = matchingExams.find((exam) => exam.id === selectedExamId) ?? matchingExams[0];
+  const selectedExam = matchingExams.find((exam) => exam.id === selectedExamId) ?? matchingExams[0] ?? practiceExams[0];
   const availableExamQuestions = isFree ? selectedExam.items.slice(0, 10) : selectedExam.items;
   const activeExamQuestion = availableExamQuestions[examQuestionIndex];
   const answeredCount = Object.keys(examAnswers).length;
@@ -2074,7 +2072,9 @@ export function Practice({ initialMode, plan, program }: { initialMode: "flashca
       ? ["Medical Assisting"]
       : isSterileProcessingPath
         ? ["Sterile Processing"]
-        : categories.filter((item) => item !== "All");
+        : (!normalizedProgram || normalizedProgram.includes("explor"))
+          ? categories.filter((item) => item !== "All")
+          : ["Anatomy", "Medical Terminology", "Infection Control"];
   const visibleCategories = ["All", ...relevantCategories];
   const [category, setCategory] = useState("All");
   const [difficulty, setDifficulty] = useState("All");
@@ -2196,6 +2196,7 @@ export function Practice({ initialMode, plan, program }: { initialMode: "flashca
         </p>
       </div>
 
+      {studyMode === "flashcards" && normalizedProgram && !normalizedProgram.includes("explor") && !isSurgicalPath && !isMedicalAssistantPath && !isSterileProcessingPath && <p>These are shared foundational cards; pathway-specific cards are still in development.</p>}
       <div className="practice-mode-tabs" role="tablist" aria-label="PathPrep study mode">
         <button
           className={studyMode === "flashcards" ? "active" : ""}
@@ -2241,6 +2242,7 @@ export function Practice({ initialMode, plan, program }: { initialMode: "flashca
               ) : <p>Select a supported healthcare pathway to view its certification options.</p>}
             </section>
             <h3>Available PathPrep practice exams</h3>
+            {matchingExams.length === 0 && <p>There is no dedicated practice question bank for this pathway yet. You can still use Study Hub, flashcards, terminology, and the study planner.</p>}
             <section className="exam-home-grid">
               {matchingExams.map((exam) => (
                 <article className="exam-card-premium" key={exam.id}>
@@ -2251,11 +2253,11 @@ export function Practice({ initialMode, plan, program }: { initialMode: "flashca
                   <dl>
                     <div>
                       <dt>Number of Questions</dt>
-                      <dd>{exam.questions}</dd>
+                      <dd>{isFree ? Math.min(10, exam.items.length) : exam.items.length}</dd>
                     </div>
                     <div>
                       <dt>Estimated Time</dt>
-                      <dd>{exam.estimatedTime}</dd>
+                      <dd>20 min</dd>
                     </div>
                     <div>
                       <dt>Difficulty</dt>
