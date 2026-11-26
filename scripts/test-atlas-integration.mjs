@@ -33,8 +33,8 @@ try {
   assert.equal(auth.status,303);
   const cookie = auth.headers.get('set-cookie')?.split(';')[0];
   assert.ok(cookie);
-  async function post(payload, authorized = true) {
-    return fetch(`${base}/api/atlas/study-materials`, {method:'POST',headers:{cookie,'content-type':'application/json',...(authorized ? {authorization:'Bearer valid-test-token'} : {})},body:JSON.stringify(payload)});
+  async function post(payload, authorized = true, token = 'valid-test-token') {
+    return fetch(`${base}/api/atlas/study-materials`, {method:'POST',headers:{cookie,'content-type':'application/json',...(authorized ? {authorization:`Bearer ${token}`} : {})},body:JSON.stringify(payload)});
   }
   async function reserveQuestion(authorized = true) {
     return fetch(`${base}/api/atlas/reserve-question`, {method:'POST',headers:{cookie,...(authorized ? {authorization:'Bearer valid-test-token'} : {})}});
@@ -52,6 +52,14 @@ try {
   assert.equal((await reserveQuestion()).status,200);
   assert.equal((await post(notes)).status,429);
   assert.equal((await reserveQuestion()).status,429);
+  const failed = await post({notes:'synthetic provider failure for testing',confirmed:true},true,'failure-test-token');
+  assert.equal(failed.status,502);
+  assert.doesNotMatch(JSON.stringify(await failed.json()), /private provider details/);
+  const refused = await post({notes:'synthetic refusal for testing',confirmed:true},true,'failure-test-token');
+  assert.equal(refused.status,502);
+  assert.doesNotMatch(JSON.stringify(await refused.json()), /private refusal details/);
+  assert.equal((await post(notes,true,'failure-test-token')).status,200);
+  assert.equal((await post(notes,true,'failure-test-token')).status,429);
   console.log('Atlas integration checks passed with simulated services.');
 } finally {
   server.kill('SIGTERM');
