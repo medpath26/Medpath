@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase-client";
 import { daysBetween, makeStudyBlocks } from "@/lib/exam-plan";
-import { examOptionsForPathway, getExamResource } from "@/lib/exam-resources";
+import { examOptionsForPathway, getExamResource, getPathwayResource } from "@/lib/exam-resources";
 
 const DEFAULT_TOPICS = ["Foundations and terminology", "Anatomy and physiology", "Patient safety and infection prevention", "Pathway-specific clinical knowledge", "Practice questions and explanations", "Timed exam review"];
 type Attempt = { topic: string; score: number };
@@ -52,6 +52,7 @@ export default function ExamCoachPage() {
     return () => { active = false; };
   }, []);
   const examResource = getExamResource(pathway, goal);
+  const pathwayResource = getPathwayResource(pathway);
   const topics = useMemo(() => {
     const scores = new Map<string, number[]>();
     for (const a of attempts) {
@@ -103,7 +104,8 @@ export default function ExamCoachPage() {
         <input id="exam-date" type="date" value={examDate} onChange={e=>setExamDate(e.target.value)} className="mt-2 rounded-lg border border-slate-400 bg-transparent p-2" />
         <label htmlFor="weekly-hours" className="mt-4 block text-sm font-semibold">Study hours per week: {hours}</label>
         <input id="weekly-hours" type="range" min="1" max="30" value={hours} onChange={e=>setHours(Number(e.target.value))} className="mt-2 w-full" />
-        {examResource ? <p className="mt-3 text-sm">Recognized {examResource.name}. <a className="underline" href={examResource.url} target="_blank" rel="noopener noreferrer">Check the official preparation resource</a>. {examResource.topics.length ? "The plan can include introductory topics based on that resource." : "This plan uses general study topics; use the official resource for exam-specific guidance."}</p> : <p className="mt-3 text-sm">This plan uses general topics. Verify exam-specific topics with your credentialing organization.</p>}
+        {examResource ? <p className="mt-3 text-sm">Recognized {examResource.name}. <a className="underline" href={examResource.url} target="_blank" rel="noopener noreferrer">Open the organization’s resource</a>. {examResource.topics.length ? "The plan can include introductory topics based on that resource." : "This plan uses general study topics; check the organization and applicable state or specialty for exam-specific guidance."}</p> : <p className="mt-3 text-sm">This plan uses general topics. Verify exam-specific topics with your credentialing organization.</p>}
+        {pathwayResource && <p className="mt-3 text-sm">Board certification depends on specialty and certifying organization. The <a className="underline" href={pathwayResource.url} target="_blank" rel="noopener noreferrer">{pathwayResource.name}</a> lists ABMS boards; other certifying organizations may also apply.</p>}
         <p className="mt-3 text-sm opacity-75">Saving a new plan replaces this pathway’s previous plan and resets its completed weeks. It does not change your exam tracker.</p>
         <button type="button" disabled={saving || !pathway} onClick={() => void savePlan()} className="mt-4 rounded-lg bg-teal-700 px-4 py-2 text-white disabled:opacity-50">{plan ? "Replace plan" : "Create plan"}</button>
         {message && <p role="status" className="mt-3">{message}</p>}
