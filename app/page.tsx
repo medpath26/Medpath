@@ -1,7 +1,7 @@
 "use client";
 
 import { Sparkles } from "lucide-react";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import {
   FeatureKey,
@@ -224,6 +224,7 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
   const [authError, setAuthError] = useState("");
   const [atlasRequestError, setAtlasRequestError] = useState("");
   const [atlasRequestBusy, setAtlasRequestBusy] = useState(false);
+  const atlasRequestInFlight = useRef(false);
   const [authNotice, setAuthNotice] = useState("");
   const [authFieldErrors, setAuthFieldErrors] = useState<AuthFieldErrors>({});
   const [isAuthLoading, setIsAuthLoading] = useState(false);
@@ -972,10 +973,10 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
   async function askAtlas(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const question = chatInput.trim();
-    if (!question || atlasRequestBusy) return;
+    if (!question || atlasRequestInFlight.current) return;
     if (plan === "explorer" && memberAtlasQuestionCount >= 3) { setLockedFeature("atlas"); return; }
     if (!supabase || !authUser) { setAtlasRequestError("Please sign in to use Atlas."); return; }
-    setAtlasRequestError(""); setAtlasRequestBusy(true);
+    atlasRequestInFlight.current = true; setAtlasRequestError(""); setAtlasRequestBusy(true);
     try {
       const { data } = await supabase.auth.getSession();
       if (!data.session) { setAtlasRequestError("Please sign in to use Atlas."); return; }
@@ -987,7 +988,7 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
       if (plan === "explorer") setMemberAtlasQuestionCount(count => count + 1);
       setMentorAnswer(getAtlasReply(question)); setChatInput("");
     } catch { setAtlasRequestError("We couldn't check Atlas usage. Please try again."); }
-    finally { setAtlasRequestBusy(false); }
+    finally { atlasRequestInFlight.current = false; setAtlasRequestBusy(false); }
   }
 
   function askGuestAtlas(event: FormEvent<HTMLFormElement>) {

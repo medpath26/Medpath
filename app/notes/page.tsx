@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase-client";
 import type { StudyMaterials } from "@/lib/study-materials";
 import { extractPdfNotes, MAX_PDF_BYTES } from "@/lib/pdf-notes";
@@ -29,12 +29,14 @@ export default function NotesPage() {
   const [copyStatus, setCopyStatus] = useState("");
   const [confirmed, setConfirmed] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const generatingRef = useRef(false);
   const [generationStatus, setGenerationStatus] = useState("");
   const [materials, setMaterials] = useState<StudyMaterials | null>(null);
   const [revealGenerated, setRevealGenerated] = useState(false);
   async function generate() {
+    if (generatingRef.current) return;
     if (!supabase) { setGenerationStatus("Study generation is unavailable right now."); return; }
-    setGenerating(true); setGenerationStatus(""); setMaterials(null); setRevealGenerated(false);
+    generatingRef.current = true; setGenerating(true); setGenerationStatus(""); setMaterials(null); setRevealGenerated(false);
     try {
       const { data, error } = await supabase.auth.getSession();
       if (error || !data.session) { setGenerationStatus("Sign in to generate study materials."); return; }
@@ -46,7 +48,7 @@ export default function NotesPage() {
       if (!response.ok) { setGenerationStatus(typeof payload.error === "string" ? payload.error : "Generation failed. Please try again."); return; }
       setMaterials(payload.materials as StudyMaterials);
     } catch { setGenerationStatus("Generation is unavailable right now. Please try again."); }
-    finally { setGenerating(false); }
+    finally { generatingRef.current = false; setGenerating(false); }
   }
   async function importText(file: File | undefined) {
     if (!file) return;

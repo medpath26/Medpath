@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { supabase } from "@/lib/supabase-client";
 import type { TeachingExplanation } from "@/lib/study-materials";
 
@@ -8,11 +8,13 @@ export function TeachMeDifferently({ isMember, onUsageChanged }: { isMember: boo
   const [level, setLevel] = useState("beginner");
   const [confirmed, setConfirmed] = useState(false);
   const [busy, setBusy] = useState(false);
+  const busyRef = useRef(false);
   const [error, setError] = useState("");
   const [answer, setAnswer] = useState<TeachingExplanation | null>(null);
   async function submit() {
+    if (busyRef.current) return;
     if (!supabase) { setError("This feature is unavailable right now."); return; }
-    setBusy(true); setError(""); setAnswer(null);
+    busyRef.current = true; setBusy(true); setError(""); setAnswer(null);
     try {
       const { data } = await supabase.auth.getSession();
       if (!data.session) { setError("Sign in to use this feature."); return; }
@@ -24,7 +26,7 @@ export function TeachMeDifferently({ isMember, onUsageChanged }: { isMember: boo
       if (!response.ok) { setError(typeof payload.error === "string" ? payload.error : "Could not generate an explanation."); return; }
       setAnswer(payload.explanation as TeachingExplanation);
     } catch { setError("Could not generate an explanation. Please try again."); }
-    finally { setBusy(false); onUsageChanged?.(); }
+    finally { busyRef.current = false; setBusy(false); onUsageChanged?.(); }
   }
   return <section className="panel" aria-labelledby="teach-differently-heading">
     <h3 id="teach-differently-heading">Teach Me Differently</h3>
