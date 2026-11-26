@@ -1,6 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/lib/supabase-client";
+import { getHealthcarePathway } from "@/lib/healthcare-pathways";
+import { pathwayTermSelections } from "@/lib/terminology-pathways";
 
 type Term = { term: string; prefix: string; root: string; suffix: string; meaning: string; example: string };
 const TERMS: Term[] = [
@@ -16,11 +19,32 @@ const TERMS: Term[] = [
 
 export default function TerminologyPage() {
   const [search, setSearch] = useState("");
+  const [pathway, setPathway] = useState("");
+  const [showAll, setShowAll] = useState(false);
+  useEffect(() => {
+    let active = true;
+    async function loadPathway() {
+      if (!supabase) return;
+      const { data } = await supabase.auth.getUser();
+      if (!data.user || !active) return;
+      const profile = await supabase.from("profiles").select("healthcare_program").eq("id", data.user.id).maybeSingle();
+      if (active && !profile.error) {
+        setPathway(profile.data?.healthcare_program ?? "");
+        setIndex(0); setCorrect(0); setRevealed(false); setAnswered(false);
+      }
+    }
+    void loadPathway();
+    return () => { active = false; };
+  }, []);
   const [index, setIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [correct, setCorrect] = useState(0);
   const [answered, setAnswered] = useState(false);
-  const filtered = useMemo(() => TERMS.filter(t => [t.term, t.meaning, t.prefix, t.root, t.suffix].some(v => v.toLowerCase().includes(search.toLowerCase().trim()))), [search]);
+  const selectedPathway = getHealthcarePathway(pathway);
+  const filtered = useMemo(() => TERMS.filter(t =>
+    (!selectedPathway || showAll || pathwayTermSelections[selectedPathway.id].includes(t.term)) &&
+    [t.term, t.meaning, t.prefix, t.root, t.suffix].some(v => v.toLowerCase().includes(search.toLowerCase().trim()))
+  ), [search, selectedPathway, showAll]);
   const current = filtered[index];
   const [speechError, setSpeechError] = useState("");
   const speak = (term: string) => {
@@ -40,6 +64,7 @@ export default function TerminologyPage() {
     <a href="/?view=study" className="text-sm underline">← Back to Study Hub</a>
     <h1 className="mt-6 text-3xl font-bold">Medical Terminology Decoder</h1>
     <p className="mt-2 text-sm opacity-75">Break down clinical vocabulary into prefixes, roots, and suffixes. Educational reference only.</p>
+    {selectedPathway && <div className="mt-6 rounded-lg border p-4"><p>Showing a small set of foundational terms suggested for {selectedPathway.label}. This is not a complete pathway vocabulary or exam guide.</p><label className="mt-3 flex items-center gap-2"><input type="checkbox" checked={showAll} onChange={e=>{setShowAll(e.target.checked);setIndex(0);setCorrect(0);setRevealed(false);setAnswered(false);}} /> Show all available terms</label></div>}
     <label htmlFor="term-search" className="mt-8 block font-semibold">Search terminology</label>
     <input id="term-search" className="mt-2 w-full rounded-lg border border-slate-400 bg-transparent p-3" value={search} onChange={e => { setSearch(e.target.value); setIndex(0); setCorrect(0); setRevealed(false); setAnswered(false); }} placeholder="Search a term, meaning, prefix, root, or suffix" />
     <div className="mt-5 grid gap-4 md:grid-cols-2">{filtered.map(t => <article key={t.term} className="rounded-xl border border-slate-300 p-5">
