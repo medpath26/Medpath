@@ -162,3 +162,8 @@ fails. Review those limits and make product copy consistent before release. The 
 reservation migration and deploy its matching application code together; older
 clients that insert usage directly will need to reload. Keep generation disabled
 until all hosted account, quota, privacy and provider failure tests have passed.
+
+Automatic Vercel deployments are disabled for the Group 1 feature branch while
+its migrations and provider configuration await review. This preserves the
+existing preview. Remove the branch-specific setting in `vercel.json` when an
+isolated preview is ready to be deployed and tested; it does not disable main.
