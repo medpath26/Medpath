@@ -35,3 +35,16 @@ export function parseStudyMaterials(text: string): StudyMaterials | null {
   if (data.quiz.length < 1 || data.quiz.length > 10 || !data.quiz.every(x => record(x) && nonemptyString(x.question, 500) && nonemptyString(x.answer, 1200) && nonemptyString(x.explanation, 1200))) return null;
   return data as StudyMaterials;
 }
+
+/** Accept completed output text only; never expose provider diagnostics or partial output. */
+export function extractStudyMaterials(response: unknown): StudyMaterials | null {
+  if (!record(response) || response.status !== "completed" || !Array.isArray(response.output)) return null;
+  const content: unknown[] = [];
+  for (const item of response.output) {
+    if (record(item) && item.type === "message" && Array.isArray(item.content)) content.push(...item.content);
+  }
+  if (content.some(part => record(part) && part.type === "refusal")) return null;
+  const outputs = content.filter(part => record(part) && part.type === "output_text");
+  if (outputs.length !== 1 || !record(outputs[0]) || typeof outputs[0].text !== "string") return null;
+  return parseStudyMaterials(outputs[0].text);
+}
