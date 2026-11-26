@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase-client";
 import type { StudyMaterials } from "@/lib/study-materials";
+import { extractPdfNotes, MAX_PDF_BYTES } from "@/lib/pdf-notes";
 
 const MAX_CHARS = 20000;
 const MAX_FILE_BYTES = 80000;
@@ -24,6 +25,7 @@ export default function NotesPage() {
   const [notes, setNotes] = useState("");
   const [showAnswers, setShowAnswers] = useState(false);
   const [fileStatus, setFileStatus] = useState("");
+  const [reading, setReading] = useState(false);
   const [copyStatus, setCopyStatus] = useState("");
   const [confirmed, setConfirmed] = useState(false);
   const [generating, setGenerating] = useState(false);
@@ -49,14 +51,19 @@ export default function NotesPage() {
   async function importText(file: File | undefined) {
     if (!file) return;
     setFileStatus("");
-    if (!/\.(txt|md)$/i.test(file.name)) { setFileStatus("Choose a .txt or .md file. PDF support is not available yet."); return; }
-    if (file.size > MAX_FILE_BYTES) { setFileStatus("The file is too large. Choose a text file under 80 KB."); return; }
+    const isPdf = /\.pdf$/i.test(file.name);
+    if (!isPdf && !/\.(txt|md)$/i.test(file.name)) { setFileStatus("Choose a PDF, .txt, or .md file."); return; }
+    if (file.size > (isPdf ? MAX_PDF_BYTES : MAX_FILE_BYTES)) { setFileStatus(isPdf ? "The PDF exceeds 5 MB." : "The text file exceeds 80 KB."); return; }
+    setReading(true);
     try {
-      const text = await file.text();
+      const text = isPdf ? await extractPdfNotes(new Uint8Array(await file.arrayBuffer())) : await file.text();
       if (text.includes("\0")) { setFileStatus("This file does not appear to be plain text."); return; }
       if (text.length > MAX_CHARS) { setFileStatus("These notes exceed 20,000 characters. Shorten the file and try again."); return; }
-      setNotes(text); setMaterials(null); setConfirmed(false); setShowAnswers(false); setFileStatus("Notes loaded in this browser. They have not been uploaded or saved.");
-    } catch { setFileStatus("Could not read that file. Please try again."); }
+      setNotes(text); setMaterials(null); setConfirmed(false); setShowAnswers(false); setFileStatus("Notes loaded in this browser. They have not been uploaded or saved. Review the extracted text for accuracy.");
+    } catch (error) {
+      const code = error instanceof Error ? error.message : "";
+      setFileStatus(code === "TOO_MANY_PAGES" ? "The PDF exceeds 25 pages." : code === "TOO_MUCH_TEXT" ? "The extracted text exceeds 20,000 characters." : code === "NO_TEXT" ? "No selectable text was found. Scanned PDFs require OCR, which is not available yet." : "Could not read this file. It may be invalid or password-protected.");
+    } finally { setReading(false); }
   }
   const summary = useMemo(() => summarize(notes), [notes]);
   const cards = useMemo(() => prompts(notes), [notes]);
@@ -69,12 +76,13 @@ export default function NotesPage() {
     <h1 className="mt-6 text-3xl font-bold">Smart Notes Studio</h1>
     <p className="mt-2 opacity-75">Turn your own class notes into quick-review highlights and study prompts. This starter version processes text in your browser and does not upload or save it.</p>
     <p className="mt-3 rounded-lg border border-amber-400 p-3 text-sm"><strong>Privacy:</strong> Do not paste patient names, dates of birth, medical record numbers, or other identifiable health information. This tool is for educational notes only.</p>
-    <label htmlFor="notes-file" className="mt-6 block font-semibold">Import a plain-text notes file</label>
-    <input id="notes-file" type="file" disabled={generating} accept=".txt,.md,text/plain,text/markdown" onChange={e => { void importText(e.target.files?.[0]); e.currentTarget.value = ""; }} className="mt-2 block w-full text-sm" />
-    <p className="mt-2 text-xs opacity-70">.txt or .md, up to 80 KB and 20,000 characters. The file stays on this device; importing replaces the text below.</p>
+    <label htmlFor="notes-file" className="mt-6 block font-semibold">Import a notes file</label>
+    <input id="notes-file" type="file" disabled={generating || reading} accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown" onChange={e => { void importText(e.target.files?.[0]); e.currentTarget.value = ""; }} className="mt-2 block w-full text-sm" />
+    <p className="mt-2 text-xs opacity-70">PDF: up to 5 MB and 25 pages; text files: up to 80 KB. Both are limited to 20,000 extracted characters. The file stays on this device; importing replaces the text below.</p>
+    {reading && <p role="status" className="mt-2 text-sm">Reading notes…</p>}
     {fileStatus && <p role="status" className="mt-2 text-sm">{fileStatus}</p>}
     <label htmlFor="study-notes" className="mt-6 block font-semibold">Paste your lecture or study notes</label>
-    <textarea id="study-notes" disabled={generating} value={notes} onChange={e => { setNotes(e.target.value.slice(0, MAX_CHARS)); setMaterials(null); setConfirmed(false); }} maxLength={MAX_CHARS} rows={12} placeholder="Example: Tachycardia: an abnormally fast heart rate.\nBradycardia: an abnormally slow heart rate." className="mt-2 w-full rounded-lg border border-slate-400 bg-transparent p-3" />
+    <textarea id="study-notes" disabled={generating || reading} value={notes} onChange={e => { setNotes(e.target.value.slice(0, MAX_CHARS)); setMaterials(null); setConfirmed(false); }} maxLength={MAX_CHARS} rows={12} placeholder="Example: Tachycardia: an abnormally fast heart rate.\nBradycardia: an abnormally slow heart rate." className="mt-2 w-full rounded-lg border border-slate-400 bg-transparent p-3" />
     <p className="text-right text-xs opacity-70">{notes.length.toLocaleString()} / {MAX_CHARS.toLocaleString()} characters</p>
     {notes.trim() ? <div className="mt-6 grid gap-5 md:grid-cols-2">
       <section className="rounded-xl border border-slate-300 p-5">
@@ -97,7 +105,7 @@ export default function NotesPage() {
       <p className="mt-2 text-sm">When enabled, your notes are sent to OpenAI to generate study materials. Do not include patient information or other sensitive details. Generated content may be inaccurate; check it against trusted course materials.</p>
       <label className="mt-4 flex items-start gap-2"><input type="checkbox" disabled={generating} checked={confirmed} onChange={e => setConfirmed(e.target.checked)} /><span>I confirm these notes contain no identifiable patient information or other sensitive details, and I want to send them for generation.</span></label>
       <p className="mt-2 text-xs opacity-70">Generation uses Atlas access. A daily safeguard applies to paid accounts; attempts count even if generation fails.</p>
-      <button type="button" disabled={!confirmed || notes.trim().length < 20 || generating} onClick={() => void generate()} className="mt-4 rounded-lg bg-teal-700 px-4 py-2 text-white disabled:opacity-50">{generating ? "Generating…" : "Generate study materials"}</button>
+      <button type="button" disabled={!confirmed || notes.trim().length < 20 || generating || reading} onClick={() => void generate()} className="mt-4 rounded-lg bg-teal-700 px-4 py-2 text-white disabled:opacity-50">{generating ? "Generating…" : "Generate study materials"}</button>
       {generationStatus && <p role="status" className="mt-3">{generationStatus}</p>}
       {materials && <div className="mt-6 grid gap-5 md:grid-cols-2">
         <section><h3 className="font-semibold">Summary</h3><ul className="mt-2 list-disc pl-5">{materials.summary.map((item,i)=><li key={i}>{item}</li>)}</ul></section>
@@ -107,6 +115,6 @@ export default function NotesPage() {
         </section>
       </div>}
     </section>
-    <p className="mt-8 text-xs opacity-70">PDF upload and saved notes are not yet available. Local highlights and cards do not use AI. Verify learning content against course materials.</p>
+    <p className="mt-8 text-xs opacity-70">PDFs are read locally; scanned images are not supported. Saved notes are not yet available. Local highlights and cards do not use AI. Verify learning content against course materials.</p>
   </main>;
 }
