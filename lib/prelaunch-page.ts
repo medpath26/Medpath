@@ -124,7 +124,7 @@ function page(body: string, options: { host?: string } = {}) {
       ...privateHeaders,
       "Content-Type": "text/html; charset=utf-8",
       "Content-Security-Policy": `default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}'; img-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'`,
-      "Referrer-Policy": "no-referrer",
+      "Referrer-Policy": host ? "no-referrer" : "same-origin",
       "X-Content-Type-Options": "nosniff",
       ...(host ? {} : { "X-Robots-Tag": "noindex, nofollow" })
     }
