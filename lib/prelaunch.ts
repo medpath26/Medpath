@@ -8,13 +8,15 @@ export function canConsiderLaunch(mode: string | undefined, now = Date.now()) {
 }
 
 export function isPublicDeployment(host: string, frameworkHost: string) {
-  const authority = process.env.PRELAUNCH_PUBLIC_HOST;
+  // Use the project's public Vercel alias until a canonical hostname is configured.
+  const authority = process.env.PRELAUNCH_PUBLIC_HOST?.trim() ||
+    (process.env.VERCEL_ENV === "production" ? "medpath-nine-zeta.vercel.app" : undefined);
   return Boolean(authority && host === authority && frameworkHost === authority &&
     process.env.VERCEL_ENV !== "preview" && process.env.PRELAUNCH_PREVIEW !== "true");
 }
 
 export async function isLaunchApproved() {
-  if (!canConsiderLaunch(process.env.PRELAUNCH_MODE)) return false;
+  if (!process.env.PRELAUNCH_PUBLIC_HOST?.trim() || !canConsiderLaunch(process.env.PRELAUNCH_MODE)) return false;
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
