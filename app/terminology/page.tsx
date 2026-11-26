@@ -22,7 +22,10 @@ export default function TerminologyPage() {
   const [answered, setAnswered] = useState(false);
   const filtered = useMemo(() => TERMS.filter(t => [t.term, t.meaning, t.root].some(v => v.toLowerCase().includes(search.toLowerCase().trim()))), [search]);
   const current = TERMS[index];
-  const advance = () => { setIndex(i => (i + 1) % TERMS.length); setRevealed(false); setAnswered(false); };
+  const advance = () => {
+    if (index === TERMS.length - 1) setCorrect(0);
+    setIndex(i => (i + 1) % TERMS.length); setRevealed(false); setAnswered(false);
+  };
   return <main className="mx-auto max-w-5xl px-5 py-10">
     <a href="/study" className="text-sm underline">← Back to Study Hub</a>
     <h1 className="mt-6 text-3xl font-bold">Medical Terminology Decoder</h1>

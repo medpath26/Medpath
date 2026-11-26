@@ -34,14 +34,14 @@ export default function AdaptiveLearningPage() {
     {status === "loading" && <p role="status" className="mt-6">Loading your quiz history…</p>}
     {status === "signed-out" && <p className="mt-6">Sign in to see personalized recommendations based on your quiz results.</p>}
     {status === "error" && <p role="alert" className="mt-6">Unable to load quiz history right now. Please try again later.</p>}
-    {status === "ready" && recommendations.length === 0 && <section className="mt-6 rounded-xl border p-5"><h2 className="font-semibold">No quiz history yet</h2><p className="mt-2">Complete practice questions in PathPrep to start building your study recommendations.</p></section>}
+    {status === "ready" && recommendations.length === 0 && <section className="mt-6 rounded-xl border p-5"><h2 className="font-semibold">No quiz history yet</h2><p className="mt-2">No recorded quiz attempts are available. PathPrep does not yet save its exam results to this history.</p></section>}
     {status === "ready" && recommendations.length > 0 && <section className="mt-8 grid gap-4 md:grid-cols-2" aria-label="Topic recommendations">
       {recommendations.map(item => <article key={item.topic} className="rounded-xl border border-slate-300 p-5">
         <p className="text-xs font-semibold uppercase tracking-wide">{item.priority === "review" ? "Review first" : item.priority === "practice" ? "Keep practicing" : "Maintain knowledge"}</p>
         <h2 className="mt-2 text-xl font-semibold">{item.topic}</h2>
         <p className="mt-2 text-sm">Average score: {item.averageScore}% · Latest: {item.latestScore}% · {item.attempts} attempt{item.attempts === 1 ? "" : "s"}</p>
         <p className="mt-3 text-sm opacity-80">{item.reason}</p>
-        <a className="mt-4 inline-block underline" href="/practice">Practice this subject in PathPrep →</a>
+        <a className="mt-4 inline-block underline" href="/?view=practice">Practice this subject in PathPrep →</a>
       </article>)}
     </section>}
     <p className="mt-8 text-xs opacity-70">Based on up to 250 most recent recorded attempts. Scores are descriptive and may not reflect full subject mastery.</p>

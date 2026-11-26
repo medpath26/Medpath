@@ -72,7 +72,7 @@ export default function ExamCoachPage() {
         <ol className="mt-5 grid gap-4 md:grid-cols-2">{Array.from({length:sessions},(_,i)=><li key={i} className="rounded-xl border border-slate-300 p-5">
           <h3 className="font-semibold">Week {i+1}: {topics[i % topics.length]}</h3>
           <p className="mt-2 text-sm">Plan for up to {hours} hours: review concepts, practice questions, and check explanations.</p>
-          <p className="mt-2 text-xs opacity-70">{topicScores.length?"Priorities informed by recorded quiz scores.":"Starter schedule: no recorded quiz history yet."}</p>
+          <p className="mt-2 text-xs opacity-70">{topicScores.length?"Priorities informed by recorded quiz scores.":"Starter schedule: no recorded quiz history. PathPrep results are not yet saved here."}</p>
         </li>)}</ol>
       </>}
     </section>}
