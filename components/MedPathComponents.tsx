@@ -3,6 +3,7 @@ import { buildPathwayLessons } from "@/lib/pathway-lessons";
 import { supabase } from "@/lib/supabase-client";
 import { calculateTopicResults } from "@/lib/exam-results";
 import { practiceExamIds } from "@/lib/practice-exam-access";
+import { TeachMeDifferently } from "@/components/TeachMeDifferently";
 
 import Image from "next/image";
 import {
@@ -1014,7 +1015,9 @@ export function Atlas({
   onSubmit,
   messages,
   freeQuestionsRemaining,
-  isChatDisabled = false
+  isChatDisabled = false,
+  isMember = false,
+  onUsageChanged
 }: {
   name: string;
   program: string;
@@ -1025,6 +1028,8 @@ export function Atlas({
   messages?: AtlasChatMessage[];
   freeQuestionsRemaining?: number;
   isChatDisabled?: boolean;
+  isMember?: boolean;
+  onUsageChanged?: () => void;
 }) {
   const chatMessages =
     messages ??
@@ -1032,7 +1037,7 @@ export function Atlas({
       {
         id: "atlas-greeting",
         role: "atlas" as const,
-        text: `Good morning, ${name}. Yesterday you strengthened sterile technique. Today we can continue with instrumentation, or talk through anything that feels heavy.`
+        text: `Welcome, ${name || "learner"}. What would you like to study today?`
       },
       {
         id: "atlas-answer",
@@ -1057,9 +1062,7 @@ export function Atlas({
           <ul>
             <li>Student: {name || "Not set yet"}</li>
             <li>Program: {program || "Not set yet"}</li>
-            <li>Certification: NCCT / NHA track</li>
-            <li>Focus: instrumentation and test anxiety</li>
-            <li>Confidence level: building</li>
+            <li>Study preferences and goals can be set in your profile.</li>
           </ul>
         </div>
         <div className="chat-panel">
@@ -1097,6 +1100,7 @@ export function Atlas({
           </p>
         </div>
       </section>
+      <TeachMeDifferently isMember={isMember} onUsageChanged={onUsageChanged} />
     </div>
   );
 }

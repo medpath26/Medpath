@@ -19,3 +19,12 @@ test('rejects refusals, incomplete generations, and ambiguous output', async () 
   assert.equal(extractStudyMaterials({status:'completed',output:[{type:'message',content:[{type:'refusal',refusal:'No'}]}]}), null);
   assert.equal(extractStudyMaterials({status:'completed',output:[{type:'message',content:[output,output]}]}), null);
 });
+
+test('alternate explanations require all sections and reject refusals', async () => {
+  const { extractTeachingExplanation } = await import('../lib/study-materials.ts');
+  const text = {explanation:'Explanation',example:'Example',analogy:'Analogy',caution:'Verify'};
+  const response = value => ({status:'completed',output:[{type:'message',content:[{type:'output_text',text:JSON.stringify(value)}]}]});
+  assert.deepEqual(extractTeachingExplanation(response(text)), text);
+  assert.equal(extractTeachingExplanation(response({...text, analogy:''})), null);
+  assert.equal(extractTeachingExplanation({status:'completed',output:[{type:'message',content:[{type:'refusal'}]}]}), null);
+});

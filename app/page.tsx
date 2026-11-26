@@ -1144,6 +1144,14 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
                 onSubmit={askAtlas}
                 freeQuestionsRemaining={plan === "explorer" ? Math.max(0, 3 - memberAtlasQuestionCount) : undefined}
                 isChatDisabled={plan === "explorer" && memberAtlasQuestionCount >= 3}
+                isMember
+                onUsageChanged={() => {
+                  if (supabase && authUser && plan === "explorer") {
+                    void supabase.from("atlas_questions").select("id", { count: "exact", head: true }).eq("user_id", authUser.id).then(({ count, error }) => {
+                      if (!error && count !== null) setMemberAtlasQuestionCount(count);
+                    });
+                  }
+                }}
               />
             )}
             {view === "practice" && <Practice key={program} initialMode={practiceMode} plan={plan} program={program} />}
