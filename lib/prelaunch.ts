@@ -8,9 +8,9 @@ export function canConsiderLaunch(mode: string | undefined, now = Date.now()) {
 }
 
 export function isPublicDeployment(host: string, frameworkHost: string) {
-  // Use the project's public Vercel alias until a canonical hostname is configured.
+  // Use the verified public domain until a canonical hostname is configured.
   const authority = process.env.PRELAUNCH_PUBLIC_HOST?.trim() ||
-    (process.env.VERCEL_ENV === "production" ? "medpath-nine-zeta.vercel.app" : undefined);
+    (process.env.VERCEL_ENV === "production" ? "medpathmentor.space" : undefined);
   return Boolean(authority && host === authority && frameworkHost === authority &&
     process.env.VERCEL_ENV !== "preview" && process.env.PRELAUNCH_PREVIEW !== "true");
 }
