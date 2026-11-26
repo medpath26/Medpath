@@ -3053,3 +3053,46 @@ td small {
     overflow-x: auto;
   }
 }
+
+/* Group 1 tools: scoped so the public countdown and existing workspace stay unchanged. */
+.smart-learning {
+  width: min(100%, 68rem);
+  margin: 0 auto;
+  padding: 2rem clamp(1rem, 4vw, 2.5rem) 4rem;
+  color: #153047;
+}
+.smart-learning *, .smart-learning *::before, .smart-learning *::after { box-sizing: border-box; }
+.smart-learning h1 { margin: 1.5rem 0 .7rem; font-size: clamp(1.9rem, 5vw, 2.5rem); line-height: 1.15; }
+.smart-learning h2 { margin: 0 0 .6rem; font-size: 1.35rem; }
+.smart-learning h3, .smart-learning h4 { margin: 1rem 0 .45rem; }
+.smart-learning p { margin: .65rem 0; line-height: 1.5; overflow-wrap: anywhere; }
+.smart-learning a { color: #076b72; text-decoration: underline; overflow-wrap: anywhere; }
+.smart-learning label { display: block; margin: 1.1rem 0 .4rem; font-weight: 600; }
+.smart-learning input:not([type="checkbox"]), .smart-learning textarea, .smart-learning select {
+  display: block; width: 100%; max-width: 100%; padding: .75rem;
+  border: 1px solid #a9bcc7; border-radius: .55rem; background: #fff; color: #153047; font: inherit;
+}
+.smart-learning input[type="checkbox"] { width: auto; flex: 0 0 auto; margin: .2rem .45rem 0 0; padding: 0; accent-color: #087a7d; }
+.smart-learning button {
+  min-height: 44px; margin: .5rem .45rem 0 0; padding: .65rem 1rem;
+  border: 1px solid #087a7d; border-radius: .55rem; background: #087a7d;
+  color: #fff; font: inherit; cursor: pointer;
+}
+.smart-learning button:disabled { opacity: .55; cursor: not-allowed; }
+.smart-learning :is(a, button, input, textarea, select):focus-visible { outline: 3px solid #e7ad36; outline-offset: 2px; }
+.smart-learning section, .smart-learning article, .smart-learning [class~="rounded-lg"]:not(input):not(button) {
+  margin-top: 1.25rem; padding: 1.2rem; border: 1px solid #ccdae0; border-radius: .8rem; background: #fff;
+}
+.smart-learning section section { margin-top: 1rem; }
+.smart-learning ul, .smart-learning ol { padding-left: 1.35rem; }
+.smart-learning li { margin: .55rem 0; overflow-wrap: anywhere; }
+.smart-learning dl { display: grid; gap: .6rem; }
+.smart-learning dt { font-weight: 700; }
+.smart-learning dd { margin: .2rem 0 0; }
+.smart-learning [class~="grid"] { display: grid; gap: 1rem; }
+.smart-learning [class~="flex"] { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
+.smart-learning label[class~="flex"] { flex-wrap: nowrap; align-items: flex-start; }
+.smart-learning [role="alert"] { color: #9a2832; }
+@media (min-width: 768px) {
+  .smart-learning [class~="md:grid-cols-2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

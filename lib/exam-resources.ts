@@ -12,6 +12,36 @@ const resources: Record<string, { pathways: readonly string[]; aliases: readonly
     name: 'NHA CCMA', url: 'https://info.nhanow.com/hubfs/Test%20Plans/NHA_CCMA_Test_Plan_2022.pdf',
     topics: ['Basic science and medical terminology', 'Anatomy and body systems', 'Clinical care and safety', 'Administrative care, communication, and ethics']
   } },
+  nclex: { pathways: ['Registered Nurse (RN)'], aliases: ['nclex-rn'], resource: {
+    name: 'NCLEX-RN', url: 'https://www.ncsbn.org/publications/2026-nclex-rn-test-plan', topics: []
+  } },
+  pance: { pathways: ['Physician Assistant / Associate (PA)'], aliases: ['nccpa pance', 'pance'], resource: {
+    name: 'NCCPA PANCE', url: 'https://www.nccpa.net/become-certified/pance-blueprint/', topics: []
+  } },
+  usmle1: { pathways: ['Doctor of Medicine (MD)'], aliases: ['usmle step 1'], resource: {
+    name: 'USMLE Step 1', url: 'https://www.usmle.org/exam-resources/step-1-materials/step-1-content-outline-and-specifications', topics: []
+  } },
+  usmle2: { pathways: ['Doctor of Medicine (MD)'], aliases: ['usmle step 2 ck'], resource: {
+    name: 'USMLE Step 2 CK', url: 'https://www.usmle.org/exam-resources/step-2-ck-materials/step-2-ck-content-outline-specifications', topics: []
+  } },
+  comlex1: { pathways: ['Doctor of Osteopathic Medicine (DO)'], aliases: ['comlex-usa level 1'], resource: {
+    name: 'COMLEX-USA Level 1', url: 'https://www.nbome.org/assessments/comlex-usa/comlex-usa-blueprint/', topics: []
+  } },
+  comlex2: { pathways: ['Doctor of Osteopathic Medicine (DO)'], aliases: ['comlex-usa level 2-ce'], resource: {
+    name: 'COMLEX-USA Level 2-CE', url: 'https://www.nbome.org/assessments/comlex-usa/comlex-usa-blueprint/', topics: []
+  } },
+  radiography: { pathways: ['Radiologic Technologist'], aliases: ['arrt radiography'], resource: {
+    name: 'ARRT Radiography', url: 'https://www.arrt.org/pages/arrt-reference-documents/by-document-type/examination-content-specifications', topics: []
+  } },
+  sonography: { pathways: ['Diagnostic Medical Sonographer'], aliases: ['ardms spi'], resource: {
+    name: 'ARDMS SPI', url: 'https://www.ardms.org/wp-content/uploads/pdf/SPI-Examination-Content-Outline.pdf', topics: []
+  } },
+  pharmacy: { pathways: ['Pharmacy Technician'], aliases: ['ptcb ptce', 'ptce'], resource: {
+    name: 'PTCB PTCE', url: 'https://ptcb.org/wp-content/uploads/2025/07/PTCE-Content-Outline.pdf', topics: []
+  } },
+  phlebotomy: { pathways: ['Phlebotomy Technician'], aliases: ['nha cpt'], resource: {
+    name: 'NHA CPT', url: 'https://info.nhanow.com/hubfs/Test%20Plans/nha-2025-cpt-test-plan.pdf', topics: []
+  } },
   crcst: { pathways: ['Sterile Processing Technician'], aliases: ['hspa crcst', 'crcst'], resource: {
     name: 'HSPA CRCST', url: 'https://myhspa.org/certification/certification-overview/certified-registered-central-service-technician-crcst/',
     topics: ['Cleaning and decontamination', 'Preparing and packaging items', 'Sterilization and storage', 'Equipment, inventory, and professional practice']

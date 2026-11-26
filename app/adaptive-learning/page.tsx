@@ -33,7 +33,7 @@ export default function AdaptiveLearningPage() {
     return () => { active = false; };
   }, []);
   const recommendations = recommendTopics(attempts);
-  return <main className="mx-auto max-w-5xl px-5 py-10">
+  return <main className="smart-learning">
     <a href="/" className="text-sm underline">← Back to MedPath</a>
     <h1 className="mt-6 text-3xl font-bold">Adaptive Learning</h1>
     <p className="mt-2 opacity-75">Your study priorities, based on your recorded quiz attempts. These are learning suggestions, not clinical competency assessments.</p>

@@ -85,7 +85,7 @@ export default function ExamCoachPage() {
     if (error || !data) { setMessage("Could not save progress. Your plan may have changed; reload and try again."); return; }
     setPlan({ ...plan, completed_weeks: next }); setMessage("Progress saved.");
   }
-  return <main className="mx-auto max-w-5xl px-5 py-10">
+  return <main className="smart-learning">
     <a href="/" className="text-sm underline">← Back to MedPath</a>
     <h1 className="mt-6 text-3xl font-bold">Atlas Exam Coach</h1>
     <p className="mt-2 opacity-75">Create a study outline using your exam date and recorded practice results. This planner uses scheduling rules, not AI-generated guidance or an official exam blueprint.</p>

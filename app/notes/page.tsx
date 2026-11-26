@@ -73,10 +73,10 @@ export default function NotesPage() {
     try { await navigator.clipboard.writeText(value); setCopyStatus("Highlights copied."); }
     catch { setCopyStatus("Copy is unavailable. Select and copy the highlights manually."); }
   };
-  return <main className="mx-auto max-w-5xl px-5 py-10">
+  return <main className="smart-learning">
     <a href="/" className="text-sm underline">← Back to MedPath</a>
     <h1 className="mt-6 text-3xl font-bold">Smart Notes Studio</h1>
-    <p className="mt-2 opacity-75">Turn your own class notes into quick-review highlights and study prompts. This starter version processes text in your browser and does not upload or save it.</p>
+    <p className="mt-2 opacity-75">Turn your notes into quick-review highlights and study prompts. Local tools process text in your browser; Atlas generation sends it only after you confirm below.</p>
     <p className="mt-3 rounded-lg border border-amber-400 p-3 text-sm"><strong>Privacy:</strong> Do not paste patient names, dates of birth, medical record numbers, or other identifiable health information. This tool is for educational notes only.</p>
     <label htmlFor="notes-file" className="mt-6 block font-semibold">Import a notes file</label>
     <input id="notes-file" type="file" disabled={generating || reading} accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown" onChange={e => { void importText(e.target.files?.[0]); e.currentTarget.value = ""; }} className="mt-2 block w-full text-sm" />
@@ -84,7 +84,7 @@ export default function NotesPage() {
     {reading && <p role="status" className="mt-2 text-sm">Reading notes…</p>}
     {fileStatus && <p role="status" className="mt-2 text-sm">{fileStatus}</p>}
     <label htmlFor="study-notes" className="mt-6 block font-semibold">Paste your lecture or study notes</label>
-    <textarea id="study-notes" disabled={generating || reading} value={notes} onChange={e => { setNotes(e.target.value.slice(0, MAX_CHARS)); setMaterials(null); setConfirmed(false); }} maxLength={MAX_CHARS} rows={12} placeholder="Example: Tachycardia: an abnormally fast heart rate.\nBradycardia: an abnormally slow heart rate." className="mt-2 w-full rounded-lg border border-slate-400 bg-transparent p-3" />
+    <textarea id="study-notes" disabled={generating || reading} value={notes} onChange={e => { setNotes(e.target.value.slice(0, MAX_CHARS)); setMaterials(null); setConfirmed(false); }} maxLength={MAX_CHARS} rows={12} placeholder={"Example: Tachycardia: an abnormally fast heart rate.\nBradycardia: an abnormally slow heart rate."} className="mt-2 w-full rounded-lg border border-slate-400 bg-transparent p-3" />
     <p className="text-right text-xs opacity-70">{notes.length.toLocaleString()} / {MAX_CHARS.toLocaleString()} characters</p>
     {notes.trim() ? <div className="mt-6 grid gap-5 md:grid-cols-2">
       <section className="rounded-xl border border-slate-300 p-5">

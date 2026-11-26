@@ -60,7 +60,7 @@ export default function TerminologyPage() {
     if (index === filtered.length - 1) setCorrect(0);
     setIndex(i => (i + 1) % filtered.length); setRevealed(false); setAnswered(false);
   };
-  return <main className="mx-auto max-w-5xl px-5 py-10">
+  return <main className="smart-learning">
     <a href="/?view=study" className="text-sm underline">← Back to Study Hub</a>
     <h1 className="mt-6 text-3xl font-bold">Medical Terminology Decoder</h1>
     <p className="mt-2 text-sm opacity-75">Break down clinical vocabulary into prefixes, roots, and suffixes. Educational reference only.</p>
