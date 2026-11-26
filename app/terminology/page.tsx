@@ -7,7 +7,7 @@ import { pathwayTermSelections } from "@/lib/terminology-pathways";
 
 type Term = { term: string; prefix: string; root: string; suffix: string; meaning: string; example: string };
 const TERMS: Term[] = [
-  { term: "Tachycardia", prefix: "tachy- (fast)", root: "cardi (heart)", suffix: "-ia (condition)", meaning: "An abnormally fast heart rate.", example: "A patient may develop tachycardia during exertion." },
+  { term: "Tachycardia", prefix: "tachy- (fast)", root: "cardi (heart)", suffix: "-ia (condition)", meaning: "A faster-than-normal heart rate; interpretation depends on the situation.", example: "A clinician considers the context of a fast heart rate, such as activity or rest." },
   { term: "Bradycardia", prefix: "brady- (slow)", root: "cardi (heart)", suffix: "-ia (condition)", meaning: "An abnormally slow heart rate.", example: "Athletes may have resting bradycardia." },
   { term: "Hypoglycemia", prefix: "hypo- (low)", root: "glyc (sugar)", suffix: "-emia (blood condition)", meaning: "A lower-than-normal blood glucose level.", example: "Recognizing hypoglycemia is important in patient care." },
   { term: "Hyperglycemia", prefix: "hyper- (high)", root: "glyc (sugar)", suffix: "-emia (blood condition)", meaning: "A higher-than-normal blood glucose level.", example: "Hyperglycemia may require clinical assessment." },
