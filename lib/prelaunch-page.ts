@@ -3,36 +3,70 @@ import { launchAt, privateHeaders } from "@/lib/prelaunch";
 const title = "MedPath Mentor | Coming February 1, 2027";
 const description = "A study and career mentor for healthcare students. Meet Atlas and join the waitlist for launch and Founding Member updates.";
 
-const styles = `
-  :root{color-scheme:dark;font-family:system-ui,sans-serif;background:#07192d;color:#f5f9ff}
-  [hidden]{display:none!important}
-  *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 75% 30%,#102f4c,#07192d 63%);min-height:100vh}
-  main,header,footer{width:min(1120px,100% - 2.5rem);margin:auto}
-  header{padding:1.65rem 0;border-bottom:1px solid #25415d;display:flex;align-items:center;gap:.7rem;font-weight:750}
-  header img{width:36px;height:36px;border-radius:9px}
-  .hero{display:grid;grid-template-columns:1.15fr .85fr;align-items:center;gap:2rem;padding:clamp(2rem,7vw,5.5rem) 0 2rem}
-  .eyebrow{color:#8de9e0;font-weight:750;font-size:.82rem;letter-spacing:.12em;text-transform:uppercase}
-  h1{font-size:clamp(2.5rem,6vw,5.3rem);line-height:.99;letter-spacing:-.055em;margin:.55rem 0 1.3rem;max-width:12ch}
-  h2{margin:.4rem 0;font-size:1.5rem}p{color:#c4d5ea;line-height:1.55;margin:.6rem 0 1rem}
-  .intro{max-width:52ch;font-size:1.12rem}
-  figure{margin:0;text-align:center;background:#07192d;border:1px solid #274563;border-radius:1.5rem;overflow:hidden}
-  figure img{width:100%;display:block;aspect-ratio:1;object-fit:cover}
-  figcaption{padding:0 1rem 1.25rem;color:#c4d5ea}figcaption strong{color:#8de9e0}
-  .countdown{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;max-width:30rem;margin-top:1rem}
-  .countdown div{padding:.65rem .25rem;background:#112b45;border:1px solid #284862;border-radius:.65rem;text-align:center;color:#c4d5ea;font-size:.74rem}
-  .countdown strong{display:block;font-variant-numeric:tabular-nums;font-size:clamp(1.3rem,4vw,2rem);color:#fff}
-  .panels{display:grid;grid-template-columns:1.15fr .85fr;gap:1rem}
-  .panel{padding:clamp(1.15rem,3vw,2rem);border:1px solid #2a4764;border-radius:1rem;background:#102942}
-  a{color:#8de9e0}
-  label{display:block;font-size:.9rem;font-weight:650}input[type=email],input[type=password]{width:100%;min-width:0;background:#07192d;color:#fff;border:1px solid #708ca7;border-radius:.55rem;padding:.8rem;font:inherit}
-  .input-row{display:grid;grid-template-columns:1fr auto;gap:.55rem;margin:.45rem 0 .85rem}
-  button{font:inherit;font-weight:750;background:#8de9e0;color:#07192d;border:0;border-radius:.55rem;padding:.8rem 1.25rem;cursor:pointer}
-  :focus-visible{outline:3px solid #8de9e0;outline-offset:3px}.consent{display:flex;gap:.45rem;align-items:flex-start;color:#d0dff1;font-weight:500}
-  .status{margin:0;color:#baf8ef}.status:empty{display:none}
-  footer{color:#9fb8d3;padding:1.8rem 0;font-size:.85rem}
-  .login{max-width:30rem;padding-top:12vh}.login h1{font-size:2.5rem}.login input{margin:.5rem 0 1rem}
-  @media(max-width:720px){.hero,.panels{grid-template-columns:1fr}.hero{gap:1.3rem}figure{width:min(100%,24rem);justify-self:center;grid-row:2}.hero{padding-top:2rem}}
-  @media(max-width:380px){.input-row{grid-template-columns:1fr}}
+const publicStyles = `
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #152339; background: #fafafa; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: clamp(.75rem, 4vw, 2.5rem); }
+  [hidden] { display: none !important; }
+  .card {
+    width: min(100%, 52rem); margin: auto; text-align: center;
+    padding: 0 clamp(1rem, 4vw, 2.5rem) clamp(1.25rem, 4vw, 2rem);
+    background: #f4f5fa; border: 1px solid #dcdde2; border-radius: clamp(1rem, 4vw, 2rem);
+  }
+  header {
+    padding: clamp(1.4rem, 5vw, 2.4rem) 0; border-bottom: 1px solid #dcdde2;
+    font-size: clamp(1.15rem, 4vw, 2rem); font-weight: 750; text-transform: uppercase;
+  }
+  #launch-status {
+    margin: clamp(1.4rem, 5vw, 2.65rem) 0 .8rem; text-transform: uppercase;
+    color: #565b63; font-size: clamp(.82rem, 2.6vw, 1.35rem);
+  }
+  h1 {
+    margin: 0 auto; max-width: 20ch; font-size: clamp(1.85rem, 5.6vw, 3.65rem);
+    line-height: 1.17; letter-spacing: -.035em; text-wrap: balance;
+  }
+  .intro {
+    margin: 1rem auto; max-width: 48ch; color: #505a70; font-size: clamp(1rem, 3vw, 1.7rem);
+    line-height: 1.42; text-wrap: balance;
+  }
+  .countdown { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(.4rem, 2vw, 1rem); }
+  .countdown div {
+    display: grid; gap: clamp(.4rem, 2.6vw, 1.6rem); padding: clamp(.8rem, 3vw, 1.65rem) .2rem;
+    background: #152339; border-radius: clamp(.65rem, 2vw, 1.15rem); color: #fff;
+    font-size: clamp(.7rem, 2.5vw, 1.3rem); text-transform: uppercase;
+  }
+  .countdown strong { font-size: clamp(1.75rem, 6vw, 3.75rem); font-weight: 650; font-variant-numeric: tabular-nums; }
+  #waitlist { margin-top: clamp(1.3rem, 4vw, 2.25rem); }
+  h2 { margin: 0 auto .8rem; max-width: 34ch; font-size: clamp(1.1rem, 3.4vw, 2rem); line-height: 1.4; font-weight: 600; text-wrap: balance; }
+  form { display: grid; gap: .55rem; text-align: left; }
+  input[type=email], button {
+    width: 100%; min-width: 0; padding: clamp(.8rem, 2.8vw, 1.4rem);
+    font: inherit; font-size: clamp(1rem, 3vw, 1.65rem); border-radius: clamp(.65rem, 2vw, 1.15rem);
+  }
+  input[type=email] { background: transparent; color: #152339; border: 1px solid #aab2c2; }
+  input[type=email]::placeholder { color: #626c80; }
+  button { background: #152339; color: #fff; border: 0; font-weight: 650; cursor: pointer; }
+  :focus-visible { outline: 3px solid #375a8e; outline-offset: 3px; }
+  .consent { display: flex; align-items: flex-start; gap: .45rem; color: #505a70; font-size: .88rem; }
+  .consent input { margin: .2em 0 0; accent-color: #152339; }
+  .founding { margin: .65rem 0 0; color: #565b63; font-size: clamp(.93rem, 2.6vw, 1.4rem); }
+  .privacy { margin: .7rem 0 0; color: #505a70; font-size: .8rem; overflow-wrap: anywhere; }
+  a { color: inherit; }
+  .status { margin: 0 0 .6rem; }
+  .status:empty { display: none; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+`;
+
+const adminStyles = `
+  :root { color-scheme: dark; font-family: system-ui, sans-serif; color: #f5f9ff; background: #07192d; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: radial-gradient(ellipse at 75% 30%, #102f4c, #07192d 63%); min-height: 100vh; }
+  .login { width: min(30rem, 100% - 2.5rem); margin: auto; padding-top: 12vh; }
+  h1 { font-size: 2.5rem; line-height: .99; letter-spacing: -.055em; margin: .55rem 0 1.3rem; max-width: 12ch; }
+  label { display: block; font-size: .9rem; font-weight: 650; }
+  input { width: 100%; background: #07192d; color: #fff; border: 1px solid #708ca7; border-radius: .55rem; padding: .8rem; font: inherit; margin: .5rem 0 1rem; }
+  button { font: inherit; font-weight: 750; background: #8de9e0; color: #07192d; border: 0; border-radius: .55rem; padding: .8rem 1.25rem; cursor: pointer; }
+  :focus-visible { outline: 3px solid #8de9e0; outline-offset: 3px; }
 `;
 
 const script = `
@@ -40,17 +74,17 @@ const script = `
   const countdown = document.getElementById("countdown");
   const fields = [...countdown.querySelectorAll("strong")];
   const refresh = () => {
-    const seconds = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
-    const values = [Math.floor(seconds / 86400), Math.floor(seconds / 3600) % 24, Math.floor(seconds / 60) % 60, seconds % 60];
+    const minutes = Math.max(0, Math.ceil((deadline - Date.now()) / 60000));
+    const values = [Math.floor(minutes / 1440), Math.floor(minutes / 60) % 24, minutes % 60];
     fields.forEach((field, index) => { field.textContent = String(values[index]).padStart(2, "0"); });
-    if (seconds === 0) {
+    if (minutes === 0) {
       countdown.hidden = true;
       document.getElementById("launch-status").textContent = "The countdown has ended. Join the waitlist for the opening announcement.";
     }
-    return seconds;
+    return minutes;
   };
   if (refresh() > 0) {
-    const timer = setInterval(() => { if (refresh() === 0) clearInterval(timer); }, 250);
+    const timer = setInterval(() => { if (refresh() === 0) clearInterval(timer); }, 1000);
   }
   const result = new URLSearchParams(location.search).get("waitlist");
   const messages = new Map([
@@ -84,7 +118,7 @@ function page(body: string, options: { host?: string } = {}) {
   return new Response(`<!doctype html><html lang="en"><head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>${host ? title : "MedPath Mentor administrator access"}</title>${metadata}
-    <style nonce="${nonce}">${styles}</style></head><body>${body}
+    <style nonce="${nonce}">${host ? publicStyles : adminStyles}</style></head><body>${body}
     ${host ? `<script nonce="${nonce}">${script}</script>` : ""}</body></html>`, {
     headers: {
       ...privateHeaders,
@@ -99,46 +133,30 @@ function page(body: string, options: { host?: string } = {}) {
 
 export function comingSoon(host: string) {
   return page(`
-    <header><img src="/medpath-favicon.png" alt="" width="36" height="36">MedPath Mentor</header>
-    <main>
-      <section class="hero">
-        <div>
-          <div class="eyebrow">Coming soon</div>
-          <h1>Find your path in healthcare.</h1>
-          <p class="intro">Meet Atlas, your study and career mentor for certification prep, clinical confidence, and the next step in healthcare.</p>
-          <p id="launch-status">Scheduled launch <time datetime="${launchAt}">February 1, 2027 at 12:00 AM Eastern</time></p>
-          <div class="countdown" id="countdown" aria-label="Launch countdown">
-            <div><strong>–</strong>Days</div><div><strong>–</strong>Hours</div>
-            <div><strong>–</strong>Minutes</div><div><strong>–</strong>Seconds</div>
-          </div>
-        </div>
-        <figure>
-          <img src="/prelaunch-atlas.webp" width="640" height="640" alt="Atlas, a navy and white robot holding a study notebook">
-          <figcaption><strong>Meet Atlas</strong> · Your MedPath guide</figcaption>
-        </figure>
-      </section>
-      <div class="panels">
-        <section class="panel" id="waitlist">
-          <h2>Join the waitlist</h2>
-          <p>Get the launch announcement and Founding Member details by email.</p>
-          <p class="status" id="waitlist-status" role="status"></p>
-          <form action="/api/prelaunch/waitlist" method="post">
-            <label for="email">Email address</label>
-            <div class="input-row"><input id="email" name="email" type="email" autocomplete="email" maxlength="254" required placeholder="you@example.com">
-            <button type="submit">Join the waitlist</button></div>
-            <div hidden><label>Website <input name="website" tabindex="-1" autocomplete="off"></label></div>
-            <label class="consent"><input type="checkbox" name="consent" value="yes" required> I agree to receive MedPath Mentor launch and Founding Member emails.</label>
-          </form>
-          <p><small>To withdraw consent or request deletion, email <a href="mailto:Medpath.space@gmail.com">Medpath.space@gmail.com</a>.</small></p>
-        </section>
-        <section class="panel">
-          <div class="eyebrow">Coming at launch</div>
-          <h2>Founding Member program</h2>
-          <p>Be among the first to hear how to become a Founding Member and help shape MedPath Mentor as it grows.</p>
-        </section>
+    <main class="card">
+      <header>MedPath Mentor</header>
+      <p id="launch-status">Coming <time datetime="${launchAt}" title="12:00 AM Eastern">February 1, 2027</time></p>
+      <h1>Your future in healthcare starts here.</h1>
+      <p class="intro">Your all-in-one healthcare education, career preparation and AI-powered learning platform.</p>
+      <div class="countdown" id="countdown" aria-label="Launch countdown">
+        <div><strong>–</strong>Days</div>
+        <div><strong>–</strong>Hours</div>
+        <div><strong>–</strong>Minutes</div>
       </div>
+      <section id="waitlist">
+        <h2>Be among the first to experience MedPath Mentor.</h2>
+        <p class="status" id="waitlist-status" role="status"></p>
+        <form action="/api/prelaunch/waitlist" method="post">
+          <label class="sr-only" for="email">Email address</label>
+          <input id="email" name="email" type="email" autocomplete="email" maxlength="254" required placeholder="Enter your email address">
+          <div hidden><label>Website <input name="website" tabindex="-1" autocomplete="off"></label></div>
+          <label class="consent"><input type="checkbox" name="consent" value="yes" required> I agree to receive MedPath Mentor launch and Founding Member emails.</label>
+          <button type="submit">Join the waitlist</button>
+        </form>
+        <p class="founding">Exclusive Founding Member opportunities coming soon.</p>
+        <p class="privacy">To withdraw consent or request deletion, email <a href="mailto:Medpath.space@gmail.com">Medpath.space@gmail.com</a>.</p>
+      </section>
     </main>
-    <footer>MedPath Mentor · Learn. Practice. Pass.</footer>
   `, { host });
 }
 
