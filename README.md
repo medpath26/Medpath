@@ -158,7 +158,7 @@ in Supabase. The warning against identifiable patient information is not an
 automatic detector; review privacy and clinical safety requirements before enabling.
 Free generation shares the existing three-question Atlas counter. Paid generation
 has a configurable daily safety limit; reserved attempts count even if the provider
-fails. Review those limits and make product copy consistent before release. The
-existing browser-based Atlas question counter is not a server-enforced entitlement
-system and needs a separate concurrency and abuse audit. Keep generation disabled
-until all account, quota, privacy and provider failure tests have passed.
+fails. Review those limits and make product copy consistent before release. The tutor and generation share a server-side reservation lock. Apply the tutor
+reservation migration and deploy its matching application code together; older
+clients that insert usage directly will need to reload. Keep generation disabled
+until all hosted account, quota, privacy and provider failure tests have passed.

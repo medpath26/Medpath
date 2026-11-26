@@ -18,12 +18,15 @@ test('Group 1 migrations isolate user data and protect quota reservations', asyn
       create table public.profiles(id uuid primary key, role text not null);
       insert into public.profiles values ('00000000-0000-0000-0000-000000000001','explorer'), ('00000000-0000-0000-0000-000000000002','pro_student');
       create table public.atlas_questions(id bigint generated always as identity, user_id uuid not null, question text not null);
+      alter table public.atlas_questions enable row level security;
+      create policy "Users can record their own Atlas usage" on public.atlas_questions for insert with check (auth.uid() = user_id);
+      grant select,insert on public.atlas_questions to authenticated;
       create table public.quiz_attempts(id uuid primary key default gen_random_uuid(), user_id uuid not null references auth.users(id), topic text not null, score integer not null check(score between 0 and 100), total_questions integer not null default 0, correct_answers integer not null default 0, created_at timestamptz not null default now());
       alter table public.quiz_attempts enable row level security;
       create policy own_attempts on public.quiz_attempts for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
       grant select,insert,update,delete on public.quiz_attempts to authenticated;
     `);
-    for (const file of ['20261126010000_quiz_attempt_pathways.sql', '20261126020000_exam_coach_plans.sql', '20261126030000_atlas_generation_usage.sql']) {
+    for (const file of ['20261126010000_quiz_attempt_pathways.sql', '20261126020000_exam_coach_plans.sql', '20261126030000_atlas_generation_usage.sql', '20261126040000_atlas_question_reservations.sql']) {
       await db.exec(await readFile(`supabase/migrations/${file}`, 'utf8'));
     }
     const first = '00000000-0000-0000-0000-000000000001', second = '00000000-0000-0000-0000-000000000002';
@@ -37,10 +40,14 @@ test('Group 1 migrations isolate user data and protect quota reservations', asyn
     assert.equal((await db.query('select * from exam_coach_plans')).rows.length, 0);
     await assert.rejects(db.exec(`insert into exam_coach_plans(user_id,pathway,exam_date,exam_name,weekly_hours,blocks) values ('${first}','Other','2027-04-01','Exam',5,'[{"start":"2027-03-01","topic":"Safety"}]')`));
     await assert.rejects(db.query('select public.reserve_atlas_generation($1, $2)', [first, 2]));
+    await assert.rejects(db.query('select public.reserve_atlas_tutor_question($1)', [first]));
+    await assert.rejects(db.exec(`insert into public.atlas_questions(user_id, question) values ('${second}','bypass')`));
     await db.exec('reset role; set role service_role');
     assert.equal((await db.query('select public.reserve_atlas_generation($1, $2) as value', [first, null])).rows[0].value, 'unavailable');
     const reserve = async user => (await db.query('select public.reserve_atlas_generation($1, $2) as value', [user, 2])).rows[0].value;
-    assert.deepEqual([await reserve(first),await reserve(first),await reserve(first),await reserve(first)], ['ok','ok','ok','limit']);
+    const tutor = async user => (await db.query('select public.reserve_atlas_tutor_question($1) as value', [user])).rows[0].value;
+    assert.deepEqual([await tutor(first),await reserve(first),await tutor(first),await reserve(first)], ['ok','ok','ok','limit']);
+    assert.equal(await tutor(first), 'limit');
     assert.deepEqual([await reserve(second),await reserve(second),await reserve(second)], ['ok','ok','limit']);
   } finally { await db.close(); }
 });

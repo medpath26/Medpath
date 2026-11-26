@@ -1017,6 +1017,8 @@ export function Atlas({
   freeQuestionsRemaining,
   isChatDisabled = false,
   isMember = false,
+  requestError = "",
+  requestBusy = false,
   onUsageChanged
 }: {
   name: string;
@@ -1029,6 +1031,8 @@ export function Atlas({
   freeQuestionsRemaining?: number;
   isChatDisabled?: boolean;
   isMember?: boolean;
+  requestError?: string;
+  requestBusy?: boolean;
   onUsageChanged?: () => void;
 }) {
   const chatMessages =
@@ -1088,12 +1092,13 @@ export function Atlas({
               onChange={(event) => setInput(event.target.value)}
               placeholder='Try “I’m overwhelmed” or “I’m nervous for clinicals”'
               aria-label="Ask Atlas"
-              disabled={isChatDisabled}
+              disabled={isChatDisabled || requestBusy}
             />
-            <button className="primary compact" type="submit" disabled={isChatDisabled}>
-              {isChatDisabled ? "Limit Reached" : "Ask"}
+            <button className="primary compact" type="submit" disabled={isChatDisabled || requestBusy}>
+              {isChatDisabled ? "Limit Reached" : requestBusy ? "Checking…" : "Ask"}
             </button>
           </form>
+          {requestError && <p role="alert" className="form-message error-message">{requestError}</p>}
           <p className="ai-note">
             Atlas mentoring supports learning and should not replace instructors, clinical policy,
             or trusted educational resources.
