@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase-client";
 import { daysBetween, makeStudyBlocks } from "@/lib/exam-plan";
+import { examOptionsForPathway, getExamResource } from "@/lib/exam-resources";
 
 const DEFAULT_TOPICS = ["Foundations and terminology", "Anatomy and physiology", "Patient safety and infection prevention", "Pathway-specific clinical knowledge", "Practice questions and explanations", "Timed exam review"];
 type Attempt = { topic: string; score: number };
@@ -35,22 +36,22 @@ export default function ExamCoachPage() {
       if (!active) return;
       if (profileError) { setStatus("error"); return; }
       const selectedPathway = profile?.healthcare_program?.trim() ?? "";
-      const [progress, quizzes, saved] = await Promise.all([
-        supabase.from("student_progress").select("exam_date,certification_goal").eq("user_id", auth.user.id).maybeSingle(),
+      const [quizzes, saved] = await Promise.all([
         supabase.from("quiz_attempts").select("topic,score").eq("user_id", auth.user.id).eq("pathway", selectedPathway).order("created_at", { ascending: false }).limit(100),
         supabase.from("exam_coach_plans").select("exam_date,exam_name,weekly_hours,blocks,completed_weeks").eq("user_id", auth.user.id).eq("pathway", selectedPathway).maybeSingle()
       ]);
       if (!active) return;
-      if (progress.error || quizzes.error || saved.error) { setStatus("error"); return; }
+      if (quizzes.error || saved.error) { setStatus("error"); return; }
       const existing = saved.data as Plan | null;
       setUserId(auth.user.id); setPathway(selectedPathway); setPlan(existing);
-      setExamDate(existing?.exam_date ?? progress.data?.exam_date ?? "");
-      setGoal(existing?.exam_name ?? progress.data?.certification_goal ?? "");
+      setExamDate(existing?.exam_date ?? "");
+      setGoal(existing?.exam_name ?? "");
       setHours(existing?.weekly_hours ?? 5); setAttempts((quizzes.data ?? []) as Attempt[]); setStatus("ready");
     }
     void load();
     return () => { active = false; };
   }, []);
+  const examResource = getExamResource(pathway, goal);
   const topics = useMemo(() => {
     const scores = new Map<string, number[]>();
     for (const a of attempts) {
@@ -58,8 +59,9 @@ export default function ExamCoachPage() {
       scores.set(a.topic, [...(scores.get(a.topic) ?? []), a.score]);
     }
     const ranked = [...scores].map(([topic, values]) => ({ topic, score: values.reduce((a,b)=>a+b,0)/values.length })).sort((a,b)=>a.score-b.score).map(x=>x.topic);
-    return [...ranked, ...DEFAULT_TOPICS.filter(topic => !ranked.includes(topic))];
-  }, [attempts]);
+    const starter = examResource?.topics.length ? examResource.topics : DEFAULT_TOPICS;
+    return [...ranked, ...starter.filter(topic => !ranked.includes(topic))];
+  }, [attempts, examResource]);
   async function savePlan() {
     const today = localToday();
     const days = daysBetween(today, examDate);
@@ -94,11 +96,14 @@ export default function ExamCoachPage() {
       {!pathway && <p role="alert">Choose a healthcare pathway in your profile before saving a plan.</p>}
       <div className="rounded-xl border border-slate-300 p-5">
         <label htmlFor="exam-name" className="block text-sm font-semibold">Exam name</label>
-        <input id="exam-name" value={goal} onChange={e=>setGoal(e.target.value)} maxLength={200} className="mt-2 w-full rounded-lg border border-slate-400 bg-transparent p-2" />
+        <input id="exam-name" list="exam-options" value={goal} onChange={e=>setGoal(e.target.value)} maxLength={200} className="mt-2 w-full rounded-lg border border-slate-400 bg-transparent p-2" />
+        <datalist id="exam-options">{examOptionsForPathway(pathway).map(name=><option key={name} value={name} />)}</datalist>
+        <p className="mt-2 text-xs opacity-70">Choose a suggested exam or enter another. Use the credentialing organization’s current materials to verify your plan.</p>
         <label htmlFor="exam-date" className="mt-4 block text-sm font-semibold">Exam date</label>
         <input id="exam-date" type="date" value={examDate} onChange={e=>setExamDate(e.target.value)} className="mt-2 rounded-lg border border-slate-400 bg-transparent p-2" />
         <label htmlFor="weekly-hours" className="mt-4 block text-sm font-semibold">Study hours per week: {hours}</label>
         <input id="weekly-hours" type="range" min="1" max="30" value={hours} onChange={e=>setHours(Number(e.target.value))} className="mt-2 w-full" />
+        {examResource ? <p className="mt-3 text-sm">Recognized {examResource.name}. <a className="underline" href={examResource.url} target="_blank" rel="noopener noreferrer">Check the official preparation resource</a>. {examResource.topics.length ? "The plan can include introductory topics based on that resource." : "This plan uses general study topics; use the official resource for exam-specific guidance."}</p> : <p className="mt-3 text-sm">This plan uses general topics. Verify exam-specific topics with your credentialing organization.</p>}
         <p className="mt-3 text-sm opacity-75">Saving a new plan replaces this pathway’s previous plan and resets its completed weeks. It does not change your exam tracker.</p>
         <button type="button" disabled={saving || !pathway} onClick={() => void savePlan()} className="mt-4 rounded-lg bg-teal-700 px-4 py-2 text-white disabled:opacity-50">{plan ? "Replace plan" : "Create plan"}</button>
         {message && <p role="status" className="mt-3">{message}</p>}
