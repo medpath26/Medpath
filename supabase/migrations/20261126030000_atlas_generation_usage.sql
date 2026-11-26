@@ -16,7 +16,7 @@ declare
   used_free bigint;
   current_day date := (now() at time zone 'UTC')::date;
 begin
-  if p_user_id is null or p_paid_daily_limit < 1 or p_paid_daily_limit > 100 then return 'unavailable'; end if;
+  if p_user_id is null or p_paid_daily_limit is null or p_paid_daily_limit < 1 or p_paid_daily_limit > 100 then return 'unavailable'; end if;
   perform pg_advisory_xact_lock(hashtextextended(p_user_id::text, 0));
   select role into account_role from public.profiles where id = p_user_id;
   if account_role is null or account_role not in ('explorer','student_plus','pro_student','founding_member','institution_student','institution_admin','administrator') then return 'denied'; end if;

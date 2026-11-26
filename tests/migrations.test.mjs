@@ -38,6 +38,7 @@ test('Group 1 migrations isolate user data and protect quota reservations', asyn
     await assert.rejects(db.exec(`insert into exam_coach_plans(user_id,pathway,exam_date,exam_name,weekly_hours,blocks) values ('${first}','Other','2027-04-01','Exam',5,'[{"start":"2027-03-01","topic":"Safety"}]')`));
     await assert.rejects(db.query('select public.reserve_atlas_generation($1, $2)', [first, 2]));
     await db.exec('reset role; set role service_role');
+    assert.equal((await db.query('select public.reserve_atlas_generation($1, $2) as value', [first, null])).rows[0].value, 'unavailable');
     const reserve = async user => (await db.query('select public.reserve_atlas_generation($1, $2) as value', [user, 2])).rows[0].value;
     assert.deepEqual([await reserve(first),await reserve(first),await reserve(first),await reserve(first)], ['ok','ok','ok','limit']);
     assert.deepEqual([await reserve(second),await reserve(second),await reserve(second)], ['ok','ok','limit']);
