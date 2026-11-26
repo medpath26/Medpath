@@ -1,7 +1,7 @@
 "use client";
 
 import { Sparkles } from "lucide-react";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import {
   FeatureKey,
@@ -222,6 +222,9 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
   const [authName, setAuthName] = useState("");
   const [authProgram, setAuthProgram] = useState("");
   const [authError, setAuthError] = useState("");
+  const [atlasRequestError, setAtlasRequestError] = useState("");
+  const [atlasRequestBusy, setAtlasRequestBusy] = useState(false);
+  const atlasRequestInFlight = useRef(false);
   const [authNotice, setAuthNotice] = useState("");
   const [authFieldErrors, setAuthFieldErrors] = useState<AuthFieldErrors>({});
   const [isAuthLoading, setIsAuthLoading] = useState(false);
@@ -970,25 +973,22 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
   async function askAtlas(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const question = chatInput.trim();
-    if (!question) return;
-    if (plan === "explorer" && memberAtlasQuestionCount >= 3) {
-      setLockedFeature("atlas");
-      return;
-    }
-    if (plan === "explorer" && supabase && authUser) {
-      const { error } = await supabase.from("atlas_questions").insert({
-        user_id: authUser.id,
-        question
+    if (!question || atlasRequestInFlight.current) return;
+    if (plan === "explorer" && memberAtlasQuestionCount >= 3) { setLockedFeature("atlas"); return; }
+    if (!supabase || !authUser) { setAtlasRequestError("Please sign in to use Atlas."); return; }
+    atlasRequestInFlight.current = true; setAtlasRequestError(""); setAtlasRequestBusy(true);
+    try {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) { setAtlasRequestError("Please sign in to use Atlas."); return; }
+      const response = await fetch("/api/atlas/reserve-question", {
+        method: "POST", headers: { Authorization: `Bearer ${data.session.access_token}` }
       });
-      if (error) {
-        logAuthDiagnostics("Atlas usage save error", error);
-        setAuthError("We couldn't save this Atlas question. Please try again.");
-        return;
-      }
-      setMemberAtlasQuestionCount((count) => count + 1);
-    }
-    setMentorAnswer(getAtlasReply(question));
-    setChatInput("");
+      if (response.status === 429) { setMemberAtlasQuestionCount(3); setLockedFeature("atlas"); return; }
+      if (!response.ok) { setAtlasRequestError("We couldn't check Atlas usage. Please try again."); return; }
+      if (plan === "explorer") setMemberAtlasQuestionCount(count => count + 1);
+      setMentorAnswer(getAtlasReply(question)); setChatInput("");
+    } catch { setAtlasRequestError("We couldn't check Atlas usage. Please try again."); }
+    finally { atlasRequestInFlight.current = false; setAtlasRequestBusy(false); }
   }
 
   function askGuestAtlas(event: FormEvent<HTMLFormElement>) {
@@ -1144,9 +1144,19 @@ export default function Home({ initialView = "landing" }: { initialView?: ViewKe
                 onSubmit={askAtlas}
                 freeQuestionsRemaining={plan === "explorer" ? Math.max(0, 3 - memberAtlasQuestionCount) : undefined}
                 isChatDisabled={plan === "explorer" && memberAtlasQuestionCount >= 3}
+                isMember
+                requestError={atlasRequestError}
+                requestBusy={atlasRequestBusy}
+                onUsageChanged={() => {
+                  if (supabase && authUser && plan === "explorer") {
+                    void supabase.from("atlas_questions").select("id", { count: "exact", head: true }).eq("user_id", authUser.id).then(({ count, error }) => {
+                      if (!error && count !== null) setMemberAtlasQuestionCount(count);
+                    });
+                  }
+                }}
               />
             )}
-            {view === "practice" && <Practice initialMode={practiceMode} plan={plan} program={program} />}
+            {view === "practice" && <Practice key={program} initialMode={practiceMode} plan={plan} program={program} />}
             {view === "study" && (
               <StudyPlan
                 plan={plan}

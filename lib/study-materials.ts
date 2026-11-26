@@ -1,0 +1,69 @@
+/** The format expected from study-material generation. Notes are never stored here. */
+export type StudyMaterials = {
+  summary: string[];
+  flashcards: { question: string; answer: string }[];
+  quiz: { question: string; answer: string; explanation: string }[];
+};
+
+export const studyMaterialsSchema = {
+  type: "object", additionalProperties: false,
+  properties: {
+    summary: { type: "array", items: { type: "string" } },
+    flashcards: { type: "array", items: { type: "object", additionalProperties: false,
+      properties: { question: { type: "string" }, answer: { type: "string" } }, required: ["question", "answer"] } },
+    quiz: { type: "array", items: { type: "object", additionalProperties: false,
+      properties: { question: { type: "string" }, answer: { type: "string" }, explanation: { type: "string" } },
+      required: ["question", "answer", "explanation"] } }
+  }, required: ["summary", "flashcards", "quiz"]
+} as const;
+
+function nonemptyString(value: unknown, max: number): value is string {
+  return typeof value === "string" && value.trim().length > 0 && value.length <= max;
+}
+function record(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+/** Validate even structured output: empty, incomplete, oversized, or refused output isn't usable. */
+export function parseStudyMaterials(text: string): StudyMaterials | null {
+  if (text.length > 40000) return null;
+  let data: unknown;
+  try { data = JSON.parse(text); } catch { return null; }
+  if (!record(data) || !Array.isArray(data.summary) || !Array.isArray(data.flashcards) || !Array.isArray(data.quiz)) return null;
+  if (data.summary.length < 1 || data.summary.length > 8 || !data.summary.every(x => nonemptyString(x, 1200))) return null;
+  if (data.flashcards.length < 1 || data.flashcards.length > 12 || !data.flashcards.every(x => record(x) && nonemptyString(x.question, 500) && nonemptyString(x.answer, 1200))) return null;
+  if (data.quiz.length < 1 || data.quiz.length > 10 || !data.quiz.every(x => record(x) && nonemptyString(x.question, 500) && nonemptyString(x.answer, 1200) && nonemptyString(x.explanation, 1200))) return null;
+  return data as StudyMaterials;
+}
+
+/** Accept completed output text only; never expose provider diagnostics or partial output. */
+export function extractStudyMaterials(response: unknown): StudyMaterials | null {
+  if (!record(response) || response.status !== "completed" || !Array.isArray(response.output)) return null;
+  const content: unknown[] = [];
+  for (const item of response.output) {
+    if (record(item) && item.type === "message" && Array.isArray(item.content)) content.push(...item.content);
+  }
+  if (content.some(part => record(part) && part.type === "refusal")) return null;
+  const outputs = content.filter(part => record(part) && part.type === "output_text");
+  if (outputs.length !== 1 || !record(outputs[0]) || typeof outputs[0].text !== "string") return null;
+  return parseStudyMaterials(outputs[0].text);
+}
+
+export type TeachingExplanation = { explanation: string; example: string; analogy: string; caution: string };
+export const teachingExplanationSchema = {
+  type: "object", additionalProperties: false,
+  properties: { explanation: { type: "string" }, example: { type: "string" }, analogy: { type: "string" }, caution: { type: "string" } },
+  required: ["explanation", "example", "analogy", "caution"]
+} as const;
+export function extractTeachingExplanation(response: unknown): TeachingExplanation | null {
+  if (!record(response) || response.status !== "completed" || !Array.isArray(response.output)) return null;
+  const content: unknown[] = [];
+  for (const item of response.output) if (record(item) && item.type === "message" && Array.isArray(item.content)) content.push(...item.content);
+  if (content.some(part => record(part) && part.type === "refusal")) return null;
+  const outputs = content.filter(part => record(part) && part.type === "output_text");
+  if (outputs.length !== 1 || !record(outputs[0]) || typeof outputs[0].text !== "string" || outputs[0].text.length > 12000) return null;
+  let data: unknown;
+  try { data = JSON.parse(outputs[0].text); } catch { return null; }
+  if (!record(data) || ![data.explanation, data.example, data.analogy, data.caution].every(item => nonemptyString(item, 2500))) return null;
+  return data as TeachingExplanation;
+}

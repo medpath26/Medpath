@@ -141,3 +141,42 @@ To close access again, set `PRELAUNCH_MODE=true` and clear
 `medpath_private.prelaunch_release.approved_at` in the SQL editor. Reapply
 prelaunch Auth email controls and purge cached application responses. Use both
 controls because already issued Supabase tokens can reach the Data API directly.
+
+## Group 1 study generation (draft)
+
+Atlas study-material generation is disabled unless `ATLAS_GENERATION_ENABLED=true`,
+`ATLAS_GENERATION_MODEL` is set to an available Responses API model,
+`ATLAS_GENERATION_PAID_DAILY_LIMIT` is an integer from 1 to 100, and server-only
+`OPENAI_API_KEY` and `SUPABASE_SERVICE_ROLE_KEY` are configured. Never use
+`NEXT_PUBLIC_` for service keys. Apply the Group 1 migrations only to an isolated
+test project first. Preview deployments must use a separate Supabase project,
+non-production AI credentials and provider-level preview protection.
+
+The feature sends the learner's confirmed notes to OpenAI for generation and
+requests no API-side response storage. It does not save notes or generated content
+in Supabase. The warning against identifiable patient information is not an
+automatic detector; review privacy and clinical safety requirements before enabling.
+Free generation shares the existing three-question Atlas counter. Paid generation
+has a configurable daily safety limit; reserved attempts count even if the provider
+fails. Review those limits and make product copy consistent before release. The tutor and generation share a server-side reservation lock. Apply the tutor
+reservation migration and deploy its matching application code together; older
+clients that insert usage directly will need to reload. Keep generation disabled
+until all hosted account, quota, privacy and provider failure tests have passed.
+
+Automatic Vercel deployments are disabled for the Group 1 feature branch while
+its migrations and provider configuration await review. This preserves the
+existing preview. Remove the branch-specific setting in `vercel.json` when an
+isolated preview is ready to be deployed and tested; it does not disable main.
+
+Run `pnpm test` for the local unit and database-isolation checks. For the
+synthetic Atlas server flow, run `pnpm test:atlas-integration`; it uses test-only
+credentials and simulated providers, blocks unexpected outbound requests, binds
+127.0.0.1:43191, and replaces the local `.next` build. It is not a substitute for
+hosted Supabase or real provider testing.
+
+For database checks, run `tests/hosted-group1-check.sql` only in an isolated
+Supabase project after all migrations have been applied. It creates synthetic
+users inside a transaction, checks prelaunch access, account isolation, retries,
+and the shared free Atlas limit, then rolls the test data back. SQL editor runs
+do not populate the Supabase migration history; reconcile that history before
+using the migration CLI against a project initialized through the editor.

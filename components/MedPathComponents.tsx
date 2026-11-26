@@ -1,5 +1,9 @@
 "use client";
 import { buildPathwayLessons } from "@/lib/pathway-lessons";
+import { supabase } from "@/lib/supabase-client";
+import { calculateTopicResults } from "@/lib/exam-results";
+import { practiceExamIds } from "@/lib/practice-exam-access";
+import { TeachMeDifferently } from "@/components/TeachMeDifferently";
 
 import Image from "next/image";
 import {
@@ -89,6 +93,10 @@ export function Header({
   const authenticatedMobileItems = [
     ["Dashboard", <Activity key="icon" />, () => navigateMobile("dashboard")],
     ["Course Viewer", <BookOpen key="icon" />, () => navigateMobile("study", "studyPlans")],
+    ["Terminology Decoder", <BookOpen key="term-icon" />, () => { window.location.assign("/terminology"); }],
+    ["Adaptive Learning", <Brain key="adaptive-icon" />, () => { window.location.assign("/adaptive-learning"); }],
+    ["Smart Notes Studio", <BookOpen key="notes-icon" />, () => { window.location.assign("/notes"); }],
+    ["Atlas Exam Coach", <CalendarClock key="exam-icon" />, () => { window.location.assign("/exam-coach"); }],
     ["PathPrep", <Brain key="icon" />, () => navigateMobile("practice", "practice")],
     ["Flashcards", <BookOpen key="icon" />, () => navigateMobile("practice", "flashcards")],
     ["Practice Exams", <ClipboardCheck key="icon" />, () => navigateMobile("practice", "mockExams")],
@@ -455,6 +463,10 @@ export function Sidebar({
             {feature && !canAccess(plan, feature as FeatureKey) && <Lock size={14} />}
           </button>
         ))}
+        <a href="/terminology" className="sidebar-tool-link"><BookOpen size={18} /> Terminology Decoder</a>
+        <a href="/notes" className="sidebar-tool-link"><BookOpen size={18} /> Smart Notes Studio</a>
+        <a href="/exam-coach" className="sidebar-tool-link"><CalendarClock size={18} /> Atlas Exam Coach</a>
+        {canAccess(plan, "adaptiveLearning") && <a href="/adaptive-learning" className="sidebar-tool-link"><Brain size={18} /> Adaptive Learning</a>}
         {isAdmin && (
           <button className={view === "admin" ? "active" : ""} onClick={() => onNavigate("admin")}>
             <ShieldCheck />
@@ -1003,7 +1015,11 @@ export function Atlas({
   onSubmit,
   messages,
   freeQuestionsRemaining,
-  isChatDisabled = false
+  isChatDisabled = false,
+  isMember = false,
+  requestError = "",
+  requestBusy = false,
+  onUsageChanged
 }: {
   name: string;
   program: string;
@@ -1014,6 +1030,10 @@ export function Atlas({
   messages?: AtlasChatMessage[];
   freeQuestionsRemaining?: number;
   isChatDisabled?: boolean;
+  isMember?: boolean;
+  requestError?: string;
+  requestBusy?: boolean;
+  onUsageChanged?: () => void;
 }) {
   const chatMessages =
     messages ??
@@ -1021,7 +1041,7 @@ export function Atlas({
       {
         id: "atlas-greeting",
         role: "atlas" as const,
-        text: `Good morning, ${name}. Yesterday you strengthened sterile technique. Today we can continue with instrumentation, or talk through anything that feels heavy.`
+        text: `Welcome, ${name || "learner"}. What would you like to study today?`
       },
       {
         id: "atlas-answer",
@@ -1046,9 +1066,7 @@ export function Atlas({
           <ul>
             <li>Student: {name || "Not set yet"}</li>
             <li>Program: {program || "Not set yet"}</li>
-            <li>Certification: NCCT / NHA track</li>
-            <li>Focus: instrumentation and test anxiety</li>
-            <li>Confidence level: building</li>
+            <li>Study preferences and goals can be set in your profile.</li>
           </ul>
         </div>
         <div className="chat-panel">
@@ -1074,18 +1092,20 @@ export function Atlas({
               onChange={(event) => setInput(event.target.value)}
               placeholder='Try “I’m overwhelmed” or “I’m nervous for clinicals”'
               aria-label="Ask Atlas"
-              disabled={isChatDisabled}
+              disabled={isChatDisabled || requestBusy}
             />
-            <button className="primary compact" type="submit" disabled={isChatDisabled}>
-              {isChatDisabled ? "Limit Reached" : "Ask"}
+            <button className="primary compact" type="submit" disabled={isChatDisabled || requestBusy}>
+              {isChatDisabled ? "Limit Reached" : requestBusy ? "Checking…" : "Ask"}
             </button>
           </form>
+          {requestError && <p role="alert" className="form-message error-message">{requestError}</p>}
           <p className="ai-note">
             Atlas mentoring supports learning and should not replace instructors, clinical policy,
             or trusted educational resources.
           </p>
         </div>
       </section>
+      <TeachMeDifferently isMember={isMember} onUsageChanged={onUsageChanged} />
     </div>
   );
 }
@@ -1999,19 +2019,18 @@ export function Practice({ initialMode, plan, program }: { initialMode: "flashca
   const isSurgicalPath = normalizedProgram.includes("surgical") || normalizedProgram.includes("surgery");
   const isMedicalAssistantPath = normalizedProgram.includes("medical assistant") || normalizedProgram.includes("medical assisting");
   const isSterileProcessingPath = normalizedProgram.includes("sterile processing");
-  const matchingExams = practiceExams.filter((exam) =>
-    isSurgicalPath ? ["ncct-tsc", "cst"].includes(exam.id) :
-    isMedicalAssistantPath ? exam.id === "medical-assistant" :
-    isSterileProcessingPath ? exam.id === "sterile-processing" : true
-  );
+  const allowedExamIds = practiceExamIds(program);
+  const matchingExams = practiceExams.filter(exam => allowedExamIds.includes(exam.id));
   const [selectedExamId, setSelectedExamId] = useState(practiceExams[0].id);
   const [examStatus, setExamStatus] = useState<"home" | "active" | "results" | "review">("home");
+  const [examSessionId, setExamSessionId] = useState("");
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error" | "signed-out">("idle");
   const [examQuestionIndex, setExamQuestionIndex] = useState(0);
   const [examAnswers, setExamAnswers] = useState<Record<number, string>>({});
   const [flaggedQuestions, setFlaggedQuestions] = useState<number[]>([]);
   const [secondsRemaining, setSecondsRemaining] = useState(20 * 60);
   const [timeTakenSeconds, setTimeTakenSeconds] = useState(0);
-  const selectedExam = matchingExams.find((exam) => exam.id === selectedExamId) ?? matchingExams[0];
+  const selectedExam = matchingExams.find((exam) => exam.id === selectedExamId) ?? matchingExams[0] ?? practiceExams[0];
   const availableExamQuestions = isFree ? selectedExam.items.slice(0, 10) : selectedExam.items;
   const activeExamQuestion = availableExamQuestions[examQuestionIndex];
   const answeredCount = Object.keys(examAnswers).length;
@@ -2062,7 +2081,9 @@ export function Practice({ initialMode, plan, program }: { initialMode: "flashca
       ? ["Medical Assisting"]
       : isSterileProcessingPath
         ? ["Sterile Processing"]
-        : categories.filter((item) => item !== "All");
+        : (!normalizedProgram || normalizedProgram.includes("explor"))
+          ? categories.filter((item) => item !== "All")
+          : ["Anatomy", "Medical Terminology", "Infection Control"];
   const visibleCategories = ["All", ...relevantCategories];
   const [category, setCategory] = useState("All");
   const [difficulty, setDifficulty] = useState("All");
@@ -2128,6 +2149,8 @@ export function Practice({ initialMode, plan, program }: { initialMode: "flashca
   function startExam(examId: string) {
     if (!matchingExams.some((exam) => exam.id === examId)) return;
     setSelectedExamId(examId);
+    setExamSessionId(crypto.randomUUID());
+    setSaveStatus("idle");
     setExamStatus("active");
     setExamQuestionIndex(0);
     setExamAnswers({});
@@ -2147,14 +2170,25 @@ export function Practice({ initialMode, plan, program }: { initialMode: "flashca
 
   const timeLabel = `${Math.floor(secondsRemaining / 60)}:${String(secondsRemaining % 60).padStart(2, "0")}`;
   const timeTakenLabel = `${Math.floor(timeTakenSeconds / 60)}m ${timeTakenSeconds % 60}s`;
-  const topicResults = selectedExam.topics.map((topic) => {
-    const topicItems = availableExamQuestions.filter((item) => item.topic === topic);
-    const topicCorrect = availableExamQuestions.filter((item, index) => item.topic === topic && examAnswers[index] === item.answer).length;
-    return {
-      topic,
-      percent: topicItems.length ? Math.round((topicCorrect / topicItems.length) * 100) : 0
-    };
-  });
+  const topicResults = calculateTopicResults(availableExamQuestions, examAnswers);
+  async function saveExamResults() {
+    if (!supabase || !examSessionId || !program.trim()) { setSaveStatus("error"); return; }
+    setSaveStatus("saving");
+    const { data, error: authError } = await supabase.auth.getUser();
+    if (authError) { setSaveStatus("error"); return; }
+    if (!data.user) { setSaveStatus("signed-out"); return; }
+    const rows = topicResults.map(({ topic, percent, total, correct }) => ({
+      user_id: data.user!.id, exam_session_id: examSessionId, pathway: program.trim(), topic, score: percent, total_questions: total, correct_answers: correct
+    }));
+    if (!rows.length) { setSaveStatus("error"); return; }
+    const { error } = await supabase.from("quiz_attempts").upsert(rows, { onConflict: "user_id,exam_session_id,topic", ignoreDuplicates: true });
+    setSaveStatus(error ? "error" : "saved");
+  }
+
+  useEffect(() => {
+    if (examStatus === "results" && saveStatus === "idle") void saveExamResults();
+  }, [examStatus, saveStatus]);
+
   const weakestTopics = [...topicResults].sort((a, b) => a.percent - b.percent).slice(0, 2);
   const strongestTopics = [...topicResults].sort((a, b) => b.percent - a.percent).slice(0, 2);
 
@@ -2171,6 +2205,7 @@ export function Practice({ initialMode, plan, program }: { initialMode: "flashca
         </p>
       </div>
 
+      {studyMode === "flashcards" && normalizedProgram && !normalizedProgram.includes("explor") && !isSurgicalPath && !isMedicalAssistantPath && !isSterileProcessingPath && <p>These are shared foundational cards; pathway-specific cards are still in development.</p>}
       <div className="practice-mode-tabs" role="tablist" aria-label="PathPrep study mode">
         <button
           className={studyMode === "flashcards" ? "active" : ""}
@@ -2216,6 +2251,7 @@ export function Practice({ initialMode, plan, program }: { initialMode: "flashca
               ) : <p>Select a supported healthcare pathway to view its certification options.</p>}
             </section>
             <h3>Available PathPrep practice exams</h3>
+            {matchingExams.length === 0 && <p>There is no dedicated practice question bank for this pathway yet. You can still use Study Hub, flashcards, terminology, and the study planner.</p>}
             <section className="exam-home-grid">
               {matchingExams.map((exam) => (
                 <article className="exam-card-premium" key={exam.id}>
@@ -2226,11 +2262,11 @@ export function Practice({ initialMode, plan, program }: { initialMode: "flashca
                   <dl>
                     <div>
                       <dt>Number of Questions</dt>
-                      <dd>{exam.questions}</dd>
+                      <dd>{isFree ? Math.min(10, exam.items.length) : exam.items.length}</dd>
                     </div>
                     <div>
                       <dt>Estimated Time</dt>
-                      <dd>{exam.estimatedTime}</dd>
+                      <dd>20 min</dd>
                     </div>
                     <div>
                       <dt>Difficulty</dt>
@@ -2310,6 +2346,10 @@ export function Practice({ initialMode, plan, program }: { initialMode: "flashca
                 <p>{passed ? "Pass" : "Fail"} · {correctAnswers} correct · {incorrectAnswers} incorrect</p>
                 <p>Time Taken: {timeTakenLabel}</p>
                 <p>XP Earned: {correctAnswers * 25}</p>
+                {saveStatus === "saving" && <p role="status">Saving topic results…</p>}
+                {saveStatus === "saved" && <p role="status">Topic results saved for your pathway.</p>}
+                {saveStatus === "signed-out" && <p>Sign in to save results for future review.</p>}
+                {saveStatus === "error" && <p role="alert">Results could not be saved. <button type="button" onClick={() => void saveExamResults()}>Try again</button></p>}
                 <div className="exam-controls">
                   <button className="primary" onClick={() => setExamStatus("review")}>
                     Review Answers
@@ -2321,9 +2361,9 @@ export function Practice({ initialMode, plan, program }: { initialMode: "flashca
               </article>
               <article className="exam-analytics-card">
                 <p className="eyebrow">Analytics</p>
-                <h3>Readiness Score: {Math.max(score, 52)}%</h3>
+                <h3>Practice exam score: {score}%</h3>
                 <div className="progress-bar">
-                  <span style={{ width: `${Math.max(score, 52)}%` }} />
+                  <span style={{ width: `${score}%` }} />
                 </div>
                 <div className="analytics-columns">
                   <div>
