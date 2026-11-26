@@ -1,5 +1,7 @@
 "use client";
 import { buildPathwayLessons } from "@/lib/pathway-lessons";
+import { supabase } from "@/lib/supabase-client";
+import { calculateTopicResults } from "@/lib/exam-results";
 
 import Image from "next/image";
 import {
@@ -2014,6 +2016,8 @@ export function Practice({ initialMode, plan, program }: { initialMode: "flashca
   );
   const [selectedExamId, setSelectedExamId] = useState(practiceExams[0].id);
   const [examStatus, setExamStatus] = useState<"home" | "active" | "results" | "review">("home");
+  const [examSessionId, setExamSessionId] = useState("");
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error" | "signed-out">("idle");
   const [examQuestionIndex, setExamQuestionIndex] = useState(0);
   const [examAnswers, setExamAnswers] = useState<Record<number, string>>({});
   const [flaggedQuestions, setFlaggedQuestions] = useState<number[]>([]);
@@ -2136,6 +2140,8 @@ export function Practice({ initialMode, plan, program }: { initialMode: "flashca
   function startExam(examId: string) {
     if (!matchingExams.some((exam) => exam.id === examId)) return;
     setSelectedExamId(examId);
+    setExamSessionId(crypto.randomUUID());
+    setSaveStatus("idle");
     setExamStatus("active");
     setExamQuestionIndex(0);
     setExamAnswers({});
@@ -2155,14 +2161,25 @@ export function Practice({ initialMode, plan, program }: { initialMode: "flashca
 
   const timeLabel = `${Math.floor(secondsRemaining / 60)}:${String(secondsRemaining % 60).padStart(2, "0")}`;
   const timeTakenLabel = `${Math.floor(timeTakenSeconds / 60)}m ${timeTakenSeconds % 60}s`;
-  const topicResults = selectedExam.topics.map((topic) => {
-    const topicItems = availableExamQuestions.filter((item) => item.topic === topic);
-    const topicCorrect = availableExamQuestions.filter((item, index) => item.topic === topic && examAnswers[index] === item.answer).length;
-    return {
-      topic,
-      percent: topicItems.length ? Math.round((topicCorrect / topicItems.length) * 100) : 0
-    };
-  });
+  const topicResults = calculateTopicResults(availableExamQuestions, examAnswers);
+  async function saveExamResults() {
+    if (!supabase || !examSessionId || !program.trim()) { setSaveStatus("error"); return; }
+    setSaveStatus("saving");
+    const { data, error: authError } = await supabase.auth.getUser();
+    if (authError) { setSaveStatus("error"); return; }
+    if (!data.user) { setSaveStatus("signed-out"); return; }
+    const rows = topicResults.map(({ topic, percent, total, correct }) => ({
+      user_id: data.user!.id, exam_session_id: examSessionId, pathway: program.trim(), topic, score: percent, total_questions: total, correct_answers: correct
+    }));
+    if (!rows.length) { setSaveStatus("error"); return; }
+    const { error } = await supabase.from("quiz_attempts").upsert(rows, { onConflict: "user_id,exam_session_id,topic", ignoreDuplicates: true });
+    setSaveStatus(error ? "error" : "saved");
+  }
+
+  useEffect(() => {
+    if (examStatus === "results" && saveStatus === "idle") void saveExamResults();
+  }, [examStatus, saveStatus]);
+
   const weakestTopics = [...topicResults].sort((a, b) => a.percent - b.percent).slice(0, 2);
   const strongestTopics = [...topicResults].sort((a, b) => b.percent - a.percent).slice(0, 2);
 
@@ -2318,6 +2335,10 @@ export function Practice({ initialMode, plan, program }: { initialMode: "flashca
                 <p>{passed ? "Pass" : "Fail"} · {correctAnswers} correct · {incorrectAnswers} incorrect</p>
                 <p>Time Taken: {timeTakenLabel}</p>
                 <p>XP Earned: {correctAnswers * 25}</p>
+                {saveStatus === "saving" && <p role="status">Saving topic results…</p>}
+                {saveStatus === "saved" && <p role="status">Topic results saved for your pathway.</p>}
+                {saveStatus === "signed-out" && <p>Sign in to save results for future review.</p>}
+                {saveStatus === "error" && <p role="alert">Results could not be saved. <button type="button" onClick={() => void saveExamResults()}>Try again</button></p>}
                 <div className="exam-controls">
                   <button className="primary" onClick={() => setExamStatus("review")}>
                     Review Answers
@@ -2329,9 +2350,9 @@ export function Practice({ initialMode, plan, program }: { initialMode: "flashca
               </article>
               <article className="exam-analytics-card">
                 <p className="eyebrow">Analytics</p>
-                <h3>Readiness Score: {Math.max(score, 52)}%</h3>
+                <h3>Practice exam score: {score}%</h3>
                 <div className="progress-bar">
-                  <span style={{ width: `${Math.max(score, 52)}%` }} />
+                  <span style={{ width: `${score}%` }} />
                 </div>
                 <div className="analytics-columns">
                   <div>

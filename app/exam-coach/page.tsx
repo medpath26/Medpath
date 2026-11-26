@@ -24,9 +24,13 @@ export default function ExamCoachPage() {
       if (!active) return;
       if (authError) { setStatus("error"); return; }
       if (!auth.user) { setStatus("signed-out"); return; }
+      const { data: profile, error: profileError } = await supabase.from("profiles").select("healthcare_program").eq("id", auth.user.id).maybeSingle();
+      if (!active) return;
+      if (profileError) { setStatus("error"); return; }
+      const pathway = profile?.healthcare_program?.trim() ?? "";
       const [progress, quizzes] = await Promise.all([
         supabase.from("student_progress").select("exam_date,certification_goal").eq("user_id", auth.user.id).maybeSingle(),
-        supabase.from("quiz_attempts").select("topic,score").eq("user_id", auth.user.id).order("created_at", { ascending: false }).limit(100)
+        supabase.from("quiz_attempts").select("topic,score").eq("user_id", auth.user.id).eq("pathway", pathway).order("created_at", { ascending: false }).limit(100)
       ]);
       if (!active) return;
       if (progress.error || quizzes.error) { setStatus("error"); return; }
@@ -72,7 +76,7 @@ export default function ExamCoachPage() {
         <ol className="mt-5 grid gap-4 md:grid-cols-2">{Array.from({length:sessions},(_,i)=><li key={i} className="rounded-xl border border-slate-300 p-5">
           <h3 className="font-semibold">Week {i+1}: {topics[i % topics.length]}</h3>
           <p className="mt-2 text-sm">Plan for up to {hours} hours: review concepts, practice questions, and check explanations.</p>
-          <p className="mt-2 text-xs opacity-70">{topicScores.length?"Priorities informed by recorded quiz scores.":"Starter schedule: no recorded quiz history. PathPrep results are not yet saved here."}</p>
+          <p className="mt-2 text-xs opacity-70">{topicScores.length?"Priorities informed by recorded quiz scores.":"Starter schedule: no recorded quiz history for your current pathway."}</p>
         </li>)}</ol>
       </>}
     </section>}

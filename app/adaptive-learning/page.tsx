@@ -6,22 +6,28 @@ import { supabase } from "@/lib/supabase-client";
 
 export default function AdaptiveLearningPage() {
   const [attempts, setAttempts] = useState<QuizAttempt[]>([]);
-  const [status, setStatus] = useState<"loading" | "ready" | "signed-out" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "ready" | "signed-out" | "locked" | "error">("loading");
   useEffect(() => {
     let active = true;
     async function load() {
       if (!supabase) { if (active) setStatus("error"); return; }
-      const { data: auth, error: authError } = await supabase.auth.getUser();
-      if (!active) return;
-      if (authError) { setStatus("error"); return; }
-      if (!auth.user) { setStatus("signed-out"); return; }
-      const { data, error } = await supabase.from("quiz_attempts")
-        .select("topic,score,total_questions,correct_answers,created_at")
-        .eq("user_id", auth.user.id).order("created_at", { ascending: false }).limit(250);
-      if (!active) return;
-      if (error) { setStatus("error"); return; }
-      setAttempts((data ?? []) as QuizAttempt[]);
-      setStatus("ready");
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        if (!active) return;
+        if (error) { setStatus("error"); return; }
+        if (!data.session) { setStatus("signed-out"); return; }
+        const response = await fetch("/api/adaptive-learning", {
+          headers: { Authorization: `Bearer ${data.session.access_token}` }, cache: "no-store"
+        });
+        if (!active) return;
+        if (response.status === 401) { setStatus("signed-out"); return; }
+        if (response.status === 403) { setStatus("locked"); return; }
+        if (!response.ok) { setStatus("error"); return; }
+        const payload = await response.json();
+        if (!active) return;
+        setAttempts(payload.attempts as QuizAttempt[]);
+        setStatus("ready");
+      } catch { if (active) setStatus("error"); }
     }
     void load();
     return () => { active = false; };
@@ -33,8 +39,9 @@ export default function AdaptiveLearningPage() {
     <p className="mt-2 opacity-75">Your study priorities, based on your recorded quiz attempts. These are learning suggestions, not clinical competency assessments.</p>
     {status === "loading" && <p role="status" className="mt-6">Loading your quiz history…</p>}
     {status === "signed-out" && <p className="mt-6">Sign in to see personalized recommendations based on your quiz results.</p>}
+    {status === "locked" && <p className="mt-6">Adaptive Learning is available with an eligible plan. Visit your account’s plan options to learn more.</p>}
     {status === "error" && <p role="alert" className="mt-6">Unable to load quiz history right now. Please try again later.</p>}
-    {status === "ready" && recommendations.length === 0 && <section className="mt-6 rounded-xl border p-5"><h2 className="font-semibold">No quiz history yet</h2><p className="mt-2">No recorded quiz attempts are available. PathPrep does not yet save its exam results to this history.</p></section>}
+    {status === "ready" && recommendations.length === 0 && <section className="mt-6 rounded-xl border p-5"><h2 className="font-semibold">No quiz history yet</h2><p className="mt-2">No recorded quiz attempts are available for your current pathway. Complete a PathPrep practice exam to build recommendations.</p></section>}
     {status === "ready" && recommendations.length > 0 && <section className="mt-8 grid gap-4 md:grid-cols-2" aria-label="Topic recommendations">
       {recommendations.map(item => <article key={item.topic} className="rounded-xl border border-slate-300 p-5">
         <p className="text-xs font-semibold uppercase tracking-wide">{item.priority === "review" ? "Review first" : item.priority === "practice" ? "Keep practicing" : "Maintain knowledge"}</p>

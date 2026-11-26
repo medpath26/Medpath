@@ -20,27 +20,40 @@ export default function TerminologyPage() {
   const [revealed, setRevealed] = useState(false);
   const [correct, setCorrect] = useState(0);
   const [answered, setAnswered] = useState(false);
-  const filtered = useMemo(() => TERMS.filter(t => [t.term, t.meaning, t.root].some(v => v.toLowerCase().includes(search.toLowerCase().trim()))), [search]);
-  const current = TERMS[index];
+  const filtered = useMemo(() => TERMS.filter(t => [t.term, t.meaning, t.prefix, t.root, t.suffix].some(v => v.toLowerCase().includes(search.toLowerCase().trim()))), [search]);
+  const current = filtered[index];
+  const [speechError, setSpeechError] = useState("");
+  const speak = (term: string) => {
+    if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) { setSpeechError("Audio is unavailable in this browser."); return; }
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(term);
+    utterance.lang = "en-US";
+    utterance.onerror = () => setSpeechError("Audio could not be played. Please try again.");
+    setSpeechError("");
+    window.speechSynthesis.speak(utterance);
+  };
   const advance = () => {
-    if (index === TERMS.length - 1) setCorrect(0);
-    setIndex(i => (i + 1) % TERMS.length); setRevealed(false); setAnswered(false);
+    if (index === filtered.length - 1) setCorrect(0);
+    setIndex(i => (i + 1) % filtered.length); setRevealed(false); setAnswered(false);
   };
   return <main className="mx-auto max-w-5xl px-5 py-10">
-    <a href="/study" className="text-sm underline">← Back to Study Hub</a>
+    <a href="/?view=study" className="text-sm underline">← Back to Study Hub</a>
     <h1 className="mt-6 text-3xl font-bold">Medical Terminology Decoder</h1>
     <p className="mt-2 text-sm opacity-75">Break down clinical vocabulary into prefixes, roots, and suffixes. Educational reference only.</p>
     <label htmlFor="term-search" className="mt-8 block font-semibold">Search terminology</label>
-    <input id="term-search" className="mt-2 w-full rounded-lg border border-slate-400 bg-transparent p-3" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search a term, meaning, or root" />
+    <input id="term-search" className="mt-2 w-full rounded-lg border border-slate-400 bg-transparent p-3" value={search} onChange={e => { setSearch(e.target.value); setIndex(0); setCorrect(0); setRevealed(false); setAnswered(false); }} placeholder="Search a term, meaning, prefix, root, or suffix" />
     <div className="mt-5 grid gap-4 md:grid-cols-2">{filtered.map(t => <article key={t.term} className="rounded-xl border border-slate-300 p-5">
       <h2 className="text-xl font-semibold">{t.term}</h2>
+      <button type="button" className="mt-2 rounded-lg border border-slate-400 px-3 py-2 text-sm" onClick={() => speak(t.term)} aria-label={`Hear ${t.term} pronounced`}>Hear pronunciation</button>
       <dl className="mt-3 grid gap-2 text-sm"><div><dt className="font-semibold">Prefix</dt><dd>{t.prefix}</dd></div><div><dt className="font-semibold">Root</dt><dd>{t.root}</dd></div><div><dt className="font-semibold">Suffix</dt><dd>{t.suffix}</dd></div></dl>
       <p className="mt-3">{t.meaning}</p><p className="mt-2 text-sm italic opacity-75">{t.example}</p>
     </article>)}</div>
+    {speechError && <p role="status" className="mt-4">{speechError}</p>}
+    <p className="mt-4 text-xs opacity-70">Pronunciation uses your device’s synthetic voice and may vary. Verify pronunciation with your course materials.</p>
     {filtered.length === 0 && <p role="status" className="mt-4">No matching terms. Try another search.</p>}
-    <section aria-labelledby="practice-heading" className="mt-10 rounded-xl border border-slate-300 p-6">
+    {current && <section aria-labelledby="practice-heading" className="mt-10 rounded-xl border border-slate-300 p-6">
       <h2 id="practice-heading" className="text-2xl font-bold">Practice mode</h2>
-      <p className="mt-2 text-sm">Question {index + 1} of {TERMS.length} · Correct first attempts: {correct}</p>
+      <p className="mt-2 text-sm">Question {index + 1} of {filtered.length} · Correct first attempts: {correct}</p>
       <p className="mt-5 text-lg font-semibold">What does “{current.term}” mean?</p>
       {revealed ? <p role="status" className="mt-3">{current.meaning}</p> : <p className="mt-3 text-sm opacity-75">Think of the answer, then reveal it.</p>}
       <div className="mt-5 flex flex-wrap gap-3">
@@ -49,6 +62,6 @@ export default function TerminologyPage() {
         {answered && <button type="button" className="rounded-lg bg-teal-700 px-4 py-2 text-white" onClick={advance}>Next term</button>}
       </div>
       <p className="mt-3 text-xs opacity-70">Practice score is stored only in this page session; it is not certification or competency verification.</p>
-    </section>
+    </section>}
   </main>;
 }
