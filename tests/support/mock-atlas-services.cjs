@@ -8,7 +8,12 @@ globalThis.fetch = async (input, options) => {
       return json({id:'00000000-0000-0000-0000-000000000001',aud:'authenticated',app_metadata:{},user_metadata:{}});
     }
     if (url.pathname === '/rest/v1/profiles') return json({healthcare_program:'Medical Assistant'});
-    if (url.pathname === '/rest/v1/rpc/reserve_atlas_generation') return json(++reservations <= 2 ? 'ok' : 'limit');
+    if (url.pathname === '/rest/v1/rpc/reserve_atlas_generation' || url.pathname === '/rest/v1/rpc/reserve_atlas_tutor_question') {
+      const body = await req.json();
+      const allowed = url.pathname.endsWith('reserve_atlas_generation') ? ['p_user_id', 'p_paid_daily_limit'] : ['p_user_id'];
+      if (Object.keys(body).some(key => !allowed.includes(key))) return json({message:'unexpected reservation data'},400);
+      return json(++reservations <= 3 ? 'ok' : 'limit');
+    }
     return json({message:'unexpected mock endpoint'},404);
   }
   if (url.hostname === 'api.openai.com') {

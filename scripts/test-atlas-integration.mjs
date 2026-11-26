@@ -36,8 +36,12 @@ try {
   async function post(payload, authorized = true) {
     return fetch(`${base}/api/atlas/study-materials`, {method:'POST',headers:{cookie,'content-type':'application/json',...(authorized ? {authorization:'Bearer valid-test-token'} : {})},body:JSON.stringify(payload)});
   }
+  async function reserveQuestion(authorized = true) {
+    return fetch(`${base}/api/atlas/reserve-question`, {method:'POST',headers:{cookie,...(authorized ? {authorization:'Bearer valid-test-token'} : {})}});
+  }
   const notes = {notes:'Synthetic study notes for testing.',confirmed:true};
   assert.equal((await post(notes,false)).status,401);
+  assert.equal((await reserveQuestion(false)).status,401);
   assert.equal((await post({...notes,confirmed:false})).status,400);
   const generated = await post(notes);
   assert.equal(generated.status,200);
@@ -45,7 +49,9 @@ try {
   const explained = await post({mode:'explain',level:'beginner',notes:'synthetic topic',confirmed:true});
   assert.equal(explained.status,200);
   assert.equal((await explained.json()).explanation.analogy, 'An analogy');
+  assert.equal((await reserveQuestion()).status,200);
   assert.equal((await post(notes)).status,429);
+  assert.equal((await reserveQuestion()).status,429);
   console.log('Atlas integration checks passed with simulated services.');
 } finally {
   server.kill('SIGTERM');
