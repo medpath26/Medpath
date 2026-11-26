@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 
 const MAX_CHARS = 20000;
+const MAX_FILE_BYTES = 80000;
 const sentenceSplit = (value: string) => value.match(/[^.!?\n]+[.!?]?/g)?.map(x => x.trim()).filter(Boolean) ?? [];
 function summarize(value: string) {
   const sentences = sentenceSplit(value);
@@ -20,16 +21,35 @@ function prompts(value: string) {
 export default function NotesPage() {
   const [notes, setNotes] = useState("");
   const [showAnswers, setShowAnswers] = useState(false);
+  const [fileStatus, setFileStatus] = useState("");
+  const [copyStatus, setCopyStatus] = useState("");
+  async function importText(file: File | undefined) {
+    if (!file) return;
+    setFileStatus("");
+    if (!/\.(txt|md)$/i.test(file.name)) { setFileStatus("Choose a .txt or .md file. PDF support is not available yet."); return; }
+    if (file.size > MAX_FILE_BYTES) { setFileStatus("The file is too large. Choose a text file under 80 KB."); return; }
+    try {
+      const text = await file.text();
+      if (text.includes("\0")) { setFileStatus("This file does not appear to be plain text."); return; }
+      if (text.length > MAX_CHARS) { setFileStatus("These notes exceed 20,000 characters. Shorten the file and try again."); return; }
+      setNotes(text); setShowAnswers(false); setFileStatus("Notes loaded in this browser. They have not been uploaded or saved.");
+    } catch { setFileStatus("Could not read that file. Please try again."); }
+  }
   const summary = useMemo(() => summarize(notes), [notes]);
   const cards = useMemo(() => prompts(notes), [notes]);
   const copy = async (value: string) => {
-    try { await navigator.clipboard.writeText(value); } catch { /* Clipboard may be unavailable in some browsers. */ }
+    try { await navigator.clipboard.writeText(value); setCopyStatus("Highlights copied."); }
+    catch { setCopyStatus("Copy is unavailable. Select and copy the highlights manually."); }
   };
   return <main className="mx-auto max-w-5xl px-5 py-10">
     <a href="/" className="text-sm underline">← Back to MedPath</a>
     <h1 className="mt-6 text-3xl font-bold">Smart Notes Studio</h1>
     <p className="mt-2 opacity-75">Turn your own class notes into quick-review highlights and study prompts. This starter version processes text in your browser and does not upload or save it.</p>
     <p className="mt-3 rounded-lg border border-amber-400 p-3 text-sm"><strong>Privacy:</strong> Do not paste patient names, dates of birth, medical record numbers, or other identifiable health information. This tool is for educational notes only.</p>
+    <label htmlFor="notes-file" className="mt-6 block font-semibold">Import a plain-text notes file</label>
+    <input id="notes-file" type="file" accept=".txt,.md,text/plain,text/markdown" onChange={e => { void importText(e.target.files?.[0]); e.currentTarget.value = ""; }} className="mt-2 block w-full text-sm" />
+    <p className="mt-2 text-xs opacity-70">.txt or .md, up to 80 KB and 20,000 characters. The file stays on this device; importing replaces the text below.</p>
+    {fileStatus && <p role="status" className="mt-2 text-sm">{fileStatus}</p>}
     <label htmlFor="study-notes" className="mt-6 block font-semibold">Paste your lecture or study notes</label>
     <textarea id="study-notes" value={notes} onChange={e => setNotes(e.target.value.slice(0, MAX_CHARS))} maxLength={MAX_CHARS} rows={12} placeholder="Example: Tachycardia: an abnormally fast heart rate.\nBradycardia: an abnormally slow heart rate." className="mt-2 w-full rounded-lg border border-slate-400 bg-transparent p-3" />
     <p className="text-right text-xs opacity-70">{notes.length.toLocaleString()} / {MAX_CHARS.toLocaleString()} characters</p>
@@ -39,6 +59,7 @@ export default function NotesPage() {
         <p className="mt-1 text-xs opacity-70">Extracted sentences, not AI-generated or fact-checked summaries.</p>
         <ul className="mt-4 list-disc space-y-3 pl-5">{summary.map((s, i) => <li key={i}>{s}</li>)}</ul>
         <button type="button" onClick={() => void copy(summary.join("\n"))} className="mt-4 rounded-lg border border-slate-400 px-4 py-2">Copy highlights</button>
+        {copyStatus && <p role="status" className="mt-2 text-sm">{copyStatus}</p>}
       </section>
       <section className="rounded-xl border border-slate-300 p-5">
         <h2 className="text-xl font-semibold">Study flashcards</h2>
