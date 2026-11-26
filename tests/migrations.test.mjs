@@ -10,6 +10,10 @@ test('Group 1 migrations isolate user data and protect quota reservations', asyn
     await db.exec(`
       create role anon nologin; create role authenticated nologin; create role service_role nologin;
       create schema auth;
+      create schema medpath_private;
+      create function medpath_private.prelaunch_access_allowed() returns boolean language sql stable as $$ select coalesce(current_setting('test.prelaunch_allowed',true), '') = 'true' $$;
+      grant usage on schema medpath_private to authenticated;
+      grant execute on function medpath_private.prelaunch_access_allowed() to authenticated;
       create table auth.users(id uuid primary key);
       create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
       grant usage on schema auth to authenticated;
@@ -26,15 +30,18 @@ test('Group 1 migrations isolate user data and protect quota reservations', asyn
       create policy own_attempts on public.quiz_attempts for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
       grant select,insert,update,delete on public.quiz_attempts to authenticated;
     `);
-    for (const file of ['20261126010000_quiz_attempt_pathways.sql', '20261126020000_exam_coach_plans.sql', '20261126030000_atlas_generation_usage.sql', '20261126040000_atlas_question_reservations.sql']) {
+    for (const file of ['20261126010000_quiz_attempt_pathways.sql', '20261126020000_exam_coach_plans.sql', '20261126030000_atlas_generation_usage.sql', '20261126040000_atlas_question_reservations.sql', '20261126050000_exam_coach_prelaunch.sql']) {
       await db.exec(await readFile(`supabase/migrations/${file}`, 'utf8'));
     }
     const first = '00000000-0000-0000-0000-000000000001', second = '00000000-0000-0000-0000-000000000002';
-    await db.exec(`set role authenticated; set request.jwt.claim.sub = '${first}';`);
+    await db.exec(`set role authenticated; set test.prelaunch_allowed = 'true'; set request.jwt.claim.sub = '${first}';`);
     const attempt = `insert into quiz_attempts(user_id,topic,score,total_questions,correct_answers,pathway,exam_session_id) values ('${first}','Safety',50,2,1,'Medical Assistant','10000000-0000-0000-0000-000000000001') on conflict (user_id,exam_session_id,topic) do nothing`;
     await db.exec(attempt); await db.exec(attempt);
     assert.equal((await db.query('select * from quiz_attempts')).rows.length, 1);
     await db.exec(`insert into exam_coach_plans(user_id,pathway,exam_date,exam_name,weekly_hours,blocks) values ('${first}','Medical Assistant','2027-04-01','Exam',5,'[{"start":"2027-03-01","topic":"Safety"}]')`);
+    await db.exec("set test.prelaunch_allowed = 'false'");
+    assert.equal((await db.query('select * from exam_coach_plans')).rows.length, 0);
+    await db.exec("set test.prelaunch_allowed = 'true'");
     await db.exec(`set request.jwt.claim.sub = '${second}';`);
     assert.equal((await db.query('select * from quiz_attempts')).rows.length, 0);
     assert.equal((await db.query('select * from exam_coach_plans')).rows.length, 0);
