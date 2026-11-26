@@ -412,3 +412,12 @@ enabled = true
 # declarative_schema_path = "./database"
 # JSON string passed through to pg-delta SQL formatting.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":80,\"commaStyle\":\"trailing\"}"
+
+# Apply the prelaunch migration before enabling these hooks in a hosted project.
+[auth.hook.before_user_created]
+enabled = true
+uri = "pg-functions://postgres/medpath_private/prelaunch_before_user_created"
+
+[auth.hook.custom_access_token]
+enabled = true
+uri = "pg-functions://postgres/medpath_private/prelaunch_access_token"

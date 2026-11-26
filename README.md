@@ -41,3 +41,103 @@ The app uses Supabase Auth for sign up, login, logout, and password reset. After
 - Update `profiles.role` only from verified Stripe webhooks.
 - Use the `planAccess` map in `lib/medpath-data.ts` as the source of truth for feature gating.
 - Institution features are modeled but intentionally hidden from public pricing.
+
+## Secure prelaunch
+
+The launch threshold is **February 1, 2027 at 12:00 AM Eastern** (05:00 UTC).
+The public hostname serves the coming-soon page until both the deployment flag
+and the database approval allow the release. Passing the launch time alone
+keeps the gate closed. Missing or invalid configuration also keeps it closed.
+
+### Configure before deploying
+
+1. Apply the Supabase migrations in order to an isolated test project first.
+   Use the Supabase migration history for an existing project and apply
+   `20261126000000_secure_prelaunch.sql` after its prerequisites. The new
+   waitlist table accepts service-role inserts. Database administrators can
+   manage consent records through the SQL editor. Keep service credentials in
+   server-side environment variables.
+2. On the public deployment set `PRELAUNCH_MODE=true`,
+   `PRELAUNCH_PUBLIC_HOST` to the exact canonical hostname without a scheme,
+   and `PRELAUNCH_PREVIEW=false`. Configure any aliases to redirect to that
+   hostname at the hosting layer. Route requests through Next.js middleware,
+   including static assets and RSC requests. Remove or restrict older live
+   deployment URLs and purge any cached application responses.
+3. Enable provider-level deployment protection on every preview and alternate
+   deployment URL before exposing it. On preview deployments set
+   `PRELAUNCH_PREVIEW=true`, leave `PRELAUNCH_PUBLIC_HOST` unset, and use
+   an isolated Supabase project and Stripe test credentials. Use a test
+   webhook secret for preview work. Do not copy production service keys to previews.
+4. Generate two distinct secrets per environment with `openssl rand -hex 32`.
+   Set `PRELAUNCH_ADMIN_TOKEN` and `PRELAUNCH_SESSION_SECRET` through the
+   provider's secret settings. Share the admin token through the team's secret
+   manager. On a protected preview, open `/` and submit the token. To access
+   the app on the public hostname, post an URL-encoded `token` field to
+   `/api/prelaunch/session` from that same origin using an approved admin
+   client. The host-bound cookie expires after four hours. Clearing it ends the
+   browser session. Rotating either secret invalidates all access cookies.
+   App login and Supabase permissions still apply behind the deployment gate.
+5. In hosted Supabase Auth, enable the **Before User Created** and **Custom
+   Access Token** hooks from `supabase/config.toml`. Add existing,
+   administrator-controlled Supabase user IDs to
+   `medpath_private.prelaunch_admins` via the SQL editor. The allowlist is
+   separate from the application profile role. If the hosted project exposes
+   direct Auth routes, configure the **Send Email** hook to
+   `pg-functions://postgres/medpath_private/prelaunch_auth_email` to suppress
+   public recovery and OTP email during prelaunch. Hosted hook availability
+   depends on the Supabase plan. Verify signup, sign-in, recovery and token
+   refresh directly against hosted Auth as well as through the application.
+   Review previously issued sessions and any independently deployed Supabase
+   functions or gateways. If the hosted project cannot enforce these controls,
+   keep its public Auth ingress restricted through the hosting setup before
+   treating the release as protected.
+6. Add provider rate limits to `POST /api/prelaunch/waitlist` and
+   `POST /api/prelaunch/session`. Confirm there are no active public Stripe
+   Payment Links or previously created open Checkout sessions for the platform.
+   The app blocks live checkout and portal creation before approval. Keep
+   the existing signed production webhook working for subscription synchronization.
+
+### Pre-deployment checks
+
+- On the public hostname confirm the countdown, one Atlas image, the Founding
+  Member announcement, and the social image. Use narrow and wide viewports.
+- As a visitor, request existing app pages, deep links, authentication callbacks,
+  app JS chunks, RSC responses and Stripe routes directly. Verify access is
+  denied. Verify the unsigned Stripe webhook request is rejected and verify
+  a signed test webhook in an isolated test environment.
+- Repeat on every preview URL without provider authorization. On an authorized
+  preview, check that invalid app access tokens fail and that an administrator
+  can open the app and use its normal sign-in flow. Check Supabase with both
+  an administrator and an existing student token while locked.
+- Submit the waitlist with and without consent, a malformed email, and the
+  same valid email with different casing. Verify the accepted attempts show
+  the same response and there is exactly one timestamped consent record.
+  Verify public and authenticated Supabase roles cannot read or write it.
+- Verify missing configuration, database failure, early approval and an
+  unapproved launch after the threshold all keep the gate closed. Exercise
+  the approved transition on an isolated environment with the clock or
+  launch threshold adjusted solely for that test.
+
+### Approve the public launch
+
+At or after the threshold an authorized database administrator must run this
+statement in the production Supabase SQL editor:
+
+```sql
+update medpath_private.prelaunch_release
+set approved_at = statement_timestamp()
+where singleton and approved_at is null;
+```
+
+The database rejects approvals made ahead of the launch threshold. Set
+`PRELAUNCH_MODE=false` on the canonical production deployment and redeploy if
+the host snapshots environment settings per deployment. Remove the temporary
+Send Email hook, if enabled, to restore the previously configured messaging
+provider. Leave preview protection in place. Verify the original homepage,
+auth and subscription paths against production after the transition. The two
+database access hooks pass through once the approval is effective.
+
+To close access again, set `PRELAUNCH_MODE=true` and clear
+`medpath_private.prelaunch_release.approved_at` in the SQL editor. Reapply
+prelaunch Auth email controls and purge cached application responses. Use both
+controls because already issued Supabase tokens can reach the Data API directly.
