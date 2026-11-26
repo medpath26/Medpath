@@ -173,3 +173,10 @@ synthetic Atlas server flow, run `pnpm test:atlas-integration`; it uses test-onl
 credentials and simulated providers, blocks unexpected outbound requests, binds
 127.0.0.1:43191, and replaces the local `.next` build. It is not a substitute for
 hosted Supabase or real provider testing.
+
+For database checks, run `tests/hosted-group1-check.sql` only in an isolated
+Supabase project after all migrations have been applied. It creates synthetic
+users inside a transaction, checks prelaunch access, account isolation, retries,
+and the shared free Atlas limit, then rolls the test data back. SQL editor runs
+do not populate the Supabase migration history; reconcile that history before
+using the migration CLI against a project initialized through the editor.
