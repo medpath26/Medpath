@@ -141,3 +141,24 @@ To close access again, set `PRELAUNCH_MODE=true` and clear
 `medpath_private.prelaunch_release.approved_at` in the SQL editor. Reapply
 prelaunch Auth email controls and purge cached application responses. Use both
 controls because already issued Supabase tokens can reach the Data API directly.
+
+## Group 1 study generation (draft)
+
+Atlas study-material generation is disabled unless `ATLAS_GENERATION_ENABLED=true`,
+`ATLAS_GENERATION_MODEL` is set to an available Responses API model,
+`ATLAS_GENERATION_PAID_DAILY_LIMIT` is an integer from 1 to 100, and server-only
+`OPENAI_API_KEY` and `SUPABASE_SERVICE_ROLE_KEY` are configured. Never use
+`NEXT_PUBLIC_` for service keys. Apply the Group 1 migrations only to an isolated
+test project first. Preview deployments must use a separate Supabase project,
+non-production AI credentials and provider-level preview protection.
+
+The feature sends the learner's confirmed notes to OpenAI for generation and
+requests no API-side response storage. It does not save notes or generated content
+in Supabase. The warning against identifiable patient information is not an
+automatic detector; review privacy and clinical safety requirements before enabling.
+Free generation shares the existing three-question Atlas counter. Paid generation
+has a configurable daily safety limit; reserved attempts count even if the provider
+fails. Review those limits and make product copy consistent before release. The
+existing browser-based Atlas question counter is not a server-enforced entitlement
+system and needs a separate concurrency and abuse audit. Keep generation disabled
+until all account, quota, privacy and provider failure tests have passed.

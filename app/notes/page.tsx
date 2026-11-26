@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { supabase } from "@/lib/supabase-client";
+import type { StudyMaterials } from "@/lib/study-materials";
 
 const MAX_CHARS = 20000;
 const MAX_FILE_BYTES = 80000;
@@ -23,6 +25,27 @@ export default function NotesPage() {
   const [showAnswers, setShowAnswers] = useState(false);
   const [fileStatus, setFileStatus] = useState("");
   const [copyStatus, setCopyStatus] = useState("");
+  const [confirmed, setConfirmed] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [generationStatus, setGenerationStatus] = useState("");
+  const [materials, setMaterials] = useState<StudyMaterials | null>(null);
+  const [revealGenerated, setRevealGenerated] = useState(false);
+  async function generate() {
+    if (!supabase) { setGenerationStatus("Study generation is unavailable right now."); return; }
+    setGenerating(true); setGenerationStatus(""); setMaterials(null); setRevealGenerated(false);
+    try {
+      const { data, error } = await supabase.auth.getSession();
+      if (error || !data.session) { setGenerationStatus("Sign in to generate study materials."); return; }
+      const response = await fetch("/api/atlas/study-materials", {
+        method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${data.session.access_token}` },
+        body: JSON.stringify({ notes, confirmed })
+      });
+      const payload = await response.json();
+      if (!response.ok) { setGenerationStatus(typeof payload.error === "string" ? payload.error : "Generation failed. Please try again."); return; }
+      setMaterials(payload.materials as StudyMaterials);
+    } catch { setGenerationStatus("Generation is unavailable right now. Please try again."); }
+    finally { setGenerating(false); }
+  }
   async function importText(file: File | undefined) {
     if (!file) return;
     setFileStatus("");
@@ -32,7 +55,7 @@ export default function NotesPage() {
       const text = await file.text();
       if (text.includes("\0")) { setFileStatus("This file does not appear to be plain text."); return; }
       if (text.length > MAX_CHARS) { setFileStatus("These notes exceed 20,000 characters. Shorten the file and try again."); return; }
-      setNotes(text); setShowAnswers(false); setFileStatus("Notes loaded in this browser. They have not been uploaded or saved.");
+      setNotes(text); setMaterials(null); setConfirmed(false); setShowAnswers(false); setFileStatus("Notes loaded in this browser. They have not been uploaded or saved.");
     } catch { setFileStatus("Could not read that file. Please try again."); }
   }
   const summary = useMemo(() => summarize(notes), [notes]);
@@ -47,11 +70,11 @@ export default function NotesPage() {
     <p className="mt-2 opacity-75">Turn your own class notes into quick-review highlights and study prompts. This starter version processes text in your browser and does not upload or save it.</p>
     <p className="mt-3 rounded-lg border border-amber-400 p-3 text-sm"><strong>Privacy:</strong> Do not paste patient names, dates of birth, medical record numbers, or other identifiable health information. This tool is for educational notes only.</p>
     <label htmlFor="notes-file" className="mt-6 block font-semibold">Import a plain-text notes file</label>
-    <input id="notes-file" type="file" accept=".txt,.md,text/plain,text/markdown" onChange={e => { void importText(e.target.files?.[0]); e.currentTarget.value = ""; }} className="mt-2 block w-full text-sm" />
+    <input id="notes-file" type="file" disabled={generating} accept=".txt,.md,text/plain,text/markdown" onChange={e => { void importText(e.target.files?.[0]); e.currentTarget.value = ""; }} className="mt-2 block w-full text-sm" />
     <p className="mt-2 text-xs opacity-70">.txt or .md, up to 80 KB and 20,000 characters. The file stays on this device; importing replaces the text below.</p>
     {fileStatus && <p role="status" className="mt-2 text-sm">{fileStatus}</p>}
     <label htmlFor="study-notes" className="mt-6 block font-semibold">Paste your lecture or study notes</label>
-    <textarea id="study-notes" value={notes} onChange={e => setNotes(e.target.value.slice(0, MAX_CHARS))} maxLength={MAX_CHARS} rows={12} placeholder="Example: Tachycardia: an abnormally fast heart rate.\nBradycardia: an abnormally slow heart rate." className="mt-2 w-full rounded-lg border border-slate-400 bg-transparent p-3" />
+    <textarea id="study-notes" disabled={generating} value={notes} onChange={e => { setNotes(e.target.value.slice(0, MAX_CHARS)); setMaterials(null); setConfirmed(false); }} maxLength={MAX_CHARS} rows={12} placeholder="Example: Tachycardia: an abnormally fast heart rate.\nBradycardia: an abnormally slow heart rate." className="mt-2 w-full rounded-lg border border-slate-400 bg-transparent p-3" />
     <p className="text-right text-xs opacity-70">{notes.length.toLocaleString()} / {MAX_CHARS.toLocaleString()} characters</p>
     {notes.trim() ? <div className="mt-6 grid gap-5 md:grid-cols-2">
       <section className="rounded-xl border border-slate-300 p-5">
@@ -69,6 +92,21 @@ export default function NotesPage() {
           : <p className="mt-4 text-sm">Add lines such as “Asepsis: prevention of contamination” to generate flashcards.</p>}
       </section>
     </div> : <p className="mt-6 opacity-75">Your highlights and flashcards will appear here as you type.</p>}
-    <p className="mt-8 text-xs opacity-70">This is an initial offline study aid. PDF upload, saved notes, Atlas summaries and generated quizzes are not yet available. Verify learning content against course materials.</p>
+    <section className="mt-8 rounded-xl border border-slate-300 p-5" aria-labelledby="atlas-notes-heading">
+      <h2 id="atlas-notes-heading" className="text-xl font-semibold">Generate with Atlas</h2>
+      <p className="mt-2 text-sm">When enabled, your notes are sent to OpenAI to generate study materials. Do not include patient information or other sensitive details. Generated content may be inaccurate; check it against trusted course materials.</p>
+      <label className="mt-4 flex items-start gap-2"><input type="checkbox" disabled={generating} checked={confirmed} onChange={e => setConfirmed(e.target.checked)} /><span>I confirm these notes contain no identifiable patient information or other sensitive details, and I want to send them for generation.</span></label>
+      <p className="mt-2 text-xs opacity-70">Generation uses Atlas access. A daily safeguard applies to paid accounts; attempts count even if generation fails.</p>
+      <button type="button" disabled={!confirmed || notes.trim().length < 20 || generating} onClick={() => void generate()} className="mt-4 rounded-lg bg-teal-700 px-4 py-2 text-white disabled:opacity-50">{generating ? "Generating…" : "Generate study materials"}</button>
+      {generationStatus && <p role="status" className="mt-3">{generationStatus}</p>}
+      {materials && <div className="mt-6 grid gap-5 md:grid-cols-2">
+        <section><h3 className="font-semibold">Summary</h3><ul className="mt-2 list-disc pl-5">{materials.summary.map((item,i)=><li key={i}>{item}</li>)}</ul></section>
+        <section><h3 className="font-semibold">Flashcards and quiz</h3><button type="button" onClick={() => setRevealGenerated(v=>!v)} className="mt-2 rounded-lg border px-3 py-2">{revealGenerated ? "Hide answers" : "Reveal answers"}</button>
+          <ul className="mt-3 space-y-3">{materials.flashcards.map((card,i)=><li key={`f${i}`}><strong>{card.question}</strong>{revealGenerated && <p>{card.answer}</p>}</li>)}</ul>
+          <h4 className="mt-4 font-semibold">Practice questions</h4><ol className="mt-2 list-decimal space-y-3 pl-5">{materials.quiz.map((q,i)=><li key={i}><strong>{q.question}</strong>{revealGenerated && <p>{q.answer} — {q.explanation}</p>}</li>)}</ol>
+        </section>
+      </div>}
+    </section>
+    <p className="mt-8 text-xs opacity-70">PDF upload and saved notes are not yet available. Local highlights and cards do not use AI. Verify learning content against course materials.</p>
   </main>;
 }
